@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* React Big Calendar imports */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .form-input {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  
+  .form-error {
+    @apply text-red-600 text-sm mt-1;
+  }
+}
+
+/* React Big Calendar styles */
+.rbc-calendar {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.rbc-header {
+  @apply bg-gray-50 text-gray-700 font-medium p-3 border-b border-gray-200;
+}
+
+.rbc-time-slot {
+  @apply border-b border-gray-100;
+}
+
+.rbc-event {
+  @apply bg-primary-500 text-white rounded-md px-2 py-1 text-sm;
+}
+
+.rbc-event.available {
+  @apply bg-secondary-500;
+}
+
+.rbc-event.full {
+  @apply bg-gray-400;
+}
+
+.rbc-today {
+  @apply bg-primary-50;
+}
+
+.rbc-off-range-bg {
+  @apply bg-gray-100;
+}
+
+.rbc-toolbar {
+  @apply mb-4 flex items-center justify-between;
+}
+
+.rbc-toolbar button {
+  @apply px-3 py-1 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50;
+}
+
+.rbc-toolbar button.rbc-active {
+  @apply bg-primary-500 text-white border-primary-500;
+}
+
+.rbc-toolbar-label {
+  @apply text-lg font-semibold text-gray-900;
+}
