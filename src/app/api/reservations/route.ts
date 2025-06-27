@@ -20,6 +20,16 @@ export async function POST(request: Request) {
       reservationType,
       paymentMethod,
       agreeToConsent 
+    }: {
+      lessonId: string
+      userId?: string
+      customerName: string
+      customerEmail: string
+      customerPhone: string
+      medicalInfo?: string
+      reservationType: ReservationType
+      paymentMethod: PaymentMethod
+      agreeToConsent?: boolean
     } = body
 
     // バリデーション
@@ -169,13 +179,13 @@ export async function POST(request: Request) {
         [ReservationType.TRIAL]: '体験レッスン',
         [ReservationType.DROP_IN]: '単回利用',
         [ReservationType.TICKET]: 'チケット利用'
-      }[reservationType]
+      }[reservationType as ReservationType]
       
       const paymentInfo = {
         [ReservationType.TRIAL]: '当日PayPay払い（1,000円）',
         [ReservationType.DROP_IN]: `当日PayPay払い（${lesson.lessonType === 'SMALL_GROUP' ? '3,500円' : '3,000円'}）`,
         [ReservationType.TICKET]: 'チケット1枚'
-      }[reservationType]
+      }[reservationType as ReservationType]
       
       const emailData = generateReservationConfirmationEmail(
         customerName,
