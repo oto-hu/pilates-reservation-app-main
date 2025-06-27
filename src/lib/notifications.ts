@@ -25,4 +25,249 @@ export async function sendEmail(data: NotificationData): Promise<boolean> {
 }
 
 // 予約完了通知メール
-export function generateReservationConfirmationEmail(\n  customerName: string,\n  lessonTitle: string,\n  lessonDate: string,\n  reservationType: string,\n  paymentInfo: string\n): NotificationData {\n  const subject = `【予約完了】${lessonTitle}のご予約ありがとうございます`\n  \n  const html = `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h2 style=\"color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;\">\n        予約完了のお知らせ\n      </h2>\n      \n      <p>${customerName}様</p>\n      \n      <p>この度は、ピラティスレッスンのご予約をいただき、ありがとうございます。</p>\n      \n      <div style=\"background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;\">\n        <h3 style=\"color: #333; margin-top: 0;\">予約詳細</h3>\n        <p><strong>レッスン名:</strong> ${lessonTitle}</p>\n        <p><strong>日時:</strong> ${lessonDate}</p>\n        <p><strong>予約タイプ:</strong> ${reservationType}</p>\n        <p><strong>お支払い:</strong> ${paymentInfo}</p>\n      </div>\n      \n      <div style=\"background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n        <h4 style=\"color: #856404; margin-top: 0;\">注意事項</h4>\n        <ul style=\"color: #856404; margin: 0;\">\n          <li>レッスン開始15分前までにお越しください</li>\n          <li>動きやすい服装でお越しください</li>\n          <li>タオル、お水をご持参ください</li>\n          <li>前日21:00までのキャンセルは無料です</li>\n        </ul>\n      </div>\n      \n      <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>\n      \n      <p style=\"margin-top: 30px;\">\n        ピラティススタジオ<br>\n        お問い合わせ: studio@example.com\n      </p>\n    </div>\n  `\n  \n  const text = `\n${customerName}様\n\nこの度は、ピラティスレッスンのご予約をいただき、ありがとうございます。\n\n【予約詳細】\nレッスン名: ${lessonTitle}\n日時: ${lessonDate}\n予約タイプ: ${reservationType}\nお支払い: ${paymentInfo}\n\n【注意事項】\n・レッスン開始15分前までにお越しください\n・動きやすい服装でお越しください\n・タオル、お水をご持参ください\n・前日21:00までのキャンセルは無料です\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nピラティススタジオ\nお問い合わせ: studio@example.com\n  `\n  \n  return {\n    to: '',\n    subject,\n    html,\n    text\n  }\n}\n\n// キャンセル完了通知メール\nexport function generateCancellationConfirmationEmail(\n  customerName: string,\n  lessonTitle: string,\n  lessonDate: string,\n  ticketReturned: boolean\n): NotificationData {\n  const subject = `【キャンセル完了】${lessonTitle}のキャンセルが完了しました`\n  \n  const html = `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h2 style=\"color: #333; border-bottom: 2px solid #dc3545; padding-bottom: 10px;\">\n        キャンセル完了のお知らせ\n      </h2>\n      \n      <p>${customerName}様</p>\n      \n      <p>以下の予約のキャンセルが完了いたしました。</p>\n      \n      <div style=\"background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;\">\n        <h3 style=\"color: #333; margin-top: 0;\">キャンセル詳細</h3>\n        <p><strong>レッスン名:</strong> ${lessonTitle}</p>\n        <p><strong>日時:</strong> ${lessonDate}</p>\n        ${ticketReturned ? \n          '<p style=\"color: #28a745;\"><strong>チケット:</strong> 返還されました</p>' :\n          '<p style=\"color: #dc3545;\"><strong>チケット:</strong> 期限後キャンセルのため消費されました</p>'\n        }\n      </div>\n      \n      <p>またのご利用をお待ちしております。</p>\n      \n      <p style=\"margin-top: 30px;\">\n        ピラティススタジオ<br>\n        お問い合わせ: studio@example.com\n      </p>\n    </div>\n  `\n  \n  const text = `\n${customerName}様\n\n以下の予約のキャンセルが完了いたしました。\n\n【キャンセル詳細】\nレッスン名: ${lessonTitle}\n日時: ${lessonDate}\n${ticketReturned ? 'チケット: 返還されました' : 'チケット: 期限後キャンセルのため消費されました'}\n\nまたのご利用をお待ちしております。\n\nピラティススタジオ\nお問い合わせ: studio@example.com\n  `\n  \n  return {\n    to: '',\n    subject,\n    html,\n    text\n  }\n}\n\n// リマインダー通知メール\nexport function generateReminderEmail(\n  customerName: string,\n  lessonTitle: string,\n  lessonDate: string\n): NotificationData {\n  const subject = `【リマインダー】明日のピラティスレッスンについて`\n  \n  const html = `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h2 style=\"color: #333; border-bottom: 2px solid #ffc107; padding-bottom: 10px;\">\n        レッスンリマインダー\n      </h2>\n      \n      <p>${customerName}様</p>\n      \n      <p>明日のピラティスレッスンのリマインダーです。</p>\n      \n      <div style=\"background-color: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0;\">\n        <h3 style=\"color: #856404; margin-top: 0;\">レッスン詳細</h3>\n        <p><strong>レッスン名:</strong> ${lessonTitle}</p>\n        <p><strong>日時:</strong> ${lessonDate}</p>\n      </div>\n      \n      <div style=\"background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n        <h4 style=\"color: #155724; margin-top: 0;\">持ち物・準備</h4>\n        <ul style=\"color: #155724; margin: 0;\">\n          <li>動きやすい服装</li>\n          <li>タオル</li>\n          <li>お水</li>\n          <li>レッスン開始15分前にお越しください</li>\n        </ul>\n      </div>\n      \n      <p>お会いできることを楽しみにしております。</p>\n      \n      <p style=\"margin-top: 30px;\">\n        ピラティススタジオ<br>\n        お問い合わせ: studio@example.com\n      </p>\n    </div>\n  `\n  \n  const text = `\n${customerName}様\n\n明日のピラティスレッスンのリマインダーです。\n\n【レッスン詳細】\nレッスン名: ${lessonTitle}\n日時: ${lessonDate}\n\n【持ち物・準備】\n・動きやすい服装\n・タオル\n・お水\n・レッスン開始15分前にお越しください\n\nお会いできることを楽しみにしております。\n\nピラティススタジオ\nお問い合わせ: studio@example.com\n  `\n  \n  return {\n    to: '',\n    subject,\n    html,\n    text\n  }\n}\n\n// キャンセル待ちからの自動予約確定通知メール\nexport function generateWaitingListConfirmationEmail(\n  customerName: string,\n  lessonTitle: string,\n  lessonDate: string\n): NotificationData {\n  const subject = `【予約確定】キャンセル待ちから予約が確定しました`\n  \n  const html = `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h2 style=\"color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px;\">\n        キャンセル待ちから予約確定\n      </h2>\n      \n      <p>${customerName}様</p>\n      \n      <p>キャンセルが発生したため、キャンセル待ちから以下のレッスンが自動的に予約確定されました。</p>\n      \n      <div style=\"background-color: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0;\">\n        <h3 style=\"color: #155724; margin-top: 0;\">確定予約詳細</h3>\n        <p><strong>レッスン名:</strong> ${lessonTitle}</p>\n        <p><strong>日時:</strong> ${lessonDate}</p>\n        <p><strong>お支払い:</strong> チケット1枚（自動消費済み）</p>\n      </div>\n      \n      <div style=\"background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n        <h4 style=\"color: #856404; margin-top: 0;\">注意事項</h4>\n        <ul style=\"color: #856404; margin: 0;\">\n          <li>レッスン開始15分前までにお越しください</li>\n          <li>動きやすい服装でお越しください</li>\n          <li>タオル、お水をご持参ください</li>\n          <li>前日21:00までのキャンセルは無料です</li>\n        </ul>\n      </div>\n      \n      <p>お会いできることを楽しみにしております。</p>\n      \n      <p style=\"margin-top: 30px;\">\n        ピラティススタジオ<br>\n        お問い合わせ: studio@example.com\n      </p>\n    </div>\n  `\n  \n  const text = `\n${customerName}様\n\nキャンセルが発生したため、キャンセル待ちから以下のレッスンが自動的に予約確定されました。\n\n【確定予約詳細】\nレッスン名: ${lessonTitle}\n日時: ${lessonDate}\nお支払い: チケット1枚（自動消費済み）\n\n【注意事項】\n・レッスン開始15分前までにお越しください\n・動きやすい服装でお越しください\n・タオル、お水をご持参ください\n・前日21:00までのキャンセルは無料です\n\nお会いできることを楽しみにしております。\n\nピラティススタジオ\nお問い合わせ: studio@example.com\n  `\n  \n  return {\n    to: '',\n    subject,\n    html,\n    text\n  }\n}\n"
+export function generateReservationConfirmationEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string,
+  reservationType: string,
+  paymentInfo: string
+): NotificationData {
+  const subject = `【予約完了】${lessonTitle}のご予約ありがとうございます`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+        予約完了のお知らせ
+      </h2>
+      <p>${customerName}様</p>
+      <p>この度は、ピラティスレッスンのご予約をいただき、ありがとうございます。</p>
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #333; margin-top: 0;">予約詳細</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+        <p><strong>予約タイプ:</strong> ${reservationType}</p>
+        <p><strong>お支払い:</strong> ${paymentInfo}</p>
+      </div>
+      <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
+        <ul style="color: #856404; margin: 0;">
+          <li>レッスン開始15分前までにお越しください</li>
+          <li>動きやすい服装でお越しください</li>
+          <li>タオル、お水をご持参ください</li>
+          <li>前日21:00までのキャンセルは無料です</li>
+        </ul>
+      </div>
+      <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
+      <p style="margin-top: 30px;">
+        ピラティススタジオ<br>
+        お問い合わせ: studio@example.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+この度は、ピラティスレッスンのご予約をいただき、ありがとうございます。
+
+【予約詳細】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+予約タイプ: ${reservationType}
+お支払い: ${paymentInfo}
+
+【注意事項】
+・レッスン開始15分前までにお越しください
+・動きやすい服装でお越しください
+・タオル、お水をご持参ください
+・前日21:00までのキャンセルは無料です
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+
+ピラティススタジオ
+お問い合わせ: studio@example.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
+
+// キャンセル完了通知メール
+export function generateCancellationConfirmationEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string,
+  ticketReturned: boolean
+): NotificationData {
+  const subject = `【キャンセル完了】${lessonTitle}のキャンセルが完了しました`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">
+        キャンセル完了のお知らせ
+      </h2>
+      <p>${customerName}様</p>
+      <p>以下の予約のキャンセルが完了いたしました。</p>
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #333; margin-top: 0;">キャンセル詳細</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+        ${ticketReturned ? '<p style="color: #28a745;"><strong>チケット:</strong> 返還されました</p>' : '<p style="color: #dc3545;"><strong>チケット:</strong> 期限後キャンセルのため消費されました</p>'}
+      </div>
+      <p>またのご利用をお待ちしております。</p>
+      <p style="margin-top: 30px;">
+        ピラティススタジオ<br>
+        お問い合わせ: studio@example.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+以下の予約のキャンセルが完了いたしました。
+
+【キャンセル詳細】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+${ticketReturned ? 'チケット: 返還されました' : 'チケット: 期限後キャンセルのため消費されました'}
+
+またのご利用をお待ちしております。
+
+ピラティススタジオ
+お問い合わせ: studio@example.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
+
+// リマインダー通知メール
+export function generateReminderEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string
+): NotificationData {
+  const subject = `【リマインダー】明日のピラティスレッスンについて`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">
+        レッスンリマインダー
+      </h2>
+      <p>${customerName}様</p>
+      <p>明日のピラティスレッスンのリマインダーです。</p>
+      <div style="background-color: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #856404; margin-top: 0;">レッスン詳細</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+      </div>
+      <div style="background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #155724; margin-top: 0;">持ち物・準備</h4>
+        <ul style="color: #155724; margin: 0;">
+          <li>動きやすい服装</li>
+          <li>タオル</li>
+          <li>お水</li>
+          <li>レッスン開始15分前にお越しください</li>
+        </ul>
+      </div>
+      <p>お会いできることを楽しみにしております。</p>
+      <p style="margin-top: 30px;">
+        ピラティススタジオ<br>
+        お問い合わせ: studio@example.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+明日のピラティスレッスンのリマインダーです。
+
+【レッスン詳細】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+
+【持ち物・準備】
+・動きやすい服装
+・タオル
+・お水
+・レッスン開始15分前にお越しください
+
+お会いできることを楽しみにしております。
+
+ピラティススタジオ
+お問い合わせ: studio@example.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
+
+// キャンセル待ちからの自動予約確定通知メール
+export function generateWaitingListConfirmationEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string
+): NotificationData {
+  const subject = `【予約確定】キャンセル待ちから予約が確定しました`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+        キャンセル待ちから予約確定
+      </h2>
+      <p>${customerName}様</p>
+      <p>キャンセルが発生したため、キャンセル待ちから以下のレッスンが自動的に予約確定されました。</p>
+      <div style="background-color: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #155724; margin-top: 0;">確定予約詳細</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+        <p><strong>お支払い:</strong> チケット1枚（自動消費済み）</p>
+      </div>
+      <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
+        <ul style="color: #856404; margin: 0;">
+          <li>レッスン開始15分前までにお越しください</li>
+          <li>動きやすい服装でお越しください</li>
+          <li>タオル、お水をご持参ください</li>
+          <li>前日21:00までのキャンセルは無料です</li>
+        </ul>
+      </div>
+      <p>お会いできることを楽しみにしております。</p>
+      <p style="margin-top: 30px;">
+        ピラティススタジオ<br>
+        お問い合わせ: studio@example.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+キャンセルが発生したため、キャンセル待ちから以下のレッスンが自動的に予約確定されました。
+
+【確定予約詳細】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+お支払い: チケット1枚（自動消費済み）
+
+【注意事項】
+・レッスン開始15分前までにお越しください
+・動きやすい服装でお越しください
+・タオル、お水をご持参ください
+・前日21:00までのキャンセルは無料です
+
+お会いできることを楽しみにしております。
+
+ピラティススタジオ
+お問い合わせ: studio@example.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
