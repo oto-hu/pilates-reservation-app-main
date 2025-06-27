@@ -1,3 +1,4 @@
+// schema.prisma
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -43,12 +44,24 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  furigana      String?
+  age           Int?
+  gender        String?
   email         String?   @unique
+  password      String?
   emailVerified DateTime? @map("email_verified")
   image         String?
-  role          String    @default("admin")
+  role          String    @default("member")
+  memo          String?
+  consentAgreedAt DateTime? @map("consent_agreed_at")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
+  reservations  Reservation[]
+  tickets       Ticket[]
+  waitingList   WaitingList[]
+  lessonTemplates LessonTemplate[]
 
   @@map("users")
 }
@@ -69,10 +82,15 @@ model Lesson {
   startTime   DateTime
   endTime     DateTime
   maxCapacity Int           @default(5)
+  lessonType  LessonType    @map("lesson_type")
+  price       Int           // 追加: 料金（円）
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   reservations Reservation[]
+  waitingList WaitingList[]
   instructorName String?
+  ticketGroupId String?       @map("ticket_group_id")
+  ticketGroup   TicketGroup?  @relation(fields: [ticketGroupId], references: [id])
 
   @@map("lessons")
 }
@@ -80,15 +98,19 @@ model Lesson {
 model Reservation {
   id             String             @id @default(cuid())
   lessonId       String             @map("lesson_id")
+  userId         String?            @map("user_id")
   customerName   String             @map("customer_name")
   customerEmail  String             @map("customer_email")
   customerPhone  String             @map("customer_phone")
+  medicalInfo    String?            @map("medical_info")
+  reservationType ReservationType   @map("reservation_type")
   paymentMethod  PaymentMethod      @map("payment_method")
   paymentStatus  PaymentStatus      @map("payment_status")
   stripeSessionId String?           @map("stripe_session_id")
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
   lesson         Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("reservations")
 }
@@ -96,6 +118,7 @@ model Reservation {
 enum PaymentMethod {
   PAY_NOW
   PAY_AT_STUDIO
+  TICKET
 }
 
 enum PaymentStatus {
@@ -103,4 +126,73 @@ enum PaymentStatus {
   PAID
   CANCELLED
   REFUNDED
+}
+
+enum ReservationType {
+  TRIAL
+  DROP_IN
+  TICKET
+}
+
+enum LessonType {
+  SMALL_GROUP
+  LARGE_GROUP
+}
+
+model Ticket {
+  id              String     @id @default(cuid())
+  userId          String     @map("user_id")
+  lessonType      LessonType @map("lesson_type")
+  remainingCount  Int        @map("remaining_count")
+  expiresAt       DateTime   @map("expires_at")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketGroupId String?       @map("ticket_group_id")
+  ticketGroup   TicketGroup?  @relation(fields: [ticketGroupId], references: [id])
+
+  @@map("tickets")
+}
+
+model WaitingList {
+  id        String   @id @default(cuid())
+  lessonId  String   @map("lesson_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now())
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, userId])
+  @@map("waiting_list")
+}
+
+model LessonTemplate {
+  id          String    @id @default(cuid())
+  name        String    // テンプレート名
+  templateDescription String?   @map("template_description") // テンプレートの説明
+  title       String    // レッスンタイトル
+  lessonDescription String?   @map("lesson_description") // レッスン説明
+  startTime   String    // 開始時刻（HH:MM形式）
+  endTime     String    // 終了時刻（HH:MM形式）
+  maxCapacity Int       @default(5)
+  lessonType  LessonType @map("lesson_type")
+  price       Int       // 料金（円）
+  instructorName String? // インストラクター名
+  createdBy   String    @map("created_by") // 作成者ID
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdByUser User    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("lesson_templates")
+}
+
+model TicketGroup {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  lessons   Lesson[]
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ticket_groups")
 }

@@ -1,11 +1,13 @@
+// src/app/reserve/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import moment from 'moment'
 import 'moment/locale/ja'
 import Link from 'next/link'
-import { ArrowLeft, Users, Clock } from 'lucide-react'
+import { ArrowLeft, Users, Clock, UserCheck } from 'lucide-react'
 import { Lesson, CalendarEvent } from '@/lib/types'
 import { formatTime } from '@/lib/utils'
 
@@ -47,10 +49,14 @@ export default function ReservePage() {
       const calendarEvents: CalendarEvent[] = data.map((lesson: Lesson) => {
         const availableSpots = lesson.maxCapacity - lesson.reservations.length
         const isFull = availableSpots <= 0
+        
+        // インストラクター名を含むタイトルを作成
+        const instructorText = lesson.instructorName ? ` / ${lesson.instructorName}` : ''
+        const title = `${lesson.title}${instructorText} (${availableSpots}/${lesson.maxCapacity})`
 
         return {
           id: lesson.id,
-          title: `${lesson.title} (${availableSpots}/${lesson.maxCapacity})`,
+          title: title,
           start: new Date(lesson.startTime),
           end: new Date(lesson.endTime),
           resource: {
@@ -146,35 +152,8 @@ export default function ReservePage() {
           </div>
         </div>
 
-        {/* Calendar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 600 }}
-            onSelectEvent={handleSelectEvent}
-            eventPropGetter={eventStyleGetter}
-            defaultView="week"
-            views={['week']}
-            date={currentDate}
-            onNavigate={setCurrentDate}
-            messages={{
-              next: '次週',
-              previous: '前週',
-              today: '今週',
-              month: '月',
-              week: '週',
-              day: '日'
-            }}
-            min={new Date(2024, 0, 1, 6, 0, 0)} // 6:00 AM
-            max={new Date(2024, 0, 1, 22, 0, 0)} // 10:00 PM
-          />
-        </div>
-
         {/* Lesson List */}
-        <div className="mt-8">
+        <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">今週のレッスン一覧</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => {
@@ -209,6 +188,12 @@ export default function ReservePage() {
                       <Users className="h-4 w-4 mr-2" />
                       <span>残り {availableSpots}/{lesson.maxCapacity} 席</span>
                     </div>
+                    {lesson.instructorName && (
+                      <div className="flex items-center">
+                        <UserCheck className="h-4 w-4 mr-2" />
+                        <span>インストラクター: {lesson.instructorName}</span>
+                      </div>
+                    )}
                   </div>
 
                   {lesson.description && (
@@ -234,6 +219,34 @@ export default function ReservePage() {
             </div>
           )}
         </div>
+
+        {/* Calendar */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 600 }}
+            onSelectEvent={handleSelectEvent}
+            eventPropGetter={eventStyleGetter}
+            defaultView="week"
+            views={['week']}
+            date={currentDate}
+            onNavigate={setCurrentDate}
+            messages={{
+              next: '次週',
+              previous: '前週',
+              today: '今週',
+              month: '月',
+              week: '週',
+              day: '日'
+            }}
+            min={new Date(2024, 0, 1, 10, 0, 0)} // 10:00 AM
+            max={new Date(2024, 0, 1, 22, 0, 0)} // 10:00 PM
+          />
+        </div>
+
       </div>
     </div>
   )

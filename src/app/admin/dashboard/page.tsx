@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import moment from 'moment'
 import 'moment/locale/ja'
 import { Plus, LogOut, Users, Calendar as CalendarIcon, Settings, Eye } from 'lucide-react'
@@ -21,6 +22,12 @@ export default function AdminDashboardPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
   const [view, setView] = useState<'week' | 'month' | 'day'>('week')
+
+  const handleViewChange = (newView: any) => {
+    if (newView === 'month' || newView === 'week' || newView === 'day') {
+      setView(newView)
+    }
+  }
   const [currentDate, setCurrentDate] = useState(new Date())
   const [loading, setLoading] = useState(true)
 
@@ -70,10 +77,14 @@ export default function AdminDashboardPage() {
       const calendarEvents: CalendarEvent[] = data.map((lesson: Lesson) => {
         const availableSpots = lesson.maxCapacity - lesson.reservations.length
         const isFull = availableSpots <= 0
+        
+        // インストラクター名を含むタイトルを作成
+        const instructorText = lesson.instructorName ? ` / ${lesson.instructorName}` : ''
+        const title = `${lesson.title}${instructorText} (${lesson.reservations.length}/${lesson.maxCapacity})`
 
         return {
           id: lesson.id,
-          title: `${lesson.title} (${lesson.reservations.length}/${lesson.maxCapacity})`,
+          title: title,
           start: new Date(lesson.startTime),
           end: new Date(lesson.endTime),
           resource: {
@@ -144,8 +155,25 @@ export default function AdminDashboardPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">管理者ダッシュボード</h1>
               <p className="text-gray-600">レッスン管理システム</p>
+              {session?.user?.name && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {session.user.name}さんでログイン中
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/admin/reservations" className="text-gray-500 hover:text-gray-700">
+                予約管理
+              </Link>
+              <Link href="/admin/tickets" className="text-gray-500 hover:text-gray-700">
+                チケット管理
+              </Link>
+              <Link href="/admin/ticket-groups" className="text-gray-500 hover:text-gray-700">
+                チケットカテゴリ管理
+              </Link>
+              <Link href="/admin/lesson-templates" className="text-gray-500 hover:text-gray-700">
+                テンプレート管理
+              </Link>
               <Link href="/" className="text-gray-500 hover:text-gray-700">
                 <Eye className="h-5 w-5" />
               </Link>
@@ -210,7 +238,7 @@ export default function AdminDashboardPage() {
                 style={{ height: 600 }}
                 view={view}
                 date={currentDate}
-                onView={setView}
+                onView={handleViewChange}
                 onNavigate={setCurrentDate}
                 onSelectEvent={handleSelectEvent}
                 eventPropGetter={eventStyleGetter}
@@ -222,7 +250,7 @@ export default function AdminDashboardPage() {
                   week: '週',
                   day: '日'
                 }}
-                min={new Date(2024, 0, 1, 6, 0, 0)}
+                min={new Date(2024, 0, 1, 10, 0, 0)}
                 max={new Date(2024, 0, 1, 22, 0, 0)}
               />
             </div>
@@ -285,7 +313,9 @@ export default function AdminDashboardPage() {
                     <p className="text-sm text-gray-600">
                       {formatTime(new Date(selectedLesson.startTime))} - {formatTime(new Date(selectedLesson.endTime))}
                     </p>
-                    <p className="text-sm text-gray-600">インストラクター: {selectedLesson.instructorName || '-'}</p>
+                    <p className="text-sm text-gray-600">
+                      インストラクター: {selectedLesson.instructorName || '未設定'}
+                    </p>
                   </div>
                   
                   <div>
@@ -302,6 +332,11 @@ export default function AdminDashboardPage() {
                           <div key={reservation.id} className="text-sm p-2 bg-gray-50 rounded">
                             <div className="font-medium">{reservation.customerName}</div>
                             <div className="text-gray-600">{reservation.customerEmail}</div>
+                            {reservation.medicalInfo && (
+                              <div className="text-xs text-blue-600 mt-1 p-2 bg-blue-50 rounded">
+                                <strong>医学的情報:</strong> {reservation.medicalInfo}
+                              </div>
+                            )}
                             <div className="text-xs text-gray-500">
                               {reservation.paymentMethod === 'PAY_NOW' ? 'オンライン決済' : '当日支払い'}
                               {reservation.paymentStatus === 'PAID' ? ' (済)' : ' (未)'}

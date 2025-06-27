@@ -1,22 +1,25 @@
+// src/app/reserve/[lessonId]/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building2 } from 'lucide-react'
-import { Lesson, PaymentMethod, CreateReservationData } from '@/lib/types'
+import { ArrowLeft, Calendar, Clock, Users, Building2, UserCheck, AlertCircle, Ticket, CreditCard, Loader2 } from 'lucide-react'
+import { Lesson, PaymentMethod, CreateReservationData, ReservationType, Ticket as TicketType, LessonType } from '@/lib/types'
 import { formatDateTime, formatTime } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 const reservationSchema = z.object({
   customerName: z.string().min(1, '名前を入力してください'),
   customerEmail: z.string().email('有効なメールアドレスを入力してください'),
   customerPhone: z.string().min(10, '電話番号を入力してください'),
-  paymentMethod: z.nativeEnum(PaymentMethod, {
-    errorMap: () => ({ message: '支払い方法を選択してください' })
-  })
+  medicalInfo: z.string().optional(),
+  reservationType: z.enum(['TRIAL', 'DROP_IN', 'TICKET']),
+  agreeToConsent: z.boolean().optional()
 })
 
 type ReservationForm = z.infer<typeof reservationSchema>
@@ -28,25 +31,40 @@ interface ReservationFormPageProps {
 }
 
 export default function ReservationFormPage({ params }: ReservationFormPageProps) {
+  const { data: session } = useSession()
   const router = useRouter()
   const [lesson, setLesson] = useState<Lesson | null>(null)
+  const [userTickets, setUserTickets] = useState<TicketType[]>([])
+  const [hasReservationHistory, setHasReservationHistory] = useState(false)
+  const [needsConsent, setNeedsConsent] = useState(false)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [joiningWaitingList, setJoiningWaitingList] = useState(false)
+  const [selectedReservationType, setSelectedReservationType] = useState<ReservationType | ''>('')
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    watch
+    setValue,
+    getValues,
+    formState: { errors }
   } = useForm<ReservationForm>({
     resolver: zodResolver(reservationSchema)
   })
 
-  const selectedPaymentMethod = watch('paymentMethod')
-
   useEffect(() => {
     fetchLesson()
-  }, [params.lessonId])
+    if (session?.user?.role === 'member') {
+      fetchUserData()
+    }
+  }, [params.lessonId, session])
+
+  useEffect(() => {
+    if (session?.user) {
+      setValue('customerName', session.user.name || '')
+      setValue('customerEmail', session.user.email || '')
+    }
+  }, [session, setValue])
 
   const fetchLesson = async () => {
     try {
@@ -63,8 +81,22 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         router.push('/reserve')
         return
       }
-
+      
+      console.log('Current Lesson:', currentLesson); // デバッグログ
       setLesson(currentLesson)
+      // Determine default reservation type
+      if (currentLesson) {
+          if (session?.user?.role === 'member' && !hasReservationHistory) {
+              setSelectedReservationType('TRIAL');
+              setValue('reservationType', 'TRIAL');
+          } else if (getAvailableTickets().length > 0) {
+              setSelectedReservationType('TICKET');
+              setValue('reservationType', 'TICKET');
+          } else {
+              setSelectedReservationType('DROP_IN');
+              setValue('reservationType', 'DROP_IN');
+          }
+      }
     } catch (error) {
       console.error('Error fetching lesson:', error)
       router.push('/reserve')
@@ -73,18 +105,56 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
     }
   }
 
+  const fetchUserData = async () => {
+    try {
+      // ユーザーのチケット情報を取得
+      const ticketsResponse = await fetch('/api/member/tickets')
+      if (ticketsResponse.ok) {
+        const tickets = await ticketsResponse.json()
+        console.log('User Tickets:', tickets); // デバッグログ
+        setUserTickets(tickets)
+      }
+
+      // 予約履歴の有無を確認
+      const historyResponse = await fetch('/api/member/reservation-history')
+      if (historyResponse.ok) {
+        const history = await historyResponse.json()
+        setHasReservationHistory(history.hasHistory)
+      }
+
+      // 同意状況を確認
+      const consentResponse = await fetch('/api/member/consent-status')
+      if (consentResponse.ok) {
+        const consent = await consentResponse.json()
+        setNeedsConsent(!consent.hasAgreed)
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+    }
+  }
+
   const onSubmit = async (data: ReservationForm) => {
     if (!lesson) return
+
+    // 同意チェックの確認
+    if (needsConsent && !data.agreeToConsent) {
+      alert('同意書への同意が必要です')
+      return
+    }
 
     setSubmitting(true)
 
     try {
       const reservationData: CreateReservationData = {
         lessonId: lesson.id,
+        userId: session?.user?.id,
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,
-        paymentMethod: data.paymentMethod
+        medicalInfo: data.medicalInfo,
+        reservationType: data.reservationType as ReservationType,
+        paymentMethod: data.reservationType === 'TICKET' ? PaymentMethod.TICKET : PaymentMethod.PAY_AT_STUDIO,
+        agreeToConsent: data.agreeToConsent
       }
 
       const response = await fetch('/api/reservations', {
@@ -101,20 +171,70 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
       }
 
       const result = await response.json()
-
-      if (data.paymentMethod === PaymentMethod.PAY_NOW && result.checkoutUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = result.checkoutUrl
-      } else {
-        // Redirect to completion page
-        router.push(`/reserve/complete?reservationId=${result.reservation.id}`)
-      }
+      router.push(`/reserve/complete?reservationId=${result.reservation.id}`)
 
     } catch (error) {
       console.error('Error creating reservation:', error)
       alert(error instanceof Error ? error.message : '予約の作成に失敗しました')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const getAvailableTickets = () => {
+    if (!lesson || !lesson.ticketGroupId) return []
+    return userTickets.filter(ticket => 
+      ticket.ticketGroupId === lesson.ticketGroupId && 
+      ticket.remainingCount > 0 && 
+      new Date(ticket.expiresAt) > new Date()
+    )
+  }
+
+  const canUseTrialOption = () => {
+    return session?.user?.role === 'member' && !hasReservationHistory
+  }
+
+  const getReservationTypePrice = (type: ReservationType) => {
+    switch (type) {
+      case 'TRIAL':
+        return '1,000円'
+      case 'DROP_IN':
+        return lesson ? `${lesson.price.toLocaleString()}円` : 'N/A'
+      case 'TICKET':
+        return 'チケット1枚'
+      default:
+        return ''
+    }
+  }
+
+  const handleJoinWaitingList = async () => {
+    if (!lesson || !session?.user?.id) {
+      alert('ログインが必要です')
+      return
+    }
+
+    setJoiningWaitingList(true)
+    try {
+      const response = await fetch(`/api/lessons/${lesson.id}/waiting-list`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        alert(data.message)
+        router.push('/member/dashboard')
+      } else {
+        alert(data.error || 'キャンセル待ちの登録に失敗しました')
+      }
+    } catch (error) {
+      console.error('Waiting list join error:', error)
+      alert('キャンセル待ちの登録に失敗しました')
+    } finally {
+      setJoiningWaitingList(false)
     }
   }
 
@@ -156,9 +276,52 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               {isPast ? 'このレッスンは終了しています' : 'このレッスンは満席です'}
             </h2>
+            
+            {/* 満席の場合にキャンセル待ちオプションを表示 */}
+            {isFull && !isPast && session?.user?.role === 'member' && getAvailableTickets().length > 0 && (
+              <div className="mb-8">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ちに登録</h3>
+                  <p className="text-yellow-700 mb-4">
+                    キャンセルが出た場合、自動的にチケットで予約が確定されます
+                  </p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-yellow-600">
+                      • 利用可能チケット: {getAvailableTickets()[0]?.remainingCount}枚
+                    </p>
+                    <p className="text-sm text-yellow-600">
+                      • キャンセル待ちからの自動予約確定時にチケット1枚消費されます
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleJoinWaitingList}
+                    disabled={joiningWaitingList}
+                    className="mt-4 bg-yellow-600 hover:bg-yellow-700"
+                  >
+                    {joiningWaitingList ? '登録中...' : 'キャンセル待ちに登録'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* キャンセル待ち登録ができない場合のメッセージ */}
+            {isFull && !isPast && session?.user?.role === 'member' && getAvailableTickets().length === 0 && (
+              <div className="mb-8">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                  <p className="text-gray-600 mb-2">
+                    キャンセル待ちにはチケットが必要です
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    スタジオでチケットをご購入いただくか、他のレッスンをご検討ください
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <p className="text-gray-600 mb-8">
-              他のレッスンをご検討ください
+              {!isFull || isPast ? '他のレッスンをご検討ください' : ''}
             </p>
+            
             <Link href="/reserve" className="btn-primary">
               レッスン一覧に戻る
             </Link>
@@ -204,6 +367,16 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
             <div className="flex items-center">
               <Users className="h-5 w-5 mr-3 text-primary-500" />
               <span>残り {availableSpots}/{lesson.maxCapacity} 席</span>
+            </div>
+            {lesson.instructorName && (
+              <div className="flex items-center">
+                <UserCheck className="h-5 w-5 mr-3 text-primary-500" />
+                <span>インストラクター: {lesson.instructorName}</span>
+              </div>
+            )}
+            <div className="flex items-center">
+              <span className="mr-3 text-xl">💴</span>
+              <span className="font-bold text-lg text-primary-600">{lesson.price.toLocaleString()}円 (単回利用の場合)</span>
             </div>
           </div>
 
@@ -261,66 +434,167 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
               )}
             </div>
 
-            {/* Payment Method */}
+            {/* Medical Information */}
             <div>
-              <label className="form-label">お支払い方法 *</label>
-              <div className="space-y-3">
-                <label className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="radio"
-                    value={PaymentMethod.PAY_NOW}
-                    className="mr-3"
-                    {...register('paymentMethod')}
-                  />
-                  <div className="flex items-center">
-                    <CreditCard className="h-5 w-5 mr-3 text-primary-500" />
-                    <div>
-                      <div className="font-medium">今すぐ支払う</div>
-                      <div className="text-sm text-gray-600">クレジットカードで今すぐ決済（3,000円）</div>
-                    </div>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="radio"
-                    value={PaymentMethod.PAY_AT_STUDIO}
-                    className="mr-3"
-                    {...register('paymentMethod')}
-                  />
-                  <div className="flex items-center">
-                    <Building2 className="h-5 w-5 mr-3 text-secondary-500" />
-                    <div>
-                      <div className="font-medium">当日支払い</div>
-                      <div className="text-sm text-gray-600">スタジオで現金でお支払い（3,000円）</div>
-                    </div>
-                  </div>
-                </label>
-              </div>
-              {errors.paymentMethod && (
-                <p className="form-error">{errors.paymentMethod.message}</p>
+              <label className="form-label">医学的情報・既往歴（任意）</label>
+              <textarea
+                className="form-input"
+                rows={3}
+                placeholder="例：過去に右のTHAをしています、腰痛があります、膝の手術歴があります など&#10;&#10;インストラクターがレッスン中に配慮すべき点があればご記入ください"
+                {...register('medicalInfo')}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                この情報はインストラクターとの共有のみに使用され、適切なレッスン指導のために活用されます
+              </p>
+              {errors.medicalInfo && (
+                <p className="form-error">{errors.medicalInfo.message}</p>
               )}
             </div>
+
+            {/* Reservation Type Selection */}
+            <div>
+              <label className="form-label">予約タイプ *</label>
+              <div className="space-y-3">
+                {/* Trial Option */}
+                {canUseTrialOption() && (
+                  <div className="border border-green-300 rounded-lg">
+                    <label className="flex items-center p-4 cursor-pointer hover:bg-green-50">
+                      <input
+                        type="radio"
+                        value="TRIAL"
+                        {...register('reservationType')}
+                        onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
+                        className="mr-3"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="inline-block px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded mr-2">
+                              初回限定
+                            </span>
+                            <span className="font-medium">体験レッスン</span>
+                          </div>
+                          <span className="font-bold text-green-600">{getReservationTypePrice('TRIAL')}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">初めての方限定の特別価格です（当日PayPay払い）</p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+                
+                {/* Drop-in Option */}
+                <div className="border border-blue-300 rounded-lg">
+                  <label className="flex items-center p-4 cursor-pointer hover:bg-blue-50">
+                    <input
+                      type="radio"
+                      value="DROP_IN"
+                      {...register('reservationType')}
+                      onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
+                      className="mr-3"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <CreditCard className="h-4 w-4 mr-2 text-blue-600" />
+                          <span className="font-medium">単回利用（ドロップイン）</span>
+                        </div>
+                        <span className="font-bold text-blue-600">{getReservationTypePrice('DROP_IN')}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">1回分の料金でご参加いただけます（当日PayPay払い）</p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Ticket Option */}
+                {session?.user?.role === 'member' && getAvailableTickets().length > 0 && (
+                  <div className="border border-purple-300 rounded-lg">
+                    <label className="flex items-center p-4 cursor-pointer hover:bg-purple-50">
+                      <input
+                        type="radio"
+                        value="TICKET"
+                        {...register('reservationType')}
+                        onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
+                        className="mr-3"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Ticket className="h-4 w-4 mr-2 text-purple-600" />
+                            <span className="font-medium">チケット利用</span>
+                          </div>
+                          <span className="font-bold text-purple-600">{getReservationTypePrice('TICKET')}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          お持ちのチケットを使用します（残り{getAvailableTickets()[0]?.remainingCount}枚）
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {/* No tickets available for members */}
+                {session?.user?.role === 'member' && getAvailableTickets().length === 0 && (
+                  <div className="border border-gray-300 rounded-lg bg-gray-50">
+                    <div className="flex items-center p-4">
+                      <Ticket className="h-4 w-4 mr-2 text-gray-400" />
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-500">チケット利用（利用不可）</span>
+                        <p className="text-sm text-gray-400 mt-1">
+                          有効なチケットがありません。スタジオでチケットをご購入ください。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {errors.reservationType && (
+                <p className="form-error">{errors.reservationType.message}</p>
+              )}
+            </div>
+
+            {/* Consent Agreement */}
+            {needsConsent && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-yellow-800 mb-2">同意書への同意が必要です</h4>
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="checkbox"
+                        {...register('agreeToConsent')}
+                        className="mr-2 mt-1"
+                      />
+                      <span className="text-sm text-yellow-700">
+                        <Link href="/consent-form" target="_blank" className="text-blue-600 hover:underline">
+                          同意書
+                        </Link>
+                        をよく読み同意します
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || (needsConsent && !getValues('agreeToConsent')) || !selectedReservationType}
               className="btn-primary w-full py-3 text-lg disabled:opacity-50"
             >
-              {submitting ? '処理中...' : 
-               selectedPaymentMethod === PaymentMethod.PAY_NOW ? '決済に進む' : '予約を確定する'}
+              {submitting ? '処理中...' : '予約を確定する'}
             </button>
           </div>
 
           {/* Notes */}
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-medium text-yellow-800 mb-2">ご注意</h4>
-            <ul className="text-sm text-yellow-700 space-y-1">
-              <li>• 前日までなら無料でキャンセル・変更が可能です</li>
-              <li>• 当日のキャンセルは返金できません</li>
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-2">キャンセルポリシー</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• <strong>前日21:00まで</strong>：無料キャンセル（チケット利用の場合は返還）</li>
+              <li>• <strong>前日21:00以降</strong>：キャンセル料発生（チケット利用の場合は消費）</li>
               <li>• レッスン開始15分前までにお越しください</li>
             </ul>
           </div>

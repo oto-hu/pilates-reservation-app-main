@@ -58,7 +58,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, description, startTime, endTime, maxCapacity, instructorName } = body
+    const { 
+      title, 
+      description, 
+      startTime, 
+      endTime, 
+      maxCapacity, 
+      instructorName, 
+      price,
+      ticketGroupId 
+    } = body
 
     const lesson = await prisma.lesson.create({
       data: {
@@ -66,12 +75,15 @@ export async function POST(request: Request) {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        maxCapacity: maxCapacity || 5,
-        instructorName
-      }
+        maxCapacity,
+        instructorName,
+        price,
+        lessonType: 'SMALL_GROUP',
+        ticketGroupId,
+      },
     })
 
-    return NextResponse.json(lesson)
+    return NextResponse.json(lesson, { status: 201 })
   } catch (error) {
     console.error('Error creating lesson:', error)
     return NextResponse.json(

@@ -1,17 +1,31 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const session = await getServerSession(authOptions)
+    const reservationId = params.id
+
     const reservation = await prisma.reservation.findUnique({
-      where: {
-        id: params.id
-      },
+      where: { id: reservationId },
       include: {
-        lesson: true
+        lesson: {
+          select: {
+            title: true,
+            startTime: true,
+            endTime: true,
+            instructorName: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
       }
     })
 
@@ -22,9 +36,17 @@ export async function GET(
       )
     }
 
+    // 権限チェック（会員は自分の予約のみ、管理者は全て）
+    if (session?.user?.role === 'member' && reservation.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(reservation)
   } catch (error) {
-    console.error('Error fetching reservation:', error)
+    console.error('Reservation fetch error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch reservation' },
       { status: 500 }

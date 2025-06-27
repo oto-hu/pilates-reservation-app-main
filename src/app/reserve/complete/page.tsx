@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle, Calendar, Clock, User, Mail, Phone, CreditCard, Building2, Camera, Home } from 'lucide-react'
+import { CheckCircle, Calendar, Clock, User, Mail, Phone, CreditCard, Building2, Camera, Home, UserCheck } from 'lucide-react'
 import { Reservation, PaymentMethod } from '@/lib/types'
 import { formatDateTime, formatTime } from '@/lib/utils'
 
@@ -127,6 +127,12 @@ export default function ReservationCompletePage() {
                     {formatTime(new Date(reservation.lesson?.startTime || ''))} - {formatTime(new Date(reservation.lesson?.endTime || ''))}
                   </span>
                 </div>
+                {reservation.lesson?.instructorName && (
+                  <div className="flex items-center">
+                    <UserCheck className="h-4 w-4 mr-2" />
+                    <span>インストラクター: {reservation.lesson.instructorName}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -153,17 +159,8 @@ export default function ReservationCompletePage() {
             <div>
               <h3 className="font-medium text-gray-900 mb-3">お支払い情報</h3>
               <div className="flex items-center text-sm text-gray-600">
-                {reservation.paymentMethod === PaymentMethod.PAY_NOW ? (
-                  <>
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    <span>オンライン決済 - 3,000円（決済済み）</span>
-                  </>
-                ) : (
-                  <>
-                    <Building2 className="h-4 w-4 mr-2" />
-                    <span>当日支払い - 3,000円（未払い）</span>
-                  </>
-                )}
+                <Building2 className="h-4 w-4 mr-2" />
+                <span>現地支払い - 3,000円（当日PayPayでお支払いください）</span>
               </div>
             </div>
           </div>

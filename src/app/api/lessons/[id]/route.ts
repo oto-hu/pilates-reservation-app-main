@@ -3,178 +3,145 @@ import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+interface Params {
+  params: { id: string }
+}
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// OPTIONS request handler for CORS preflight
+export async function OPTIONS(request: Request) {
+  return new Response(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
+// 1件のレッスンを取得
+export async function GET(request: Request, { params }: Params) {
   try {
     const lesson = await prisma.lesson.findUnique({
-      where: {
-        id: params.id
-      },
+      where: { id: params.id },
       include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          },
-          orderBy: {
-            createdAt: 'asc'
-          }
-        }
-      }
+        reservations: true,
+      },
     })
-
     if (!lesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
     }
-
     return NextResponse.json(lesson)
   } catch (error) {
     console.error('Error fetching lesson:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch lesson' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch lesson' }, { status: 500 })
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// 1件のレッスンを更新
+export async function PUT(request: Request, { params }: Params) {
   try {
     const session = await getServerSession(authOptions)
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { title, description, startTime, endTime, maxCapacity } = body
+    const { title, description, startTime, endTime, maxCapacity, instructorName, price, lessonType } = body
 
-    // Check if lesson exists
-    const existingLesson = await prisma.lesson.findUnique({
+    const updatedLesson = await prisma.lesson.update({
       where: { id: params.id },
-      include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          }
-        }
-      }
-    })
-
-    if (!existingLesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      )
-    }
-
-    // Check if reducing capacity below current reservations
-    if (maxCapacity < existingLesson.reservations.length) {
-      return NextResponse.json(
-        { error: `Cannot reduce capacity below current reservations (${existingLesson.reservations.length})` },
-        { status: 400 }
-      )
-    }
-
-    const lesson = await prisma.lesson.update({
-      where: {
-        id: params.id
-      },
       data: {
         title,
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        maxCapacity
+        maxCapacity,
+        instructorName,
+        price,
+        lessonType,
       },
-      include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          }
-        }
-      }
     })
 
-    return NextResponse.json(lesson)
+    return NextResponse.json(updatedLesson)
   } catch (error) {
     console.error('Error updating lesson:', error)
-    return NextResponse.json(
-      { error: 'Failed to update lesson' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update lesson' }, { status: 500 })
   }
 }
 
+// 1件のレッスンを削除
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const session = await getServerSession(authOptions)
+  if (session?.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const lessonId = params.id
+    
+    // 関連する予約も削除される（schema.prismaのonDelete: Cascadeによる）
+    await prisma.lesson.delete({
+      where: { id: lessonId },
+    })
+
+    return NextResponse.json({ message: 'Lesson deleted successfully' })
+  } catch (error) {
+    console.error(`Failed to delete lesson ${params.id}:`, error)
+    return NextResponse.json({ error: 'Failed to delete lesson' }, { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      });
     }
 
-    // Check if lesson exists and has reservations
-    const existingLesson = await prisma.lesson.findUnique({
-      where: { id: params.id },
-      include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          }
-        }
+    const body = await request.json()
+    const { title, description, startTime, endTime, maxCapacity, instructorName, lessonType } = body
+
+    const lesson = await prisma.lesson.create({
+      data: {
+        title,
+        description,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        maxCapacity: maxCapacity || 5,
+        instructorName,
+        lessonType: lessonType || 'SMALL_GROUP'
       }
     })
 
-    if (!existingLesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      )
-    }
-
-    if (existingLesson.reservations.length > 0) {
-      return NextResponse.json(
-        { error: 'Cannot delete lesson with existing reservations' },
-        { status: 400 }
-      )
-    }
-
-    await prisma.lesson.delete({
-      where: {
-        id: params.id
-      }
-    })
-
-    return NextResponse.json({ success: true })
+    return new NextResponse(JSON.stringify(lesson), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
   } catch (error) {
-    console.error('Error deleting lesson:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete lesson' },
-      { status: 500 }
-    )
+    console.error('Error creating lesson:', error)
+    return new NextResponse(JSON.stringify({ error: 'Failed to create lesson' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
   }
 }

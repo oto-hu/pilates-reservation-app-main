@@ -1,7 +1,33 @@
-import { NextAuthOptions } from 'next-auth'
+import { NextAuthOptions, User as NextAuthUser, Session as NextAuthSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
+
+// --- 型拡張 ---
+declare module 'next-auth' {
+  interface User extends NextAuthUser {
+    id: string
+    role: string
+    name?: string | null
+  }
+  interface Session extends NextAuthSession {
+    user: {
+      id: string
+      name?: string | null
+      email?: string | null
+      image?: string | null
+      role: string
+    }
+  }
+}
+declare module 'next-auth/jwt' {
+  interface JWT {
+    role?: string
+    sub?: string
+  }
+}
+// --- 型拡張ここまで ---
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -17,20 +43,29 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // Simple credential check for admin
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        })
 
-        if (credentials.email === adminEmail && credentials.password === adminPassword) {
-          return {
-            id: 'admin',
-            email: adminEmail,
-            name: 'Admin',
-            role: 'admin'
-          }
+        if (!user || !user.password) {
+          return null
         }
 
-        return null
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        )
+
+        if (!isPasswordValid) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email!,
+          name: user.name,
+          role: user.role,
+        }
       }
     })
   ],
@@ -41,18 +76,19 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role
+        token.sub = user.id
       }
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
+      if (token && session.user) {
+        session.user.id = token.sub as string
         session.user.role = token.role as string
       }
       return session
     }
   },
   pages: {
-    signIn: '/admin/login'
+    signIn: '/auth/login'
   }
 }
