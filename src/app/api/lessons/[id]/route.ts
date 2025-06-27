@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, description, startTime, endTime, maxCapacity, instructorName, lessonType } = body
+    const { title, description, startTime, endTime, maxCapacity, instructorName, lessonType, price } = body
 
     const lesson = await prisma.lesson.create({
       data: {
@@ -123,7 +123,8 @@ export async function POST(request: Request) {
         endTime: new Date(endTime),
         maxCapacity: maxCapacity || 5,
         instructorName,
-        lessonType: lessonType || 'SMALL_GROUP'
+        lessonType: lessonType || 'SMALL_GROUP',
+        price
       }
     })
 
