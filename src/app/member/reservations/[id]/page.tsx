@@ -9,15 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ArrowLeft, Calendar, Clock, MapPin, User, Phone, Mail, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
-import { Reservation, ReservationType } from '@/lib/types'
+import { Reservation, ReservationType, Lesson } from '@/lib/types'
 
 interface ReservationWithLesson extends Reservation {
-  lesson: {
-    title: string
-    startTime: string
-    endTime: string
-    instructorName?: string
-  }
+  lesson: Lesson
 }
 
 interface ReservationDetailsPageProps {
@@ -123,8 +118,9 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
     }
   }
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ja-JP', {
+  const formatDateTime = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    return dateObj.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -134,8 +130,9 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
     })
   }
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('ja-JP', {
+  const formatTime = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    return dateObj.toLocaleTimeString('ja-JP', {
       hour: '2-digit',
       minute: '2-digit'
     })
