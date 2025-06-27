@@ -271,11 +271,3 @@ ${customerName}様
     text
   }
 }
-
-const reservationTypeName = {
-  TRIAL: '体験レッスン',
-  DROP_IN: '単回利用',
-  TICKET: 'チケット利用'
-} as const;
-
-const typeName = reservationTypeName[reservationType as keyof typeof reservationTypeName];
