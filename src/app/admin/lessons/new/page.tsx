@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -42,7 +42,7 @@ interface TicketGroup {
   name: string;
 }
 
-export default function NewLessonPage() {
+function NewLessonForm() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -202,9 +202,9 @@ export default function NewLessonPage() {
         throw new Error('Failed to save template')
       }
 
-      alert('テンプレートを保存しました')
       setShowTemplateModal(false)
       resetTemplate()
+      alert('テンプレートを保存しました')
     } catch (error) {
       console.error('Error saving template:', error)
       alert('テンプレートの保存に失敗しました')
@@ -213,156 +213,181 @@ export default function NewLessonPage() {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-4">
-            <Link href="/admin/dashboard" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div>
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center">
+              <Link href="/admin/dashboard" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
               <h1 className="text-xl font-bold text-gray-900">
                 {isFromTemplate ? 'テンプレートからレッスン作成' : '新規レッスン作成'}
               </h1>
-              <p className="text-sm text-gray-600">
-                {isFromTemplate ? 'テンプレートの内容を編集してレッスンを作成' : 'レッスン情報を入力してください'}
-              </p>
             </div>
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              className="btn-outline flex items-center"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              テンプレート保存
+            </button>
           </div>
         </div>
       </header>
 
+      {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isFromTemplate && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-medium text-blue-800 mb-2">テンプレートから作成中</h3>
-            <p className="text-sm text-blue-700">
-              テンプレートの内容が初期値として設定されています。必要に応じて編集してください。
-            </p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="card">
-          <div className="space-y-6">
-            {/* Title */}
-            <div>
-              <label className="form-label flex items-center">
-                <FileText className="h-4 w-4 mr-2" />
-                レッスン名 *
-              </label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="例: 初心者向けピラティス"
-                {...register('title')}
-              />
-              {errors.title && (
-                <p className="form-error">{errors.title.message}</p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="form-label">レッスン説明</label>
-              <textarea
-                className="form-input"
-                rows={3}
-                placeholder="レッスンの内容や対象者について（任意）"
-                {...register('description')}
-              />
-              {errors.description && (
-                <p className="form-error">{errors.description.message}</p>
-              )}
-            </div>
-
-            {/* Date */}
-            <div>
-              <label className="form-label flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                開催日 *
-              </label>
-              <input
-                type="date"
-                className="form-input"
-                min={today}
-                {...register('date')}
-              />
-              {errors.date && (
-                <p className="form-error">{errors.date.message}</p>
-              )}
-            </div>
-
-            {/* Time */}
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Basic Info */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">基本情報</h2>
+            <div className="space-y-4">
               <div>
-                <label className="form-label flex items-center">
-                  <Clock className="h-4 w-4 mr-2" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  レッスン名 *
+                </label>
+                <input
+                  {...register('title')}
+                  className="input"
+                  placeholder="例: 初級ピラティス"
+                />
+                {errors.title && (
+                  <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  説明
+                </label>
+                <textarea
+                  {...register('description')}
+                  rows={3}
+                  className="input"
+                  placeholder="レッスンの詳細説明"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  インストラクター名 *
+                </label>
+                <input
+                  {...register('instructorName')}
+                  className="input"
+                  placeholder="例: 田中 花子"
+                />
+                {errors.instructorName && (
+                  <p className="text-red-600 text-sm mt-1">{errors.instructorName.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Schedule */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">スケジュール</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  開催日 *
+                </label>
+                <input
+                  {...register('date')}
+                  type="date"
+                  className="input"
+                />
+                {errors.date && (
+                  <p className="text-red-600 text-sm mt-1">{errors.date.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   開始時間 *
                 </label>
                 <input
-                  type="time"
-                  className="form-input"
                   {...register('startTime')}
+                  type="time"
+                  className="input"
                 />
                 {errors.startTime && (
-                  <p className="form-error">{errors.startTime.message}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.startTime.message}</p>
                 )}
               </div>
+
               <div>
-                <label className="form-label flex items-center">
-                  <Clock className="h-4 w-4 mr-2" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   終了時間 *
                 </label>
                 <input
-                  type="time"
-                  className="form-input"
                   {...register('endTime')}
+                  type="time"
+                  className="input"
                 />
                 {errors.endTime && (
-                  <p className="form-error">{errors.endTime.message}</p>
+                  <p className="text-red-600 text-sm mt-1">{errors.endTime.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Capacity & Price */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">定員・料金</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  最大定員 *
+                </label>
+                <input
+                  {...register('maxCapacity', { valueAsNumber: true })}
+                  type="number"
+                  min="1"
+                  max="10"
+                  className="input"
+                />
+                {errors.maxCapacity && (
+                  <p className="text-red-600 text-sm mt-1">{errors.maxCapacity.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  料金（円） *
+                </label>
+                <input
+                  {...register('price', { valueAsNumber: true })}
+                  type="number"
+                  min="0"
+                  className="input"
+                  placeholder="例: 3000"
+                />
+                {errors.price && (
+                  <p className="text-red-600 text-sm mt-1">{errors.price.message}</p>
                 )}
               </div>
             </div>
 
-            {/* Max Capacity */}
-            <div>
-              <label className="form-label flex items-center">
-                <Users className="h-4 w-4 mr-2" />
-                最大人数 *
-              </label>
-              <input
-                type="number"
-                className="form-input"
-                min={1}
-                max={10}
-                {...register('maxCapacity', { valueAsNumber: true })}
-              />
-              {errors.maxCapacity && (
-                <p className="form-error">{errors.maxCapacity.message}</p>
-              )}
-            </div>
-
             {/* Ticket Group */}
-            <div>
-              <label className="form-label flex items-center">
-                <Tag className="h-4 w-4 mr-2" />
-                チケットカテゴリ（任意）
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                チケットグループ
               </label>
               <Controller
                 name="ticketGroupId"
                 control={control}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="このレッスンで使えるチケットを選択" />
+                      <SelectValue placeholder="チケットグループを選択（オプション）" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="null">カテゴリなし（チケット利用不可）</SelectItem>
-                      {ticketGroups.map(group => (
+                      <SelectItem value="">なし</SelectItem>
+                      {ticketGroups.map((group) => (
                         <SelectItem key={group.id} value={group.id}>
                           {group.name}
                         </SelectItem>
@@ -371,135 +396,84 @@ export default function NewLessonPage() {
                   </Select>
                 )}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                ここで選択したカテゴリのチケットのみ、このレッスンの予約に利用できます。
-              </p>
-            </div>
-
-            {/* Price */}
-            <div>
-              <label className="form-label flex items-center">
-                <span className="mr-2">💴</span>
-                料金（円）*
-              </label>
-              <input
-                type="number"
-                className="form-input"
-                min={0}
-                step={100}
-                placeholder="例: 3000"
-                {...register('price', { valueAsNumber: true })}
-              />
-              {errors.price && (
-                <p className="form-error">{errors.price.message}</p>
-              )}
-            </div>
-
-            {/* Instructor Name */}
-            <div>
-              <label className="form-label">インストラクター名 *</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="例: 山田太郎"
-                {...register('instructorName')}
-              />
-              {errors.instructorName && (
-                <p className="form-error">{errors.instructorName.message}</p>
-              )}
             </div>
           </div>
 
-          {/* Submit Buttons */}
-          <div className="mt-8 pt-6 border-t border-gray-200 space-y-4">
-            <div className="flex space-x-4">
-              <Link
-                href="/admin/dashboard"
-                className="btn-outline flex-1 text-center py-3"
-              >
-                キャンセル
-              </Link>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="btn-primary flex-1 py-3 disabled:opacity-50"
-              >
-                {submitting ? '作成中...' : 'レッスンを作成'}
-              </button>
-            </div>
-            {!isFromTemplate && (
-              <button
-                type="button"
-                onClick={() => setShowTemplateModal(true)}
-                className="w-full btn-outline py-3 flex items-center justify-center space-x-2"
-              >
-                <Save className="h-4 w-4" />
-                <span>テンプレートとして保存</span>
-              </button>
-            )}
+          {/* Submit */}
+          <div className="flex justify-end space-x-4">
+            <Link href="/admin/dashboard" className="btn-outline">
+              キャンセル
+            </Link>
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? '作成中...' : 'レッスンを作成'}
+            </button>
           </div>
         </form>
+      </div>
 
-        {/* Template Modal */}
-        {showTemplateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-              <h3 className="text-lg font-semibold mb-4">テンプレートとして保存</h3>
-              <form onSubmit={handleSubmitTemplate(onSaveTemplate)} className="space-y-4">
-                <div>
-                  <label className="form-label">テンプレート名 *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="例: 初心者向けピラティス"
-                    {...registerTemplate('name')}
-                  />
-                  {templateErrors.name && (
-                    <p className="form-error">{templateErrors.name.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="form-label">テンプレートの説明</label>
-                  <textarea
-                    className="form-input"
-                    rows={3}
-                    placeholder="このテンプレートの用途や特徴（任意）"
-                    {...registerTemplate('templateDescription')}
-                  />
-                </div>
-                <div className="flex space-x-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowTemplateModal(false)}
-                    className="btn-outline flex-1 py-2"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={savingTemplate}
-                    className="btn-primary flex-1 py-2 disabled:opacity-50"
-                  >
-                    {savingTemplate ? '保存中...' : '保存'}
-                  </button>
-                </div>
-              </form>
-            </div>
+      {/* Template Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">テンプレートを保存</h3>
+            <form onSubmit={handleSubmitTemplate(onSaveTemplate)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  テンプレート名 *
+                </label>
+                <input
+                  {...registerTemplate('name')}
+                  className="input"
+                  placeholder="例: 初級ピラティス"
+                />
+                {templateErrors.name && (
+                  <p className="text-red-600 text-sm mt-1">{templateErrors.name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  説明
+                </label>
+                <textarea
+                  {...registerTemplate('templateDescription')}
+                  rows={3}
+                  className="input"
+                  placeholder="テンプレートの説明"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowTemplateModal(false)}
+                  className="btn-outline"
+                >
+                  キャンセル
+                </button>
+                <button type="submit" className="btn-primary" disabled={savingTemplate}>
+                  {savingTemplate ? '保存中...' : '保存'}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
+    </div>
+  )
+}
 
-        {/* Help */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-medium text-blue-800 mb-2">レッスン作成のヒント</h3>
-          <ul className="text-sm text-blue-700 space-y-1">
-            <li>• レッスン名は分かりやすく、レベルを含めると良いでしょう</li>
-            <li>• 説明欄では対象者や持ち物について記載してください</li>
-            <li>• 定員は通常3〜5人程度が適切です</li>
-            <li>• レッスン時間は準備・片付けの時間も含めて設定してください</li>
-            <li>• よく使うレッスン設定は「テンプレートとして保存」で再利用できます</li>
-          </ul>
+export default function NewLessonPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+          <p className="mt-4 text-gray-600">読み込み中...</p>
         </div>
       </div>
-    </div>
+    }>
+      <NewLessonForm />
+    </Suspense>
   )
 }

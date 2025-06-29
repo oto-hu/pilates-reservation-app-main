@@ -153,7 +153,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         customerPhone: data.customerPhone,
         medicalInfo: data.medicalInfo,
         reservationType: data.reservationType as ReservationType,
-        paymentMethod: data.reservationType === ReservationType.TICKET ? PaymentMethod.TICKET : PaymentMethod.PAY_AT_STUDIO,
+        paymentMethod: data.reservationType === 'TICKET' ? PaymentMethod.TICKET : PaymentMethod.PAY_AT_STUDIO,
         agreeToConsent: data.agreeToConsent
       }
 

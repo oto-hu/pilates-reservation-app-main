@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Calendar, Clock, User, Mail, Phone, CreditCard, Building2, Camera, Home, UserCheck } from 'lucide-react'
 import { Reservation, PaymentMethod } from '@/lib/types'
 import { formatDateTime, formatTime } from '@/lib/utils'
 
-export default function ReservationCompletePage() {
+function ReservationCompleteForm() {
   const searchParams = useSearchParams()
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const [loading, setLoading] = useState(true)
@@ -198,18 +198,26 @@ export default function ReservationCompletePage() {
             href="/reserve"
             className="btn-primary w-full text-center py-3 text-lg"
           >
-            他のレッスンも予約する
-          </Link>
-          
-          <Link
-            href="/"
-            className="btn-outline w-full text-center py-3 text-lg flex items-center justify-center"
-          >
-            <Home className="h-5 w-5 mr-2" />
-            トップページに戻る
+            <Home className="h-5 w-5 mr-2 inline" />
+            レッスン一覧に戻る
           </Link>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ReservationCompletePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+          <p className="mt-4 text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    }>
+      <ReservationCompleteForm />
+    </Suspense>
   )
 }
