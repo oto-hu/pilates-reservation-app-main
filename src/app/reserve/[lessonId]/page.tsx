@@ -18,7 +18,7 @@ const reservationSchema = z.object({
   customerEmail: z.string().email('有効なメールアドレスを入力してください'),
   customerPhone: z.string().min(10, '電話番号を入力してください'),
   medicalInfo: z.string().optional(),
-  reservationType: z.enum(['TRIAL', 'DROP_IN', 'TICKET']),
+  reservationType: z.nativeEnum(ReservationType),
   agreeToConsent: z.boolean().optional()
 })
 
@@ -40,7 +40,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [joiningWaitingList, setJoiningWaitingList] = useState(false)
-  const [selectedReservationType, setSelectedReservationType] = useState<ReservationType | ''>('')
+  const [selectedReservationType, setSelectedReservationType] = useState<ReservationType | null>(null)
 
   const {
     register,
@@ -87,14 +87,14 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
       // Determine default reservation type
       if (currentLesson) {
           if (session?.user?.role === 'member' && !hasReservationHistory) {
-              setSelectedReservationType('TRIAL');
-              setValue('reservationType', 'TRIAL');
+              setSelectedReservationType(ReservationType.TRIAL);
+              setValue('reservationType', ReservationType.TRIAL);
           } else if (getAvailableTickets().length > 0) {
-              setSelectedReservationType('TICKET');
-              setValue('reservationType', 'TICKET');
+              setSelectedReservationType(ReservationType.TICKET);
+              setValue('reservationType', ReservationType.TICKET);
           } else {
-              setSelectedReservationType('DROP_IN');
-              setValue('reservationType', 'DROP_IN');
+              setSelectedReservationType(ReservationType.DROP_IN);
+              setValue('reservationType', ReservationType.DROP_IN);
           }
       }
     } catch (error) {
@@ -153,7 +153,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         customerPhone: data.customerPhone,
         medicalInfo: data.medicalInfo,
         reservationType: data.reservationType as ReservationType,
-        paymentMethod: data.reservationType === 'TICKET' ? PaymentMethod.TICKET : PaymentMethod.PAY_AT_STUDIO,
+        paymentMethod: data.reservationType === ReservationType.TICKET ? PaymentMethod.TICKET : PaymentMethod.PAY_AT_STUDIO,
         agreeToConsent: data.agreeToConsent
       }
 
@@ -196,11 +196,11 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
 
   const getReservationTypePrice = (type: ReservationType) => {
     switch (type) {
-      case 'TRIAL':
+      case ReservationType.TRIAL:
         return '1,000円'
-      case 'DROP_IN':
+      case ReservationType.DROP_IN:
         return lesson ? `${lesson.price.toLocaleString()}円` : 'N/A'
-      case 'TICKET':
+      case ReservationType.TICKET:
         return 'チケット1枚'
       default:
         return ''
@@ -461,7 +461,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                     <label className="flex items-center p-4 cursor-pointer hover:bg-green-50">
                       <input
                         type="radio"
-                        value="TRIAL"
+                        value={ReservationType.TRIAL}
                         {...register('reservationType')}
                         onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
                         className="mr-3"
@@ -474,7 +474,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                             </span>
                             <span className="font-medium">体験レッスン</span>
                           </div>
-                          <span className="font-bold text-green-600">{getReservationTypePrice('TRIAL')}</span>
+                          <span className="font-bold text-green-600">{getReservationTypePrice(ReservationType.TRIAL)}</span>
                         </div>
                         <p className="text-sm text-gray-600 mt-1">初めての方限定の特別価格です（当日PayPay払い）</p>
                       </div>
@@ -487,7 +487,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                   <label className="flex items-center p-4 cursor-pointer hover:bg-blue-50">
                     <input
                       type="radio"
-                      value="DROP_IN"
+                      value={ReservationType.DROP_IN}
                       {...register('reservationType')}
                       onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
                       className="mr-3"
@@ -498,7 +498,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                           <CreditCard className="h-4 w-4 mr-2 text-blue-600" />
                           <span className="font-medium">単回利用（ドロップイン）</span>
                         </div>
-                        <span className="font-bold text-blue-600">{getReservationTypePrice('DROP_IN')}</span>
+                        <span className="font-bold text-blue-600">{getReservationTypePrice(ReservationType.DROP_IN)}</span>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">1回分の料金でご参加いただけます（当日PayPay払い）</p>
                     </div>
@@ -511,7 +511,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                     <label className="flex items-center p-4 cursor-pointer hover:bg-purple-50">
                       <input
                         type="radio"
-                        value="TICKET"
+                        value={ReservationType.TICKET}
                         {...register('reservationType')}
                         onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
                         className="mr-3"
@@ -522,7 +522,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                             <Ticket className="h-4 w-4 mr-2 text-purple-600" />
                             <span className="font-medium">チケット利用</span>
                           </div>
-                          <span className="font-bold text-purple-600">{getReservationTypePrice('TICKET')}</span>
+                          <span className="font-bold text-purple-600">{getReservationTypePrice(ReservationType.TICKET)}</span>
                         </div>
                         <p className="text-sm text-gray-600 mt-1">
                           お持ちのチケットを使用します（残り{getAvailableTickets()[0]?.remainingCount}枚）

@@ -6,7 +6,7 @@ import { prisma } from './prisma'
 
 // --- 型拡張 ---
 declare module 'next-auth' {
-  interface User extends NextAuthUser {
+  interface User {
     id: string
     role: string
     name?: string | null
