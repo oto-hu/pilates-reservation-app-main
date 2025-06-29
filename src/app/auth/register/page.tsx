@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,7 @@ const genders = [
   { value: '回答しない', label: '回答しない' },
 ]
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const [formData, setFormData] = useState<MemberRegistrationData>({
     name: '',
     furigana: '',
@@ -220,5 +220,13 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterPageContent />
+    </Suspense>
   )
 }

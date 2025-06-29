@@ -1,30 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
+import { hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { MemberRegistrationData } from '@/lib/types'
+import { z } from 'zod'
+
+export const dynamic = 'force-dynamic'
+
+const registerSchema = z.object({
+  name: z.string().min(1, '氏名は必須です'),
+  furigana: z.string().min(1, 'フリガナは必須です'),
+  age: z.number().min(0, '年齢は0以上である必要があります'),
+  gender: z.string().min(1, '性別は必須です'),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(8, 'パスワードは8文字以上である必要があります'),
+  memo: z.string().optional()
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const data: MemberRegistrationData = await request.json()
-
-    // バリデーション
-    if (!data.name || !data.furigana || !data.age || !data.gender || !data.email || !data.password) {
-      return NextResponse.json(
-        { error: '必須項目が入力されていません' },
-        { status: 400 }
-      )
-    }
-
-    if (data.password.length < 8) {
-      return NextResponse.json(
-        { error: 'パスワードは8文字以上で入力してください' },
-        { status: 400 }
-      )
-    }
+    const body = await request.json()
+    const validatedData = registerSchema.parse(body)
 
     // メールアドレスの重複チェック
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email }
+      where: { email: validatedData.email }
     })
 
     if (existingUser) {
@@ -35,33 +33,34 @@ export async function POST(request: NextRequest) {
     }
 
     // パスワードのハッシュ化
-    const hashedPassword = await bcrypt.hash(data.password, 12)
+    const hashedPassword = await hash(validatedData.password, 12)
 
-    // ユーザー作成
+    // ユーザーの作成
     const user = await prisma.user.create({
       data: {
-        name: data.name,
-        furigana: data.furigana,
-        age: data.age,
-        gender: data.gender,
-        email: data.email,
+        name: validatedData.name,
+        furigana: validatedData.furigana,
+        age: validatedData.age,
+        gender: validatedData.gender,
+        email: validatedData.email,
         password: hashedPassword,
-        memo: data.memo,
+        memo: validatedData.memo || '',
         role: 'member'
       }
     })
 
-    // パスワードを除いて返す
-    const { password: _, ...userWithoutPassword } = user
-
     return NextResponse.json(
-      { 
-        message: '会員登録が完了しました',
-        user: userWithoutPassword
-      },
+      { message: '会員登録が完了しました' },
       { status: 201 }
     )
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      )
+    }
+
     console.error('Registration error:', error)
     return NextResponse.json(
       { error: '会員登録に失敗しました' },
