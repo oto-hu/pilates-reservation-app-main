@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,17 +17,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const userId = session.user.id
-
     const tickets = await prisma.ticket.findMany({
       where: {
-        userId,
-        remainingCount: {
-          gt: 0
-        },
-        expiresAt: {
-          gt: new Date()
-        }
+        userId: session.user.id
       },
       orderBy: {
         expiresAt: 'asc'

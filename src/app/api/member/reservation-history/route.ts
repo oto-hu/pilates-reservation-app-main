@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,15 +19,20 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id
 
-    const reservationCount = await prisma.reservation.count({
+    // 過去の予約数を確認
+    const pastReservations = await prisma.reservation.count({
       where: {
-        userId
+        userId: userId,
+        lesson: {
+          startTime: {
+            lt: new Date()
+          }
+        }
       }
     })
 
     return NextResponse.json({
-      hasHistory: reservationCount > 0,
-      count: reservationCount
+      hasHistory: pastReservations > 0
     })
   } catch (error) {
     console.error('Reservation history fetch error:', error)

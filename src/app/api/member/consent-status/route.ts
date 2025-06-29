@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,16 +17,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const userId = session.user.id
-
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { consentAgreedAt: true }
+      where: {
+        id: session.user.id
+      },
+      select: {
+        consentAgreedAt: true
+      }
     })
 
     return NextResponse.json({
-      hasAgreed: !!user?.consentAgreedAt,
-      agreedAt: user?.consentAgreedAt
+      hasAgreed: !!user?.consentAgreedAt
     })
   } catch (error) {
     console.error('Consent status fetch error:', error)

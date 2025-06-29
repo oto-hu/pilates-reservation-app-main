@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
-import { LessonType } from '@/lib/types'
+
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,46 +19,46 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id
 
-    // チケット情報を取得
-    const tickets = await prisma.ticket.findMany({
-      where: { userId },
-      orderBy: { expiresAt: 'asc' }
-    })
-
-    // レッスンタイプ名を追加
-    const ticketsWithTypeName = tickets.map(ticket => ({
-      ...ticket,
-      lessonTypeName: ticket.lessonType === LessonType.SMALL_GROUP ? '少人数制ピラティス' : 'わいわいピラティス'
-    }))
-
-    // 今後の予約を取得
-    const upcomingReservations = await prisma.reservation.findMany({
+    // ユーザーの予約情報を取得
+    const reservations = await prisma.reservation.findMany({
       where: {
-        userId,
-        lesson: {
-          startTime: {
-            gte: new Date()
-          }
-        }
+        userId: userId
       },
       include: {
-        lesson: {
-          select: {
-            title: true,
-            startTime: true
-          }
-        }
+        lesson: true
       },
       orderBy: {
-        lesson: {
-          startTime: 'asc'
-        }
+        createdAt: 'desc'
+      }
+    })
+
+    // ユーザーのチケット情報を取得
+    const tickets = await prisma.ticket.findMany({
+      where: {
+        userId: userId
+      },
+      orderBy: {
+        expiresAt: 'asc'
+      }
+    })
+
+    // キャンセル待ち情報を取得
+    const waitingList = await prisma.waitingList.findMany({
+      where: {
+        userId: userId
+      },
+      include: {
+        lesson: true
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     })
 
     return NextResponse.json({
-      tickets: ticketsWithTypeName,
-      upcomingReservations
+      reservations,
+      tickets,
+      waitingList
     })
   } catch (error) {
     console.error('Dashboard data fetch error:', error)

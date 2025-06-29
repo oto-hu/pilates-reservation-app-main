@@ -1,35 +1,26 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 
-export async function GET(request: Request) {
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const startDate = searchParams.get('start')
-    const endDate = searchParams.get('end')
+    const start = searchParams.get('start')
 
-    let where = {}
-    
-    if (startDate && endDate) {
-      where = {
-        startTime: {
-          gte: new Date(startDate),
-          lte: new Date(endDate)
-        }
+    const where: any = {}
+    if (start) {
+      where.startTime = {
+        gte: new Date(start)
       }
     }
 
     const lessons = await prisma.lesson.findMany({
       where,
       include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          }
-        }
+        reservations: true,
+        waitingList: true
       },
       orderBy: {
         startTime: 'asc'
@@ -46,28 +37,10 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     const body = await request.json()
-    const { 
-      title, 
-      description, 
-      startTime, 
-      endTime, 
-      maxCapacity, 
-      instructorName, 
-      price,
-      ticketGroupId 
-    } = body
+    const { title, description, startTime, endTime, maxCapacity, instructorName, price, ticketGroupId } = body
 
     const lesson = await prisma.lesson.create({
       data: {
@@ -78,12 +51,12 @@ export async function POST(request: Request) {
         maxCapacity,
         instructorName,
         price,
-        lessonType: 'SMALL_GROUP',
-        ticketGroupId,
-      },
+        ticketGroupId: ticketGroupId || null,
+        lessonType: 'SMALL_GROUP' // デフォルト値
+      }
     })
 
-    return NextResponse.json(lesson, { status: 201 })
+    return NextResponse.json(lesson)
   } catch (error) {
     console.error('Error creating lesson:', error)
     return NextResponse.json(

@@ -1,57 +1,41 @@
 // src/app/api/reservations/route.ts
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import { PaymentMethod, PaymentStatus, ReservationType } from '@/lib/types'
 import { sendEmail, generateReservationConfirmationEmail } from '@/lib/notifications'
 
-export async function POST(request: Request) {
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     const body = await request.json()
-    const { 
-      lessonId, 
-      userId,
-      customerName, 
-      customerEmail, 
-      customerPhone, 
-      medicalInfo,
-      reservationType,
-      paymentMethod,
-      agreeToConsent 
-    }: {
-      lessonId: string
-      userId?: string
-      customerName: string
-      customerEmail: string
-      customerPhone: string
-      medicalInfo?: string
-      reservationType: ReservationType
-      paymentMethod: PaymentMethod
-      agreeToConsent?: boolean
-    } = body
 
-    // バリデーション
-    if (!reservationType || !Object.values(ReservationType).includes(reservationType)) {
+    if (!session) {
       return NextResponse.json(
-        { error: '予約タイプが不正です' },
-        { status: 400 }
+        { error: 'Unauthorized' },
+        { status: 401 }
       )
     }
 
-    // Check if lesson exists and has capacity
+    const {
+      lessonId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      medicalInfo,
+      reservationType,
+      paymentMethod,
+      agreeToConsent
+    } = body
+
+    // レッスンの存在確認
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
-      include: {
-        reservations: {
-          where: {
-            paymentStatus: {
-              not: 'CANCELLED'
-            }
-          }
-        }
-      }
+      include: { reservations: true }
     })
 
     if (!lesson) {
@@ -61,6 +45,7 @@ export async function POST(request: Request) {
       )
     }
 
+    // 定員チェック
     if (lesson.reservations.length >= lesson.maxCapacity) {
       return NextResponse.json(
         { error: 'Lesson is full' },
@@ -68,105 +53,60 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if lesson is in the past
-    if (new Date(lesson.startTime) < new Date()) {
-      return NextResponse.json(
-        { error: 'Cannot book past lessons' },
-        { status: 400 }
-      )
-    }
-
-    // 予約タイプ別のバリデーション
-    if (reservationType === ReservationType.TRIAL) {
-      // 体験レッスンは初回のみ
-      if (userId) {
-        const existingReservations = await prisma.reservation.count({
-          where: { userId }
-        })
-        if (existingReservations > 0) {
-          return NextResponse.json(
-            { error: '体験レッスンは初回のみご利用いただけます' },
-            { status: 400 }
-          )
-        }
-      }
-    }
-
-    if (reservationType === ReservationType.TICKET) {
-      // チケット利用の場合、有効なチケットがあるかチェック
-      if (!userId) {
-        return NextResponse.json(
-          { error: 'チケット利用にはログインが必要です' },
-          { status: 401 }
-        )
-      }
-
-      const availableTicket = await prisma.ticket.findFirst({
+    // チケット使用の場合の処理
+    if (reservationType === ReservationType.TICKET && session.user.role === 'member') {
+      const availableTickets = await prisma.ticket.findMany({
         where: {
-          userId,
-          lessonType: lesson.lessonType,
+          userId: session.user.id,
           remainingCount: { gt: 0 },
-          expiresAt: { gt: new Date() }
+          expiresAt: { gt: new Date() },
+          ticketGroupId: lesson.ticketGroupId
         }
       })
 
-      if (!availableTicket) {
+      if (availableTickets.length === 0) {
         return NextResponse.json(
-          { error: '利用可能なチケットがありません' },
+          { error: 'No available tickets' },
           { status: 400 }
         )
       }
+
+      // チケットを消費
+      await prisma.ticket.update({
+        where: { id: availableTickets[0].id },
+        data: { remainingCount: availableTickets[0].remainingCount - 1 }
+      })
     }
 
-    // トランザクション内で予約作成と関連処理を実行
-    const result = await prisma.$transaction(async (tx) => {
-      // 同意書への同意が必要な場合の処理
-      if (userId && agreeToConsent) {
-        await tx.user.update({
-          where: { id: userId },
-          data: { consentAgreedAt: new Date() }
-        })
-      }
-
-      // 予約作成
-      const reservation = await tx.reservation.create({
-        data: {
-          lessonId,
-          userId,
-          customerName,
-          customerEmail,
-          customerPhone,
-          medicalInfo,
-          reservationType,
-          paymentMethod,
-          paymentStatus: PaymentStatus.PENDING
-        },
-        include: {
-          lesson: true
-        }
+    // 同意書の同意確認
+    if (agreeToConsent && session.user.role === 'member') {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { consentAgreedAt: new Date() }
       })
+    }
 
-      // チケット利用の場合、チケットを消費
-      if (reservationType === ReservationType.TICKET && userId) {
-        await tx.ticket.updateMany({
-          where: {
-            userId,
-            lessonType: lesson.lessonType,
-            remainingCount: { gt: 0 },
-            expiresAt: { gt: new Date() }
-          },
-          data: {
-            remainingCount: { decrement: 1 }
-          }
-        })
+    // 予約を作成
+    const reservation = await prisma.reservation.create({
+      data: {
+        lessonId,
+        userId: session.user.id,
+        customerName,
+        customerEmail,
+        customerPhone,
+        medicalInfo,
+        reservationType,
+        paymentMethod,
+        paymentStatus: paymentMethod === PaymentMethod.PAY_AT_STUDIO ? 'PENDING' : 'PAID'
+      },
+      include: {
+        lesson: true
       }
-
-      return { reservation }
     })
 
     // メール通知を送信（非同期処理）
     try {
-      const lessonDate = new Date(result.reservation.lesson.startTime).toLocaleDateString('ja-JP', {
+      const lessonDate = new Date(reservation.lesson.startTime).toLocaleDateString('ja-JP', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -189,7 +129,7 @@ export async function POST(request: Request) {
       
       const emailData = generateReservationConfirmationEmail(
         customerName,
-        result.reservation.lesson.title,
+        reservation.lesson.title,
         lessonDate,
         reservationTypeName,
         paymentInfo
@@ -202,8 +142,7 @@ export async function POST(request: Request) {
       // メール送信失敗は予約成功に影響しない
     }
 
-    return NextResponse.json(result)
-
+    return NextResponse.json({ reservation }, { status: 201 })
   } catch (error) {
     console.error('Error creating reservation:', error)
     return NextResponse.json(
