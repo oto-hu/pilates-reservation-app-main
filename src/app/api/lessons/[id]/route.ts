@@ -1,11 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { NextRequest } from 'next/server';
-interface Params {
-  params: { id: string }
-}
 
 // CORS headers
 const corsHeaders = {
@@ -22,27 +18,45 @@ export async function OPTIONS(request: Request) {
   });
 }
 
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
 // 1件のレッスンを取得
-export async function GET(request: Request, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const lesson = await prisma.lesson.findUnique({
       where: { id: params.id },
       include: {
         reservations: true,
-      },
+        waitingList: true
+      }
     })
+
     if (!lesson) {
-      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'Lesson not found' },
+        { status: 404 }
+      )
     }
+
     return NextResponse.json(lesson)
   } catch (error) {
     console.error('Error fetching lesson:', error)
-    return NextResponse.json({ error: 'Failed to fetch lesson' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to fetch lesson' },
+      { status: 500 }
+    )
   }
 }
 
 // 1件のレッスンを更新
-export async function PUT(request: Request, { params }: Params) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user || session.user.role !== 'admin') {
@@ -50,9 +64,9 @@ export async function PUT(request: Request, { params }: Params) {
     }
 
     const body = await request.json()
-    const { title, description, startTime, endTime, maxCapacity, instructorName, price, lessonType } = body
+    const { title, description, startTime, endTime, maxCapacity, instructorName, price, ticketGroupId } = body
 
-    const updatedLesson = await prisma.lesson.update({
+    const lesson = await prisma.lesson.update({
       where: { id: params.id },
       data: {
         title,
@@ -62,14 +76,17 @@ export async function PUT(request: Request, { params }: Params) {
         maxCapacity,
         instructorName,
         price,
-        lessonType,
-      },
+        ticketGroupId: ticketGroupId || null
+      }
     })
 
-    return NextResponse.json(updatedLesson)
+    return NextResponse.json(lesson)
   } catch (error) {
     console.error('Error updating lesson:', error)
-    return NextResponse.json({ error: 'Failed to update lesson' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to update lesson' },
+      { status: 500 }
+    )
   }
 }
 
@@ -84,17 +101,17 @@ export async function DELETE(
   }
 
   try {
-    const lessonId = params.id
-    
-    // 関連する予約も削除される（schema.prismaのonDelete: Cascadeによる）
     await prisma.lesson.delete({
-      where: { id: lessonId },
+      where: { id: params.id }
     })
 
     return NextResponse.json({ message: 'Lesson deleted successfully' })
   } catch (error) {
-    console.error(`Failed to delete lesson ${params.id}:`, error)
-    return NextResponse.json({ error: 'Failed to delete lesson' }, { status: 500 })
+    console.error('Error deleting lesson:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete lesson' },
+      { status: 500 }
+    )
   }
 }
 

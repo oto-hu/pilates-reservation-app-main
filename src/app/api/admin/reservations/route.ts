@@ -5,6 +5,9 @@ import { authOptions } from '@/lib/auth'
 import { LessonType } from '@/lib/types'
 import { PaymentStatus, ReservationType } from '@/lib/types'
 
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

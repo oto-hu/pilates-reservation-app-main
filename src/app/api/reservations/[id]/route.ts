@@ -3,29 +3,28 @@ import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions)
-    const reservationId = params.id
+
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
     const reservation = await prisma.reservation.findUnique({
-      where: { id: reservationId },
+      where: { id: params.id },
       include: {
-        lesson: {
-          select: {
-            title: true,
-            startTime: true,
-            endTime: true,
-            instructorName: true
-          }
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+        lesson: true,
+        user: true
       }
     })
 
@@ -36,17 +35,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       )
     }
 
-    // 権限チェック（会員は自分の予約のみ、管理者は全て）
-    if (session?.user?.role === 'member' && reservation.userId !== session.user.id) {
+    // ユーザーは自分の予約のみ閲覧可能
+    if (session.user.role !== 'admin' && reservation.userId !== session.user.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Forbidden' },
         { status: 403 }
       )
     }
 
     return NextResponse.json(reservation)
   } catch (error) {
-    console.error('Reservation fetch error:', error)
+    console.error('Error fetching reservation:', error)
     return NextResponse.json(
       { error: 'Failed to fetch reservation' },
       { status: 500 }

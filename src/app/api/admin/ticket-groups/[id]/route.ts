@@ -1,56 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-interface Params {
-  params: { id: string }
-}
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
 
-// PUT: チケットカテゴリを更新
-export async function PUT(request: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions)
-  if (session?.user?.role !== 'admin') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { name } = await request.json()
-    if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+    const session = await getServerSession(authOptions)
 
-    const updatedGroup = await prisma.ticketGroup.update({
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const ticketGroup = await prisma.ticketGroup.findUnique({
       where: { id: params.id },
-      data: { name },
+      include: {
+        tickets: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
     })
-    return NextResponse.json(updatedGroup)
+
+    if (!ticketGroup) {
+      return NextResponse.json(
+        { error: 'Ticket group not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(ticketGroup)
   } catch (error) {
-    console.error(`Failed to update ticket group ${params.id}:`, error)
-    return NextResponse.json({ error: 'Failed to update ticket group' }, { status: 500 })
+    console.error('Error fetching ticket group:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch ticket group' },
+      { status: 500 }
+    )
   }
 }
 
-// DELETE: チケットカテゴリを削除
-export async function DELETE(request: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions)
-  if (session?.user?.role !== 'admin') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    // 関連するTicketとLessonのticketGroupIdをnullにする
-    await prisma.$transaction([
-      prisma.ticket.updateMany({
-        where: { ticketGroupId: params.id },
-        data: { ticketGroupId: null },
-      }),
-      prisma.lesson.updateMany({
-        where: { ticketGroupId: params.id },
-        data: { ticketGroupId: null },
-      }),
-      prisma.ticketGroup.delete({
-        where: { id: params.id },
-      })
-    ])
-    
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { name } = body
+
+    const ticketGroup = await prisma.ticketGroup.update({
+      where: { id: params.id },
+      data: { name }
+    })
+
+    return NextResponse.json(ticketGroup)
+  } catch (error) {
+    console.error('Error updating ticket group:', error)
+    return NextResponse.json(
+      { error: 'Failed to update ticket group' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    await prisma.ticketGroup.delete({
+      where: { id: params.id }
+    })
+
     return NextResponse.json({ message: 'Ticket group deleted successfully' })
   } catch (error) {
-    console.error(`Failed to delete ticket group ${params.id}:`, error)
-    return NextResponse.json({ error: 'Failed to delete ticket group' }, { status: 500 })
+    console.error('Error deleting ticket group:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete ticket group' },
+      { status: 500 }
+    )
   }
 } 

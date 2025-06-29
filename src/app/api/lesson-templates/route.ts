@@ -1,17 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
+
+// このAPIルートを動的に実行するように設定
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const templates = await prisma.lessonTemplate.findMany({
+      where: {
+        createdBy: session.user.id
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    return NextResponse.json(templates)
+  } catch (error) {
+    console.error('Error fetching lesson templates:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch lesson templates' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
-    console.log('Session:', session)
-    console.log('User ID:', session?.user?.id)
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
 
     const body = await request.json()
@@ -27,16 +60,6 @@ export async function POST(request: NextRequest) {
       price,
       instructorName
     } = body
-
-    console.log('Creating template with createdBy:', session.user.id)
-
-    // バリデーション
-    if (!name || !title || !startTime || !endTime || !maxCapacity || !lessonType || !price) {
-      return NextResponse.json(
-        { error: 'Required fields are missing' },
-        { status: 400 }
-      )
-    }
 
     const template = await prisma.lessonTemplate.create({
       data: {
@@ -58,34 +81,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating lesson template:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const templates = await prisma.lessonTemplate.findMany({
-      where: {
-        createdBy: session.user.id
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
-
-    return NextResponse.json(templates)
-  } catch (error) {
-    console.error('Error fetching lesson templates:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create lesson template' },
       { status: 500 }
     )
   }
