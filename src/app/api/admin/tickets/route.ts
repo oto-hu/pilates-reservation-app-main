@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
       lessonType = LessonType.LARGE_GROUP
     }
 
-    // 有効期限を3ヶ月後に設定
+    // 有効期限を5ヶ月後に設定
     const expiresAt = new Date()
-    expiresAt.setMonth(expiresAt.getMonth() + 3)
+    expiresAt.setMonth(expiresAt.getMonth() + 5)
 
     console.log('Creating ticket with:', {
       userId,

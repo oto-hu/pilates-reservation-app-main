@@ -316,7 +316,7 @@ export default function TicketManagementPage() {
                     <span className="text-sm font-medium text-blue-800">有効期限について</span>
                   </div>
                   <p className="text-sm text-blue-700">
-                    有効期限は付与日から3ヶ月後に自動設定されます
+                    有効期限は付与日から5ヶ月後に自動設定されます
                   </p>
                 </div>
 
