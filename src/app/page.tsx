@@ -93,8 +93,9 @@ export default function HomePage() {
   }
 
   const handleSelectEvent = (event: CalendarEvent) => {
-    if (!event.resource.isFull && new Date(event.start) > new Date()) {
-      window.location.href = `/reserve/${event.resource.lesson.id}`
+    const isPast = new Date(event.start) < new Date();
+    if (!isPast) {
+      window.location.href = `/reserve/${event.resource.lesson.id}`;
     }
   }
 
@@ -346,14 +347,15 @@ export default function HomePage() {
                         )}
                       </div>
 
-                      {!isPast && !isFull && (
+                      {!isPast ? (
                         <button
                           onClick={() => handleSelectEvent(event)}
-                          className="w-full text-center inline-block px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors shadow"
+                          className={`w-full text-center inline-block px-4 py-2 font-semibold rounded-lg transition-colors shadow
+                            ${isFull ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-primary-500 hover:bg-primary-600 text-white'}`}
                         >
-                          予約する
+                          {isFull ? '詳細・キャンセル待ち' : '予約する'}
                         </button>
-                      )}
+                      ) : null}
                     </div>
                   )
                 })}
