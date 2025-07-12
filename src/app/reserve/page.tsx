@@ -80,7 +80,8 @@ export default function ReservePage() {
     const currentTime = new Date()
     const thirtyMinutesBeforeStart = new Date(lessonStartTime.getTime() - 30 * 60 * 1000)
     
-    if (!event.resource.isFull && currentTime <= thirtyMinutesBeforeStart) {
+    // 過去のレッスンでない場合のみアクセス可能
+    if (currentTime <= thirtyMinutesBeforeStart) {
       window.location.href = `/reserve/${event.resource.lesson.id}`
     }
   }
@@ -212,20 +213,31 @@ export default function ReservePage() {
                     <p className="text-sm text-gray-600 mb-4">{lesson.description}</p>
                   )}
 
-                  {!isPast && !isFull && (
+                  {!isPast && (
                     <div className="space-y-2">
-                      <Link
-                        href={`/reserve/${lesson.id}`}
-                        className="btn-primary w-full text-center inline-block"
-                      >
-                        会員ログインして予約
-                      </Link>
-                      <Link
-                        href={`/reserve/${lesson.id}/new-user`}
-                        className="btn-secondary w-full text-center inline-block"
-                      >
-                        新規会員登録・予約
-                      </Link>
+                      {!isFull ? (
+                        <>
+                          <Link
+                            href={`/reserve/${lesson.id}`}
+                            className="btn-primary w-full text-center inline-block"
+                          >
+                            会員ログインして予約
+                          </Link>
+                          <Link
+                            href={`/reserve/${lesson.id}/new-user`}
+                            className="btn-secondary w-full text-center inline-block"
+                          >
+                            新規会員登録・予約
+                          </Link>
+                        </>
+                      ) : (
+                        <Link
+                          href={`/reserve/${lesson.id}`}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white w-full text-center inline-block px-4 py-2 font-semibold rounded-lg transition-colors shadow"
+                        >
+                          詳細・キャンセル待ち
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>
@@ -262,7 +274,7 @@ export default function ReservePage() {
               week: '週',
               day: '日'
             }}
-            min={new Date(2024, 0, 1, 10, 0, 0)} // 10:00 AM
+            min={new Date(2024, 0, 1, 9, 0, 0)} // 10:00 AM
             max={new Date(2024, 0, 1, 22, 0, 0)} // 10:00 PM
           />
         </div>
