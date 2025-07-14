@@ -134,7 +134,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
   const saveConsentFormToServer = async (pdfBlob: Blob, userId: string, customerName: string, customerEmail: string) => {
     try {
       const formData = new FormData();
-      formData.append('pdf', pdfBlob, '署名済み_グループレッスン同意書.pdf');
+      formData.append('file', pdfBlob, '署名済み_グループレッスン同意書.pdf');
       formData.append('userId', userId);
       formData.append('customerName', customerName);
       formData.append('customerEmail', customerEmail);
