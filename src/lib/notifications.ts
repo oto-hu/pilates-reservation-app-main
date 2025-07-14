@@ -98,7 +98,7 @@ export function generateReservationConfirmationEmail(
       </div>
       <div style="background-color: #e7f3ff; padding: 20px; border-radius: 5px; margin: 20px 0;">
         <h4 style="color: #0056b3; margin-top: 0;">●お支払い</h4>
-        <p style="color: #0056b3; margin: 10px 0;">お支払いのタイミングは大きく2つ。</p>
+        <p style="color: #0056b3; margin: 10px 0;">お支払いのタイミングは大きく2つです。</p>
         <p style="color: #0056b3; margin: 5px 0;"><strong>1️⃣ 初回体験時に当日1000円+入会するならチケット代。</strong></p>
         <p style="color: #0056b3; margin: 5px 0;"><strong>2️⃣ チケット3/3回消化日当日に新たに3回券購入。</strong></p>
       </div>
@@ -127,7 +127,7 @@ ${customerName}様
 予約タイプ: ${reservationType}
 
 【お支払い】
-お支払いのタイミングは大きく2つ。
+お支払いのタイミングは大きく2つです。
 1️⃣ 初回体験時に当日1000円+入会するならチケット代。
 2️⃣ チケット3/3回消化日当日に新たに3回券購入。
 

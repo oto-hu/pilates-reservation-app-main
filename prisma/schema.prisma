@@ -72,6 +72,7 @@ model User {
   waitingList   WaitingList[]
   lessonTemplates LessonTemplate[]
   passwordResetTokens PasswordResetToken[]
+  consentForms  ConsentForm[]
 
   @@map("users")
 }
@@ -219,4 +220,17 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+model ConsentForm {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  customerName  String   @map("customer_name")
+  customerEmail String   @map("customer_email")
+  pdfData       Bytes    @map("pdf_data")
+  filename      String
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consent_forms")
 }
