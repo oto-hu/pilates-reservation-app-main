@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         customerName,
         reservation.lesson.title,
         lessonDate,
-        reservation.lesson.location || '会場未設定',
+        reservation.lesson.location ?? '会場未設定',
         reservationTypeName,
         paymentInfo,
         reservationType === ReservationType.TRIAL

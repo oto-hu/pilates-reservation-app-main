@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
         validatedData.name,
         result.reservation.lesson.title,
         lessonDate,
-        result.reservation.lesson.location || '会場未設定',
+        result.reservation.lesson.location ?? '会場未設定',
         reservationTypeName,
         paymentInfo,
         validatedData.reservationType === ReservationType.TRIAL

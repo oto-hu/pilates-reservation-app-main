@@ -181,7 +181,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         reservation.customerName,
         reservation.lesson.title,
         lessonDate,
-        reservation.lesson.location || '会場未設定',
+        reservation.lesson.location ?? '会場未設定',
         reservationTypeName,
         result.ticketReturned,
         reservation.reservationType === ReservationType.TRIAL
