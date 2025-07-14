@@ -34,9 +34,21 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
 
     // アップロードディレクトリの作成（環境に応じて切り替え）
-    const uploadDir = process.env.NODE_ENV === 'production' 
+    const isProduction = process.env.ENABLE_SERVER_STORAGE === 'true' || 
+                        process.env.VERCEL_ENV === 'production' || 
+                        process.env.NODE_ENV === 'production'
+    
+    const uploadDir = isProduction
       ? path.join('/home/ewuzoeka', 'consent-forms')
       : path.join(process.cwd(), 'uploads', 'consent-forms')
+    
+    console.log('🗂️ Upload directory settings:', {
+      ENABLE_SERVER_STORAGE: process.env.ENABLE_SERVER_STORAGE,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      NODE_ENV: process.env.NODE_ENV,
+      isProduction,
+      uploadDir
+    })
     
     try {
       await fs.access(uploadDir)

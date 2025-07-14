@@ -13,7 +13,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const uploadDir = process.env.NODE_ENV === 'production' 
+    const isProduction = process.env.ENABLE_SERVER_STORAGE === 'true' || 
+                        process.env.VERCEL_ENV === 'production' || 
+                        process.env.NODE_ENV === 'production'
+    
+    const uploadDir = isProduction
       ? path.join('/home/ewuzoeka', 'consent-forms')
       : path.join(process.cwd(), 'uploads', 'consent-forms')
     
