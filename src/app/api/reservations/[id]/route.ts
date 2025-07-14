@@ -49,10 +49,10 @@ export async function GET(
       if (session.user.role !== 'admin' && reservation.userId !== session.user.id) {
         // 新規会員登録直後の予約確認の場合は、予約のユーザーIDとセッションのユーザーIDが異なる場合がある
         // この場合、予約のユーザーが新規作成されたユーザーか確認する
-        const reservationUser = await prisma.user.findUnique({
+        const reservationUser = reservation.userId ? await prisma.user.findUnique({
           where: { id: reservation.userId },
           select: { createdAt: true, email: true }
-        })
+        }) : null
         
         // 予約ユーザーが1時間以内に作成された新規ユーザーかチェック
         const isRecentUser = reservationUser && 
