@@ -8,7 +8,10 @@ export async function POST(request: NextRequest) {
       'テスト太郎',
       'テストピラティスレッスン',
       '2024年1月15日（月）10:00',
-      true
+      'テストスタジオ',
+      'チケット利用',
+      true,
+      false
     )
     
     // 送信先をsyou0445@gmail.comに設定
