@@ -601,7 +601,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
             <label className="block text-sm font-medium mb-1">日付</label>
             <input
               type="text"
-              placeholder="例: 2025/07/08"
+              placeholder="例: 2025.07.08"
               value={date2}
               onChange={e => setDate2(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded w-full"
