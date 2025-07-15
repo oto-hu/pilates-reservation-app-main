@@ -93,28 +93,25 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-      // 日本語テキストを処理する関数（シンプルな ASCII文字変換）
-      const drawText = (page: any, text: string, x: number, y: number, fontSize: number, font: any) => {
-        // 日本語を含む場合は簡単なローマ字変換を行う
-        const romanizedText = text
-          .replace(/ピラティス/g, 'Pilates')
-          .replace(/サロン/g, 'Salon')
-          .replace(/グループ/g, 'Group')
-          .replace(/レッスン/g, 'Lesson')
-          .replace(/同意書/g, 'Consent Form')
-          .replace(/会員会則/g, 'Membership Rules')
-          .replace(/署名/g, 'Signature')
-          .replace(/日付/g, 'Date')
-          .replace(/氏名/g, 'Name')
-          .replace(/未成年者/g, 'Minor')
-          .replace(/以上/g, 'Above')
-          .replace(/親権者/g, 'Parent/Guardian')
-          .replace(/同意/g, 'Agree')
-          .replace(/規則/g, 'Rules')
-          .replace(/厳守/g, 'Comply')
-          .replace(/[^\x00-\x7F]/g, ''); // 残りの非ASCII文字を削除
+      // 日本語テキストを画像化して描画する関数
+      const createTextImage = (text: string, fontSize = 20, fontWeight = 'normal') => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return '';
         
-        page.drawText(romanizedText, { x, y, size: fontSize, font });
+        canvas.width = 600;
+        canvas.height = fontSize + 10;
+        
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = 'black';
+        ctx.font = `${fontWeight} ${fontSize}px 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 5, canvas.height / 2);
+        
+        return canvas.toDataURL('image/png');
       };
       
       // 1ページ目：同意書
@@ -123,13 +120,25 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const margin = 50;
 
       // タイトル
-      drawText(page1, 'ピラティスサロンPreal(プリール)', margin, yPosition, 16, boldFont);
+      const titleImg1 = createTextImage('ピラティスサロンPreal(プリール)', 16, 'bold');
+      if (titleImg1) {
+        const titlePng1 = await pdfDoc.embedPng(titleImg1);
+        page1.drawImage(titlePng1, { x: margin, y: yPosition - 20, width: 300, height: 20 });
+      }
       yPosition -= 30;
 
-      drawText(page1, 'グループレッスン', margin, yPosition, 14, boldFont);
+      const titleImg2 = createTextImage('グループレッスン', 14, 'bold');
+      if (titleImg2) {
+        const titlePng2 = await pdfDoc.embedPng(titleImg2);
+        page1.drawImage(titlePng2, { x: margin, y: yPosition - 20, width: 200, height: 20 });
+      }
       yPosition -= 50;
 
-      drawText(page1, '【同意書(入会後も適応)】', margin, yPosition, 14, boldFont);
+      const titleImg3 = createTextImage('【同意書(入会後も適応)】', 14, 'bold');
+      if (titleImg3) {
+        const titlePng3 = await pdfDoc.embedPng(titleImg3);
+        page1.drawImage(titlePng3, { x: margin, y: yPosition - 20, width: 250, height: 20 });
+      }
       yPosition -= 40;
 
       // 同意書の内容
@@ -148,29 +157,58 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       ];
 
       for (const item of consentItems) {
-        drawText(page1, item, margin, yPosition, 10, font);
+        const itemImg = createTextImage(item, 10);
+        if (itemImg) {
+          const itemPng = await pdfDoc.embedPng(itemImg);
+          page1.drawImage(itemPng, { x: margin, y: yPosition - 12, width: 400, height: 12 });
+        }
         yPosition -= 16;
       }
 
       yPosition -= 20;
-      drawText(page1, '以上', margin, yPosition, 10, font);
+      const endImg = createTextImage('以上', 10);
+      if (endImg) {
+        const endPng = await pdfDoc.embedPng(endImg);
+        page1.drawImage(endPng, { x: margin, y: yPosition - 12, width: 50, height: 12 });
+      }
       yPosition -= 30;
 
       const signText1 = isMinor 
         ? '私は未成年者の親権者として、貴サロンのグループレッスン受講に際し上記事項に同意した為、'
         : '私は、貴サロンのグループレッスン受講に際し上記事項に同意した為、';
-      drawText(page1, signText1, margin, yPosition, 10, boldFont);
+      const signImg1 = createTextImage(signText1, 10, 'bold');
+      if (signImg1) {
+        const signPng1 = await pdfDoc.embedPng(signImg1);
+        page1.drawImage(signPng1, { x: margin, y: yPosition - 12, width: 350, height: 12 });
+      }
       yPosition -= 16;
 
-      drawText(page1, '本書に署名致します。', margin, yPosition, 10, boldFont);
+      const signImg2 = createTextImage('本書に署名致します。', 10, 'bold');
+      if (signImg2) {
+        const signPng2 = await pdfDoc.embedPng(signImg2);
+        page1.drawImage(signPng2, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+      }
       yPosition -= 40;
 
       // 署名エリア1
-      drawText(page1, `日付: ${date1}`, margin, yPosition, 12, font);
+      const dateImg1 = createTextImage(`日付: ${date1}`, 12);
+      if (dateImg1) {
+        const datePng1 = await pdfDoc.embedPng(dateImg1);
+        page1.drawImage(datePng1, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+      }
       yPosition -= 25;
 
-      drawText(page1, `氏名: ${name1}`, margin, yPosition, 12, font);
-      drawText(page1, '署名:', 350, yPosition + 20, 12, font);
+      const nameImg1 = createTextImage(`氏名: ${name1}`, 12);
+      if (nameImg1) {
+        const namePng1 = await pdfDoc.embedPng(nameImg1);
+        page1.drawImage(namePng1, { x: margin, y: yPosition - 12, width: 250, height: 12 });
+      }
+
+      const signatureLabel1 = createTextImage('署名:', 12);
+      if (signatureLabel1) {
+        const signatureLabelPng1 = await pdfDoc.embedPng(signatureLabel1);
+        page1.drawImage(signatureLabelPng1, { x: 350, y: yPosition + 8, width: 60, height: 12 });
+      }
 
       // 署名画像1を埋め込み
       const sigImg1 = sigPad1.current.getCanvas().toDataURL('image/png');
@@ -181,11 +219,24 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       if (isMinor) {
         yPosition -= 60;
         
-        drawText(page1, `未成年者日付: ${minorDate}`, margin, yPosition, 12, font);
+        const minorDateImg1 = createTextImage(`未成年者日付: ${minorDate}`, 12);
+        if (minorDateImg1) {
+          const minorDatePng1 = await pdfDoc.embedPng(minorDateImg1);
+          page1.drawImage(minorDatePng1, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+        }
         yPosition -= 25;
 
-        drawText(page1, `未成年者氏名: ${minorName}`, margin, yPosition, 12, font);
-        drawText(page1, '未成年者署名:', 350, yPosition + 20, 12, font);
+        const minorNameImg1 = createTextImage(`未成年者氏名: ${minorName}`, 12);
+        if (minorNameImg1) {
+          const minorNamePng1 = await pdfDoc.embedPng(minorNameImg1);
+          page1.drawImage(minorNamePng1, { x: margin, y: yPosition - 12, width: 250, height: 12 });
+        }
+        
+        const minorSignatureLabel1 = createTextImage('未成年者署名:', 12);
+        if (minorSignatureLabel1) {
+          const minorSignatureLabelPng1 = await pdfDoc.embedPng(minorSignatureLabel1);
+          page1.drawImage(minorSignatureLabelPng1, { x: 350, y: yPosition + 8, width: 100, height: 12 });
+        }
 
         // 未成年者の署名画像を埋め込み
         const sigImgMinor = sigPadMinor.current.getCanvas().toDataURL('image/png');
@@ -197,10 +248,18 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const page2 = pdfDoc.addPage([595, 842]);
       yPosition = 800;
 
-      drawText(page2, '【会員会則】', margin, yPosition, 14, boldFont);
+      const rulesTitle = createTextImage('【会員会則】', 14, 'bold');
+      if (rulesTitle) {
+        const rulesTitlePng = await pdfDoc.embedPng(rulesTitle);
+        page2.drawImage(rulesTitlePng, { x: margin, y: yPosition - 20, width: 150, height: 20 });
+      }
       yPosition -= 40;
 
-      drawText(page2, 'ピラティスサロンPrealが運営するスタジオでのグループレッスン規約', margin, yPosition, 12, boldFont);
+      const rulesSubtitle = createTextImage('ピラティスサロンPrealが運営するスタジオでのグループレッスン規約', 12, 'bold');
+      if (rulesSubtitle) {
+        const rulesSubtitlePng = await pdfDoc.embedPng(rulesSubtitle);
+        page2.drawImage(rulesSubtitlePng, { x: margin, y: yPosition - 15, width: 400, height: 15 });
+      }
       yPosition -= 40;
 
       // 会員会則の内容
@@ -238,7 +297,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         if (item === '') {
           yPosition -= 8;
         } else {
-          drawText(page2, item, margin, yPosition, 10, font);
+          const itemImg = createTextImage(item, 10);
+          if (itemImg) {
+            const itemPng = await pdfDoc.embedPng(itemImg);
+            page2.drawImage(itemPng, { x: margin, y: yPosition - 12, width: 400, height: 12 });
+          }
           yPosition -= 14;
         }
       }
@@ -247,22 +310,43 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const agreeText1 = isMinor 
         ? '私は未成年者の親権者として会則に同意し規則を厳守致します。'
         : '私は会則に同意し規則を厳守致します。';
-      drawText(page2, agreeText1, margin, yPosition, 10, boldFont);
+      const agreeImg1 = createTextImage(agreeText1, 10, 'bold');
+      if (agreeImg1) {
+        const agreePng1 = await pdfDoc.embedPng(agreeImg1);
+        page2.drawImage(agreePng1, { x: margin, y: yPosition - 12, width: 350, height: 12 });
+      }
       yPosition -= 16;
 
       // 未成年者の場合のみ2行目を表示
       if (isMinor) {
-        drawText(page2, '私は未成年者である会員の親権者として会則に同意します。', margin, yPosition, 10, boldFont);
+        const agreeImg2 = createTextImage('私は未成年者である会員の親権者として会則に同意します。', 10, 'bold');
+        if (agreeImg2) {
+          const agreePng2 = await pdfDoc.embedPng(agreeImg2);
+          page2.drawImage(agreePng2, { x: margin, y: yPosition - 12, width: 450, height: 12 });
+        }
         yPosition -= 16;
       }
       yPosition -= 24;
 
       // 署名エリア2
-      drawText(page2, `日付: ${date2}`, margin, yPosition, 12, font);
+      const dateImg2 = createTextImage(`日付: ${date2}`, 12);
+      if (dateImg2) {
+        const datePng2 = await pdfDoc.embedPng(dateImg2);
+        page2.drawImage(datePng2, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+      }
       yPosition -= 25;
 
-      drawText(page2, `氏名: ${name2}`, margin, yPosition, 12, font);
-      drawText(page2, '署名:', 350, yPosition + 20, 12, font);
+      const nameImg2 = createTextImage(`氏名: ${name2}`, 12);
+      if (nameImg2) {
+        const namePng2 = await pdfDoc.embedPng(nameImg2);
+        page2.drawImage(namePng2, { x: margin, y: yPosition - 12, width: 250, height: 12 });
+      }
+      
+      const signatureLabel2 = createTextImage('署名:', 12);
+      if (signatureLabel2) {
+        const signatureLabelPng2 = await pdfDoc.embedPng(signatureLabel2);
+        page2.drawImage(signatureLabelPng2, { x: 350, y: yPosition + 8, width: 60, height: 12 });
+      }
 
       // 署名画像2を埋め込み
       const sigImg2 = sigPad2.current.getCanvas().toDataURL('image/png');
@@ -273,11 +357,24 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       if (isMinor) {
         yPosition -= 60;
         
-        drawText(page2, `未成年者日付: ${minorDate}`, margin, yPosition, 12, font);
+        const minorDateImg2 = createTextImage(`未成年者日付: ${minorDate}`, 12);
+        if (minorDateImg2) {
+          const minorDatePng2 = await pdfDoc.embedPng(minorDateImg2);
+          page2.drawImage(minorDatePng2, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+        }
         yPosition -= 25;
 
-        drawText(page2, `未成年者氏名: ${minorName}`, margin, yPosition, 12, font);
-        drawText(page2, '未成年者署名:', 350, yPosition + 20, 12, font);
+        const minorNameImg2 = createTextImage(`未成年者氏名: ${minorName}`, 12);
+        if (minorNameImg2) {
+          const minorNamePng2 = await pdfDoc.embedPng(minorNameImg2);
+          page2.drawImage(minorNamePng2, { x: margin, y: yPosition - 12, width: 250, height: 12 });
+        }
+        
+        const minorSignatureLabel2 = createTextImage('未成年者署名:', 12);
+        if (minorSignatureLabel2) {
+          const minorSignatureLabelPng2 = await pdfDoc.embedPng(minorSignatureLabel2);
+          page2.drawImage(minorSignatureLabelPng2, { x: 350, y: yPosition + 8, width: 100, height: 12 });
+        }
 
         // 未成年者の署名画像を埋め込み
         const sigImgMinor2 = sigPadMinor.current.getCanvas().toDataURL('image/png');
