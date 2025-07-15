@@ -246,7 +246,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       // 署名画像を埋め込み
       const sigImg = sigPad.current.getCanvas().toDataURL('image/png');
       const pngImage = await pdfDoc.embedPng(sigImg);
-      page1.drawImage(pngImage, { x: 350, y: yPosition - 50, width: 180, height: 80 });
+      page1.drawImage(pngImage, { x: 300, y: yPosition - 50, width: 240, height: 80 });
 
       // 未成年者の場合、本人の署名も追加
       if (isMinor) {
@@ -274,7 +274,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 未成年者の署名画像を埋め込み
         const sigImgMinor = sigPadMinor.current.getCanvas().toDataURL('image/png');
         const pngImageMinor = await pdfDoc.embedPng(sigImgMinor);
-        page1.drawImage(pngImageMinor, { x: 350, y: yPosition - 50, width: 180, height: 80 });
+        page1.drawImage(pngImageMinor, { x: 300, y: yPosition - 50, width: 240, height: 80 });
       }
 
       // 2ページ目：会員会則
@@ -384,7 +384,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       // 署名画像2を埋め込み（同じ署名データを使用）
       const sigImg2 = sigPad.current.getCanvas().toDataURL('image/png');
       const pngImage2 = await pdfDoc.embedPng(sigImg2);
-      page2.drawImage(pngImage2, { x: 350, y: yPosition - 50, width: 180, height: 80 });
+      page2.drawImage(pngImage2, { x: 300, y: yPosition - 50, width: 240, height: 80 });
 
       // 未成年者の場合、本人の署名も追加
       if (isMinor) {
@@ -412,7 +412,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 未成年者の署名画像を埋め込み
         const sigImgMinor2 = sigPadMinor.current.getCanvas().toDataURL('image/png');
         const pngImageMinor2 = await pdfDoc.embedPng(sigImgMinor2);
-        page2.drawImage(pngImageMinor2, { x: 350, y: yPosition - 50, width: 180, height: 80 });
+        page2.drawImage(pngImageMinor2, { x: 300, y: yPosition - 50, width: 240, height: 80 });
       }
 
       // PDF保存とダウンロード
@@ -683,7 +683,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                 velocityFilterWeight={0.7}
                 throttle={16}
                 canvasProps={{
-                  width: 600, 
+                  width: 800, 
                   height: 200, 
                   className: 'w-full h-full touch-none',
                   style: {
@@ -706,9 +706,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
             >
               クリア
             </button>
-            <span className="text-xs text-gray-500">
-              スマホの場合：指で書いてください
-            </span>
           </div>
         </div>
 
@@ -768,7 +765,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                   velocityFilterWeight={0.7}
                   throttle={16}
                   canvasProps={{
-                    width: 600, 
+                    width: 800, 
                     height: 200, 
                     className: 'w-full h-full touch-none',
                     style: {
@@ -791,9 +788,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
               >
                 クリア
               </button>
-              <span className="text-xs text-gray-500">
-                スマホの場合：指で書いてください
-              </span>
             </div>
           </div>
         </div>
