@@ -246,7 +246,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       // 署名画像を埋め込み
       const sigImg = sigPad.current.getCanvas().toDataURL('image/png');
       const pngImage = await pdfDoc.embedPng(sigImg);
-      page1.drawImage(pngImage, { x: 350, y: yPosition - 30, width: 150, height: 50 });
+      page1.drawImage(pngImage, { x: 350, y: yPosition - 50, width: 180, height: 80 });
 
       // 未成年者の場合、本人の署名も追加
       if (isMinor) {
@@ -274,7 +274,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 未成年者の署名画像を埋め込み
         const sigImgMinor = sigPadMinor.current.getCanvas().toDataURL('image/png');
         const pngImageMinor = await pdfDoc.embedPng(sigImgMinor);
-        page1.drawImage(pngImageMinor, { x: 350, y: yPosition - 30, width: 150, height: 50 });
+        page1.drawImage(pngImageMinor, { x: 350, y: yPosition - 50, width: 180, height: 80 });
       }
 
       // 2ページ目：会員会則
@@ -384,7 +384,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       // 署名画像2を埋め込み（同じ署名データを使用）
       const sigImg2 = sigPad.current.getCanvas().toDataURL('image/png');
       const pngImage2 = await pdfDoc.embedPng(sigImg2);
-      page2.drawImage(pngImage2, { x: 350, y: yPosition - 30, width: 150, height: 50 });
+      page2.drawImage(pngImage2, { x: 350, y: yPosition - 50, width: 180, height: 80 });
 
       // 未成年者の場合、本人の署名も追加
       if (isMinor) {
@@ -412,7 +412,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 未成年者の署名画像を埋め込み
         const sigImgMinor2 = sigPadMinor.current.getCanvas().toDataURL('image/png');
         const pngImageMinor2 = await pdfDoc.embedPng(sigImgMinor2);
-        page2.drawImage(pngImageMinor2, { x: 350, y: yPosition - 30, width: 150, height: 50 });
+        page2.drawImage(pngImageMinor2, { x: 350, y: yPosition - 50, width: 180, height: 80 });
       }
 
       // PDF保存とダウンロード
@@ -533,15 +533,15 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-8 px-6">
       <h1 className="text-2xl font-bold mb-6 text-center">グループレッスン同意書</h1>
       
       {/* 同意書の内容 */}
-      <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+      <div className="mb-8 p-8 border border-gray-300 rounded-lg bg-gray-50">
         <h2 className="text-xl font-bold mb-4">ピラティスサロンPreal(プリール) グループレッスン</h2>
         
         <h3 className="text-lg font-bold mb-4">【同意書(入会後も適応)】</h3>
-        <div className="text-sm space-y-2 mb-6">
+        <div className="text-sm space-y-3 mb-6">
           <p>●自己の体調・けがに万全の注意を払います。</p>
           <p>●内科疾患(高血圧・てんかん)、循環器疾患(心臓病・ぺースメーカー)など運動に対しリスク管理が必要と判断される疾患や事項(現病歴・既往歴・手術歴・妊娠など)がある場合は、必ず申し出ます。</p>
           <p>●その他通院中の疾患や報告が必要な事項がある場合は必ず医師から許可を得た上で参加します。</p>
@@ -556,12 +556,12 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       </div>
 
       {/* 会員会則の内容 */}
-      <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+      <div className="mb-8 p-8 border border-gray-300 rounded-lg bg-gray-50">
         <p className="font-bold mb-4">※【会員会則】はご入会される方へ向けて当日現地にて再度お伝え致します。</p>
         <h3 className="text-lg font-bold mb-4">【会員会則】</h3>
         <p className="font-bold mb-4">ピラティスサロンPrealが運営するスタジオ・提携するスタジオでのグループレッスン関する規約になります。</p>
         
-        <div className="text-sm space-y-2 mb-6">
+        <div className="text-sm space-y-3 mb-6">
           <p className="font-semibold">●入会資格について　下記項目に該当する場合、原則としてご入会できません。</p>
           <p className="ml-4">・医師等により運動を禁じられている</p>
           <p className="ml-4">・妊娠中</p>
@@ -613,11 +613,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       </div>
 
       {/* 署名セクション（希望の順序） */}
-      <div className="mb-8 p-4 border border-gray-200 rounded">
+      <div className="mb-8 p-6 border border-gray-200 rounded">
         <h3 className="font-semibold mb-4 text-lg">署名</h3>
         
         {/* 1. 同意書チェック */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -632,7 +632,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
 
         {/* 2. 会員会則チェック */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -647,7 +647,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
 
         {/* 3. 日付 */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium mb-1">日付</label>
           <input
             type="text"
@@ -659,7 +659,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
 
         {/* 4. 名前 */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium mb-1">お名前</label>
           <input
             type="text"
@@ -671,7 +671,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
 
         {/* 5. 直筆署名 */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium mb-1">直筆署名</label>
           <div className="relative">
             <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
@@ -683,12 +683,12 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                 velocityFilterWeight={0.7}
                 throttle={16}
                 canvasProps={{
-                  width: 400, 
-                  height: 120, 
+                  width: 600, 
+                  height: 200, 
                   className: 'w-full h-full touch-none',
                   style: {
                     width: '100%',
-                    height: '120px',
+                    height: '200px',
                     display: 'block',
                     touchAction: 'none'
                   }
@@ -699,7 +699,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
               ここに署名してください
             </div>
           </div>
-          <div className="flex justify-between items-center mt-2">
+          <div className="flex justify-between items-center mt-3">
             <button 
               onClick={() => sigPad.current?.clear()} 
               className="text-sm text-blue-500 hover:text-blue-700 px-2 py-1 rounded border border-blue-300 hover:bg-blue-50"
@@ -713,7 +713,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
 
         {/* 6. 18歳未満チェック */}
-        <div className="mb-4 p-4 border border-orange-200 rounded bg-orange-50">
+        <div className="mb-6 p-6 border border-orange-200 rounded bg-orange-50">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -730,10 +730,10 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       {/* 未成年者の署名セクション */}
       {isMinor && (
-        <div className="mb-8 p-4 border border-blue-200 rounded bg-blue-50">
+        <div className="mb-8 p-6 border border-blue-200 rounded bg-blue-50">
           <h3 className="font-semibold mb-4 text-lg text-blue-800">未成年者（本人）による署名</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium mb-1">日付</label>
               <input
@@ -756,7 +756,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
             </div>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-sm font-medium mb-1">署名（未成年者）</label>
             <div className="relative">
               <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
@@ -768,12 +768,12 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                   velocityFilterWeight={0.7}
                   throttle={16}
                   canvasProps={{
-                    width: 400, 
-                    height: 120, 
+                    width: 600, 
+                    height: 200, 
                     className: 'w-full h-full touch-none',
                     style: {
                       width: '100%',
-                      height: '120px',
+                      height: '200px',
                       display: 'block',
                       touchAction: 'none'
                     }
@@ -784,7 +784,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                 ここに署名してください
               </div>
             </div>
-            <div className="flex justify-between items-center mt-2">
+            <div className="flex justify-between items-center mt-3">
               <button 
                 onClick={() => sigPadMinor.current?.clear()} 
                 className="text-sm text-blue-500 hover:text-blue-700 px-2 py-1 rounded border border-blue-300 hover:bg-blue-50"
