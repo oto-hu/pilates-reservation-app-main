@@ -412,8 +412,50 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       `;
       alert(successMessage);
       
-      // 同意書完了後にコールバックを呼び出し（PDFブロブを渡す）
-      onConsentComplete(blob);
+      // スマホでのダウンロード後のリダイレクト問題を修正
+      // PDFダウンロード処理完了を少し待ってからコールバック実行
+      
+      // デバイス判定 - モバイルデバイスかどうか確認
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // モバイルデバイスの場合: フォーカスイベントとタイマーの両方で対応
+        console.log('📱 モバイルデバイス検出: フォーカスイベントとタイマーで対応');
+        
+        let callbackExecuted = false;
+        
+        const executeCallback = () => {
+          if (!callbackExecuted) {
+            callbackExecuted = true;
+            console.log('📱 モバイル対応: コールバック呼び出し');
+            onConsentComplete(blob);
+          }
+        };
+        
+        // フォーカスが戻ってきた時にコールバック実行
+        const handleFocus = () => {
+          console.log('📱 フォーカス復帰検出');
+          setTimeout(executeCallback, 500);
+          window.removeEventListener('focus', handleFocus);
+        };
+        
+        window.addEventListener('focus', handleFocus);
+        
+        // フォールバック: 3秒後に強制実行
+        setTimeout(() => {
+          console.log('📱 フォールバック: 強制実行');
+          executeCallback();
+          window.removeEventListener('focus', handleFocus);
+        }, 3000);
+        
+      } else {
+        // デスクトップの場合: 短い遅延で実行
+        console.log('🖥️ デスクトップデバイス検出: 短い遅延でコールバック呼び出し');
+        setTimeout(() => {
+          console.log('🖥️ デスクトップ対応: コールバック呼び出し');
+          onConsentComplete(blob);
+        }, 500); // 0.5秒遅延
+      }
     } catch (err) {
       console.error('PDF処理エラー:', err);
       setError('PDFの処理中にエラーが発生しました: ' + (err as Error).message);
@@ -750,7 +792,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           <p className="text-blue-700 text-sm">
             1. 下記ボタンをクリックして署名済みPDFをダウンロード<br/>
             2. PDFダウンロード後、自動的に会員登録とレッスン予約が完了します<br/>
-            3. 確認メールが送信されます
+            3. 確認メールが送信されます<br/>
+            <span className="text-orange-600 font-medium">※スマホの場合、PDFを確認後にブラウザに戻ると処理が完了します</span>
           </p>
         </div>
         
