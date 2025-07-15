@@ -521,13 +521,17 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       {/* 会員会則の内容 */}
       <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+        <p className="font-bold mb-4">※【会員会則】はご入会される方へ向けて当日現地にて再度お伝え致します。</p>
         <h3 className="text-lg font-bold mb-4">【会員会則】</h3>
         <p className="font-bold mb-4">ピラティスサロンPrealが運営するスタジオ・提携するスタジオでのグループレッスン関する規約になります。</p>
         
         <div className="text-sm space-y-2 mb-6">
           <p className="font-semibold">●入会資格について　下記項目に該当する場合、原則としてご入会できません。</p>
-          <p className="ml-4">・医師等により運動を禁じられている　・妊娠中　・暴力団関係者</p>
-          <p className="ml-4">・感染症および感染性のある皮膚病がある　・現在18歳未満(保護者から同意が得られる場合は入会可)</p>
+          <p className="ml-4">・医師等により運動を禁じられている</p>
+          <p className="ml-4">・妊娠中</p>
+          <p className="ml-4">・暴力団関係者</p>
+          <p className="ml-4">・感染症および感染性のある皮膚病がある</p>
+          <p className="ml-4">・現在18歳未満(保護者から同意が得られる場合は入会可)</p>
           <p className="ml-4">・同意書・会員会則に記載の内容に同意できない</p>
           <p className="ml-4">・虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分にされる事を了承できない</p>
           
@@ -611,7 +615,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           <label className="block text-sm font-medium mb-1">日付</label>
           <input
             type="text"
-            placeholder="例: 2025/07/08"
+            placeholder="例: 2025.07.08"
             value={date}
             onChange={e => setDate(e.target.value)}
             className="border border-gray-300 px-3 py-2 rounded w-full"

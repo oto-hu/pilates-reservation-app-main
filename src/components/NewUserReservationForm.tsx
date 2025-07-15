@@ -314,7 +314,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                 {/* 住所情報 */}
                 <div className="space-y-4">
                   <div>
-                    <label className="form-label">郵便番号</label>
+                    <label className="form-label">郵便番号 <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       className="form-input"
@@ -327,7 +327,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                   </div>
 
                   <div>
-                    <label className="form-label">住所</label>
+                    <label className="form-label">住所 <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       className="form-input"
