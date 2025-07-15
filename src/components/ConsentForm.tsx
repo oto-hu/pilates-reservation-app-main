@@ -25,6 +25,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
   const sigPad2 = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [pdfDownloaded, setPdfDownloaded] = useState<boolean>(false);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   // ページ読み込み時にスクロールを上部に固定
   useEffect(() => {
@@ -400,6 +402,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       setLoading(false);
       setError(null);
+      setPdfDownloaded(true);
+      setPdfBlob(blob);
       
       // 成功メッセージを表示
       const successMessage = `
@@ -419,8 +423,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
       if (isMobile) {
-        // モバイルデバイスの場合: フォーカスイベントとタイマーの両方で対応
-        console.log('📱 モバイルデバイス検出: フォーカスイベントとタイマーで対応');
+        // モバイルデバイスの場合: 複数のイベントで確実に対応
+        console.log('📱 モバイルデバイス検出: 複数のイベントで対応');
         
         let callbackExecuted = false;
         
@@ -432,21 +436,47 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           }
         };
         
-        // フォーカスが戻ってきた時にコールバック実行
+        // 1. フォーカスが戻ってきた時にコールバック実行
         const handleFocus = () => {
           console.log('📱 フォーカス復帰検出');
           setTimeout(executeCallback, 500);
-          window.removeEventListener('focus', handleFocus);
+          cleanup();
         };
         
-        window.addEventListener('focus', handleFocus);
+        // 2. ページが見えるようになった時にコールバック実行（Page Visibility API）
+        const handleVisibilityChange = () => {
+          if (!document.hidden) {
+            console.log('📱 ページ表示復帰検出');
+            setTimeout(executeCallback, 500);
+            cleanup();
+          }
+        };
         
-        // フォールバック: 3秒後に強制実行
+        // 3. ページにフォーカスが戻った時のイベント
+        const handlePageShow = () => {
+          console.log('📱 ページ表示イベント検出');
+          setTimeout(executeCallback, 500);
+          cleanup();
+        };
+        
+        // イベントリスナーをクリーンアップする関数
+        const cleanup = () => {
+          window.removeEventListener('focus', handleFocus);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          window.removeEventListener('pageshow', handlePageShow);
+        };
+        
+        // 複数のイベントでリスナーを設定
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pageshow', handlePageShow);
+        
+        // フォールバック: 4秒後に強制実行
         setTimeout(() => {
           console.log('📱 フォールバック: 強制実行');
           executeCallback();
-          window.removeEventListener('focus', handleFocus);
-        }, 3000);
+          cleanup();
+        }, 4000);
         
       } else {
         // デスクトップの場合: 短い遅延で実行
@@ -460,6 +490,14 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       console.error('PDF処理エラー:', err);
       setError('PDFの処理中にエラーが発生しました: ' + (err as Error).message);
       setLoading(false);
+    }
+  };
+
+  // 手動でレッスン完了に進む関数
+  const handleManualComplete = () => {
+    if (pdfBlob) {
+      console.log('🔄 手動でレッスン完了に進む');
+      onConsentComplete(pdfBlob);
     }
   };
 
@@ -799,11 +837,30 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         
         <button
           onClick={handleDownload}
-          disabled={loading}
+          disabled={loading || pdfDownloaded}
           className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium"
         >
-          {loading ? '処理中...' : '署名済みPDFをダウンロードして予約完了'}
+          {loading ? '処理中...' : pdfDownloaded ? 'PDF ダウンロード完了' : '署名済みPDFをダウンロードして予約完了'}
         </button>
+        
+        {/* PDFダウンロード完了後の手動ボタン */}
+        {pdfDownloaded && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="text-center">
+              <h4 className="text-lg font-semibold text-green-800 mb-2">PDFダウンロード完了</h4>
+              <p className="text-green-700 text-sm mb-4">
+                PDFをダウンロードしました。自動的にレッスン予約完了ページに進みます。<br/>
+                <span className="text-orange-600 font-medium">※自動で進まない場合は、下記ボタンをクリックしてください</span>
+              </p>
+              <button
+                onClick={handleManualComplete}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 text-md font-medium"
+              >
+                レッスン予約を完了する
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
