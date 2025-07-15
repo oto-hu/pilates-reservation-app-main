@@ -519,6 +519,59 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         <p className="font-bold text-center">私は、貴サロンのグループレッスン受講に際し上記事項に同意した為、本書に署名致します。</p>
       </div>
 
+      {/* 会員会則の内容 */}
+      <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+        <h3 className="text-lg font-bold mb-4">【会員会則】</h3>
+        <p className="font-bold mb-4">ピラティスサロンPrealが運営するスタジオ・提携するスタジオでのグループレッスン関する規約になります。</p>
+        
+        <div className="text-sm space-y-2 mb-6">
+          <p className="font-semibold">●入会資格について　下記項目に該当する場合、原則としてご入会できません。</p>
+          <p className="ml-4">・医師等により運動を禁じられている　・妊娠中　・暴力団関係者</p>
+          <p className="ml-4">・感染症および感染性のある皮膚病がある　・現在18歳未満(保護者から同意が得られる場合は入会可)</p>
+          <p className="ml-4">・同意書・会員会則に記載の内容に同意できない</p>
+          <p className="ml-4">・虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分にされる事を了承できない</p>
+          
+          <p className="font-semibold mt-4">●レッスンに関して</p>
+          <p className="ml-4">・チケット残数は会員ログイン後に名ページにてご確認をお願い致します。万が一お客様の会員情報が消失した場合、チケット情報に関しては当サロンの記録情報に準じます。</p>
+          <p className="ml-4">・チケットが残っている状態のみレッスンを受講する事ができます。</p>
+          <p className="ml-4">・キャンセルはレッスン予約日の前日21時00分までにキャンセル処理をお願い致します。いかなる理由においても上記時間を過ぎてのキャンセルは100％チャージ(1回分消化)となります。</p>
+          <p className="ml-4">・当日キャンセルも同様に、いかなる理由においても100％チャージ(1回分消化)となります。</p>
+          <p className="ml-4">・レッスン当日に事前連絡なく開始時間を過ぎた場合も自動キャンセル扱い（1回分消化）となります。</p>
+          <p className="ml-4">・入室はレッスン開始時間の10分前から可能です。それより前からの入室はできません。</p>
+          <p className="ml-4">・※体験時のみ開始時間の15分前に集合となります。</p>
+          <p className="ml-4">・翌月分の予約受付は毎月10日9:00から開始となります。</p>
+          <p className="ml-4">・1日最大1レッスンまでとなります。</p>
+          <p className="ml-4">・当日にスタジオならびインストラクター都合により急遽休講する場合やレッスン内容や定員数などレッスンに関する事項を変更する場合がございます。</p>
+          <p className="ml-4">・レッスンスケジュールは月によりレッスン時間、レッスンレベル、レッスンの種類、レッスンの量が変動する場合がございます。</p>
+          
+          <p className="font-semibold mt-4">●プランについて</p>
+          <p className="ml-4">・いかなる理由においても購入後の払い戻しは一切致しかねます。</p>
+          <p className="ml-4">・チケット最終消化日から6か月以上プランを更新されない場合は自動退会となります。</p>
+          <p className="ml-4">・再入会の際は別途入会金5,000円が発生します。</p>
+
+          <p className="font-semibold mt-4">●休会に関して</p>
+          <p className="ml-4">・休会を希望する月の前月15日までの申請にて適応となります。(例)8/1から休会希望→7/15までに申請会場にて、会員ご本人様による書面でのお手続きが必要となります。</p>
+          <p className="ml-4">・休会期間は最長6か月となります。休会期間の日数分が有効期限から延長されます。</p>
+          
+          <p className="font-semibold mt-4">●損害賠償責任免責</p>
+          <p className="ml-4">・会員が当サロンが運営するスタジオ・提携するスタジオでのレッスン中、又は左記スタジオ周辺で受けた損害に対して当サロン・インストラクター及び開催場所管理者は損害に関する一切の責任を負いません。</p>
+          <p className="ml-4">・自己所有物の破損、紛失、盗難や事故、怪我に対する請求、訴訟その他一切の責任を追及できません。</p>
+
+          <p className="font-semibold mt-4">●同意</p>
+          <p className="ml-4">・虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分とさせて頂く場合がございます。</p>
+          <p className="ml-4">・サロンの判断により、事前予告なく会則の内容を変更・追加・削除(以下「変更内容」)される事があります。その際、変更内容や適用開始時期をスタジオ所定の方法で告知するものとします。会員は変更内容に同意したものとみなされます。</p>
+        </div>
+        
+        <div className="space-y-2">
+          <p className="font-bold">
+            {isMinor ? '私は未成年者の親権者として会則に同意し規則を厳守致します。' : '私は会則に同意し規則を厳守致します。'}
+          </p>
+          {isMinor && (
+            <p className="font-bold">私は未成年者である会員の親権者として会則に同意します。</p>
+          )}
+        </div>
+      </div>
+
       {/* 署名セクション（希望の順序） */}
       <div className="mb-8 p-4 border border-gray-200 rounded">
         <h3 className="font-semibold mb-4 text-lg">署名</h3>
@@ -662,107 +715,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
       )}
 
-      {/* 会員会則の内容 */}
-      <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
-        <h3 className="text-lg font-bold mb-4">【会員会則】</h3>
-        <p className="font-bold mb-4">ピラティスサロンPrealが運営するスタジオ・提携するスタジオでのグループレッスン関する規約になります。</p>
-        
-        <div className="text-sm space-y-2 mb-6">
-          <p className="font-semibold">●入会資格について　下記項目に該当する場合、原則としてご入会できません。</p>
-          <p className="ml-4">・医師等により運動を禁じられている　・妊娠中　・暴力団関係者</p>
-          <p className="ml-4">・感染症および感染性のある皮膚病がある　・現在18歳未満(保護者から同意が得られる場合は入会可)</p>
-          <p className="ml-4">・同意書・会員会則に記載の内容に同意できない</p>
-          <p className="ml-4">・虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分にされる事を了承できない</p>
-          
-          <p className="font-semibold mt-4">●レッスンに関して</p>
-          <p className="ml-4">・チケット残数は会員ログイン後に名ページにてご確認をお願い致します。万が一お客様の会員情報が消失した場合、チケット情報に関しては当サロンの記録情報に準じます。</p>
-          <p className="ml-4">・チケットが残っている状態のみレッスンを受講する事ができます。</p>
-          <p className="ml-4">・キャンセルはレッスン予約日の前日21時00分までにキャンセル処理をお願い致します。いかなる理由においても上記時間を過ぎてのキャンセルは100％チャージ(1回分消化)となります。</p>
-          <p className="ml-4">・当日キャンセルも同様に、いかなる理由においても100％チャージ(1回分消化)となります。</p>
-          <p className="ml-4">・レッスン当日に事前連絡なく開始時間を過ぎた場合も自動キャンセル扱い（1回分消化）となります。</p>
-          <p className="ml-4">・入室はレッスン開始時間の10分前から可能です。それより前からの入室はできません。</p>
-          <p className="ml-4">・※体験時のみ開始時間の15分前に集合となります。</p>
-          <p className="ml-4">・翌月分の予約受付は毎月10日9:00から開始となります。</p>
-          <p className="ml-4">・1日最大1レッスンまでとなります。</p>
-          <p className="ml-4">・当日にスタジオならびインストラクター都合により急遽休講する場合やレッスン内容や定員数などレッスンに関する事項を変更する場合がございます。</p>
-          <p className="ml-4">・レッスンスケジュールは月によりレッスン時間、レッスンレベル、レッスンの種類、レッスンの量が変動する場合がございます。</p>
-          
-          <p className="font-semibold mt-4">●プランについて</p>
-          <p className="ml-4">・いかなる理由においても購入後の払い戻しは一切致しかねます。</p>
-          <p className="ml-4">・チケット最終消化日から6か月以上プランを更新されない場合は自動退会となります。</p>
-          <p className="ml-4">・再入会の際は別途入会金5,000円が発生します。</p>
-
-          <p className="font-semibold mt-4">●休会に関して</p>
-          <p className="ml-4">・休会を希望する月の前月15日までの申請にて適応となります。(例)8/1から休会希望→7/15までに申請会場にて、会員ご本人様による書面でのお手続きが必要となります。</p>
-          <p className="ml-4">・休会期間は最長6か月となります。休会期間の日数分が有効期限から延長されます。</p>
-          
-          <p className="font-semibold mt-4">●損害賠償責任免責</p>
-          <p className="ml-4">・会員が当サロンが運営するスタジオ・提携するスタジオでのレッスン中、又は左記スタジオ周辺で受けた損害に対して当サロン・インストラクター及び開催場所管理者は損害に関する一切の責任を負いません。</p>
-          <p className="ml-4">・自己所有物の破損、紛失、盗難や事故、怪我に対する請求、訴訟その他一切の責任を追及できません。</p>
-
-          <p className="font-semibold mt-4">●同意</p>
-          <p className="ml-4">・虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分とさせて頂く場合がございます。</p>
-          <p className="ml-4">・サロンの判断により、事前予告なく会則の内容を変更・追加・削除(以下「変更内容」)される事があります。その際、変更内容や適用開始時期をスタジオ所定の方法で告知するものとします。会員は変更内容に同意したものとみなされます。</p>
-        </div>
-        
-        <div className="space-y-2">
-          <p className="font-bold">
-            {isMinor ? '私は未成年者の親権者として会則に同意し規則を厳守致します。' : '私は会則に同意し規則を厳守致します。'}
-          </p>
-          {isMinor && (
-            <p className="font-bold">私は未成年者である会員の親権者として会則に同意します。</p>
-          )}
-        </div>
-      </div>
-
-      {/* 未成年者の会員会則署名セクション */}
-      {isMinor && (
-        <div className="mb-8 p-4 border border-blue-200 rounded bg-blue-50">
-          <h3 className="font-semibold mb-4 text-lg text-blue-800">未成年者（本人）による会員会則への署名</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">日付</label>
-              <input
-                type="text"
-                placeholder="例: 2025/07/08"
-                value={minorDate}
-                onChange={e => setMinorDate(e.target.value)}
-                className="border border-gray-300 px-3 py-2 rounded w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">お名前（未成年者）</label>
-              <input
-                type="text"
-                placeholder="例: 山田花子"
-                value={minorName}
-                onChange={e => setMinorName(e.target.value)}
-                className="border border-gray-300 px-3 py-2 rounded w-full"
-              />
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">署名（未成年者）</label>
-            <SignatureCanvas
-              ref={sigPadMinor}
-              penColor="black"
-              canvasProps={{
-                width: 400, 
-                height: 100, 
-                className: 'border border-gray-300 rounded w-full'
-              }}
-            />
-            <button 
-              onClick={() => sigPadMinor.current?.clear()} 
-              className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-            >
-              クリア
-            </button>
-          </div>
-        </div>
-      )}
 
 
       {/* エラー表示 */}
