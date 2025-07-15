@@ -204,9 +204,7 @@ export default function HomePage() {
           2か所でグループレッスンを<br />開催しております。<br /><br />
           ご予約の際、<br />お取り間違えにご注意下さい！
           </p>
-          <div className="flex justify-center mb-8">
-            <img src="/images/Frame 342.png" alt="予約システム説明" className="max-w-full h-auto rounded-lg shadow-lg" />
-          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/trial"
