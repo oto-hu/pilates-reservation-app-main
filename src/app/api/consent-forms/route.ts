@@ -60,24 +60,29 @@ export async function POST(request: NextRequest) {
     // Google Driveにも保存
     let googleDriveFileId: string | null = null;
     try {
-      // 日付ベースのフォルダを作成/取得
-      const currentDate = new Date();
-      const targetFolderId = await googleDriveService.createDateBasedFolder(currentDate);
-      
-      // Google Driveファイル名を生成
-      const googleDriveFileName = googleDriveService.generateConsentFileName(customerName, currentDate.toLocaleDateString('ja-JP'));
-      
-      // Google Driveにアップロード
-      googleDriveFileId = await googleDriveService.uploadFile(
-        googleDriveFileName,
-        buffer,
-        'application/pdf'
-      );
-      
-      console.log('✅ Google Drive保存完了:', {
-        fileId: googleDriveFileId,
-        fileName: googleDriveFileName
-      });
+      // 環境変数チェック
+      if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_DRIVE_FOLDER_ID) {
+        console.log('⚠️ Google Drive環境変数が設定されていません。データベース保存のみ実行します。');
+      } else {
+        // 日付ベースのフォルダを作成/取得
+        const currentDate = new Date();
+        const targetFolderId = await googleDriveService.createDateBasedFolder(currentDate);
+        
+        // Google Driveファイル名を生成
+        const googleDriveFileName = googleDriveService.generateConsentFileName(customerName, currentDate.toLocaleDateString('ja-JP'));
+        
+        // Google Driveにアップロード
+        googleDriveFileId = await googleDriveService.uploadFile(
+          googleDriveFileName,
+          buffer,
+          'application/pdf'
+        );
+        
+        console.log('✅ Google Drive保存完了:', {
+          fileId: googleDriveFileId,
+          fileName: googleDriveFileName
+        });
+      }
     } catch (googleDriveError) {
       console.error('⚠️ Google Drive保存エラー (データベース保存は成功):', googleDriveError);
       // Google Driveの保存に失敗してもデータベース保存は成功しているので、エラーを投げない
