@@ -320,6 +320,12 @@ export default function HomePage() {
                       
                       <div className="space-y-2 text-sm text-gray-600 mb-4">
                         <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span>
+                            {moment(event.start).format('M月D日(ddd)')}
+                          </span>
+                        </div>
+                        <div className="flex items-center">
                           <Clock className="h-4 w-4 mr-2" />
                           <span>
                             {formatTime(new Date(event.start))} - {formatTime(new Date(event.end))}
