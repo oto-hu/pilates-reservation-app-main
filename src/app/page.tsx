@@ -197,11 +197,11 @@ export default function HomePage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-          ピラティスサロンPreal(プリール)
+          ピラティスサロンPreal(プリール)<br />
             <span className="text-primary-500 block">グループ予約<br />専用ページ</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          2か所でグループレッスンを<br />開催しております。<br />
+          2か所でグループレッスンを<br />開催しております。<br /><br />
           ご予約の際、<br />お取り間違えにご注意下さい！
           </p>
           <div className="flex justify-center mb-8">
@@ -225,7 +225,7 @@ export default function HomePage() {
           </div>
           <p className="mt-6 flex justify-center">
             <span className="bg-primary-50 text-primary-700 text-base font-bold px-4 py-2 rounded-full border border-primary-200 shadow-sm">
-              初めての方は1,000円の体験レッスンから始められます
+              初めての方は体験料金:【1000円】から始められます
             </span>
           </p>
         </div>
@@ -401,7 +401,7 @@ export default function HomePage() {
             <div className="bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg p-8 text-center max-w-md">
               <h4 className="text-2xl font-bold text-gray-900 mb-4">今すぐ予約</h4>
               <p className="text-gray-600 mb-6">
-                体験レッスンのご予約、お待ちしております。
+                体験レッスンのご予約<br />お待ちしております。
               </p>
               <Link href="#reserve" className="btn-primary inline-flex items-center px-6 py-3 text-lg">
                 <Calendar className="mr-2 h-5 w-5" />
