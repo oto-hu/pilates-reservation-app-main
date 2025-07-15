@@ -289,7 +289,7 @@ export default function HomePage() {
 
           {/* Lesson List */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">今週のレッスン一覧</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">予約受付中のレッスン一覧</h2>
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
