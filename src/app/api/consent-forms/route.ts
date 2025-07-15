@@ -2,6 +2,62 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { vercelBlobService } from '@/lib/vercel-blob'
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const filename = searchParams.get('filename')
+    
+    if (!filename) {
+      return NextResponse.json({ error: 'Filename is required' }, { status: 400 })
+    }
+
+    // データベースから同意書を検索
+    const consentForm = await prisma.consentForm.findFirst({
+      where: { filename }
+    })
+
+    if (!consentForm) {
+      return NextResponse.json({ error: 'Consent form not found' }, { status: 404 })
+    }
+
+    // Vercel Blobからファイルをダウンロード
+    if (consentForm.blobUrl) {
+      try {
+        const response = await fetch(consentForm.blobUrl)
+        if (response.ok) {
+          const blob = await response.blob()
+          const arrayBuffer = await blob.arrayBuffer()
+          
+          return new NextResponse(arrayBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="${filename}"`,
+            },
+          })
+        }
+      } catch (error) {
+        console.error('Vercel Blob download error:', error)
+      }
+    }
+
+    // Vercel Blobから取得できない場合はデータベースから取得
+    if (consentForm.pdfData) {
+      return new NextResponse(consentForm.pdfData, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+        },
+      })
+    }
+
+    return NextResponse.json({ error: 'PDF data not found' }, { status: 404 })
+
+  } catch (error) {
+    console.error('Error downloading consent form:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   console.log('=== API /consent-forms POST Debug ===');
   try {
