@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
@@ -25,6 +25,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
   const sigPad2 = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // ページ読み込み時にスクロールを上部に固定
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
 
   // 署名済みPDFを作成してダウンロード
   const handleDownload = async () => {
@@ -408,6 +413,20 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       {/* 同意書署名セクション */}
       <div className="mb-8 p-4 border border-gray-200 rounded">
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={agreed1}
+              onChange={e => setAgreed1(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm">
+              {isMinor ? '上記同意書の内容に親権者として同意します' : '上記同意書の内容に同意します'}
+            </span>
+          </label>
+        </div>
+
         <h3 className="font-semibold mb-4 text-lg">
           {isMinor ? '親権者による同意書への署名' : '同意書への署名'}
         </h3>
@@ -433,20 +452,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
               className="border border-gray-300 px-3 py-2 rounded w-full"
             />
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={agreed1}
-              onChange={e => setAgreed1(e.target.checked)}
-              className="mr-2"
-            />
-            <span className="text-sm">
-              {isMinor ? '上記同意書の内容に親権者として同意します' : '上記同意書の内容に同意します'}
-            </span>
-          </label>
         </div>
 
         <div className="mb-4">
@@ -573,6 +578,20 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       {/* 会員会則署名セクション */}
       <div className="mb-8 p-4 border border-gray-200 rounded">
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={agreed2}
+              onChange={e => setAgreed2(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm">
+              {isMinor ? '上記会員会則の内容に親権者として同意します' : '上記会員会則の内容に同意します'}
+            </span>
+          </label>
+        </div>
+
         <h3 className="font-semibold mb-4 text-lg">
           {isMinor ? '親権者による会員会則への署名' : '会員会則への署名'}
         </h3>
@@ -598,20 +617,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
               className="border border-gray-300 px-3 py-2 rounded w-full"
             />
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={agreed2}
-              onChange={e => setAgreed2(e.target.checked)}
-              className="mr-2"
-            />
-            <span className="text-sm">
-              {isMinor ? '上記会員会則の内容に親権者として同意します' : '上記会員会則の内容に同意します'}
-            </span>
-          </label>
         </div>
 
         <div className="mb-4">

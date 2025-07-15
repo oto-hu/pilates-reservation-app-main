@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
@@ -15,6 +15,11 @@ export default function TextConsentForm() {
   const sigPad2 = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // ページ読み込み時にスクロールを上部に固定
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
 
   // 署名済みPDFを作成してダウンロード
   const handleDownload = async () => {
