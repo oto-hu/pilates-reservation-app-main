@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, Calendar, Clock, Users, Building2, UserCheck, AlertCircle, Ticket, CreditCard, Loader2 } from 'lucide-react'
 import { Lesson, PaymentMethod, CreateReservationData, ReservationType, Ticket as TicketType, LessonType } from '@/lib/types'
-import { formatDateTime, formatTime } from '@/lib/utils'
+import { formatDate, formatTime } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const reservationSchema = z.object({
@@ -390,7 +390,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
           <div className="space-y-3 text-gray-600">
             <div className="flex items-center">
               <Calendar className="h-5 w-5 mr-3 text-primary-500" />
-              <span>{formatDateTime(new Date(lesson.startTime))}</span>
+              <span>{formatDate(new Date(lesson.startTime))}</span>
             </div>
             <div className="flex items-center">
               <Clock className="h-5 w-5 mr-3 text-primary-500" />

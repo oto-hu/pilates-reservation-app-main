@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Calendar, Clock, User, Mail, Phone, CreditCard, Building2, Camera, Home, UserCheck } from 'lucide-react'
 import { Reservation, PaymentMethod } from '@/lib/types'
-import { formatDateTime, formatTime } from '@/lib/utils'
+import { formatDate, formatTime } from '@/lib/utils'
 
 function ReservationCompleteForm() {
   const searchParams = useSearchParams()
@@ -132,7 +132,7 @@ function ReservationCompleteForm() {
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>{formatDateTime(new Date(reservation.lesson?.startTime || ''))}</span>
+                  <span>{formatDate(new Date(reservation.lesson?.startTime || ''))}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />

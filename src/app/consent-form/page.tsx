@@ -341,7 +341,7 @@ export default function TextConsentForm() {
             <label className="block text-sm font-medium mb-1">日付</label>
             <input
               type="text"
-              placeholder="例: 2025/07/08"
+              placeholder="例: 2025.07.08"
               value={date1}
               onChange={e => setDate1(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded w-full"

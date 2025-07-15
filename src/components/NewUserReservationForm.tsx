@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Calendar, Clock, Users, Building2, UserCheck, AlertCircle, Ticket, CreditCard, Loader2, User, Mail, Phone, Calendar as CalendarIcon } from 'lucide-react'
 import { Lesson, PaymentMethod, CreateReservationData, ReservationType, LessonType, NewUserReservationData } from '@/lib/types'
-import { formatDateTime, formatTime } from '@/lib/utils'
+import { formatDate, formatTime } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import ConsentForm from './ConsentForm'
 
@@ -191,7 +191,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
           <div className="space-y-3 text-gray-600">
             <div className="flex items-center">
               <Calendar className="h-5 w-5 mr-3 text-primary-500" />
-              <span>{formatDateTime(new Date(lesson.startTime))}</span>
+              <span>{formatDate(new Date(lesson.startTime))}</span>
             </div>
             <div className="flex items-center">
               <Clock className="h-5 w-5 mr-3 text-primary-500" />
