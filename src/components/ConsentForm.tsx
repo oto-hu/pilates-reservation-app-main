@@ -31,6 +31,42 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
+  // 署名パッドの設定を最適化
+  useEffect(() => {
+    const optimizeSignaturePad = (sigPadRef: any) => {
+      if (sigPadRef.current) {
+        const canvas = sigPadRef.current.getCanvas();
+        const context = canvas.getContext('2d');
+        
+        // 高DPIディスプレイ対応
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        canvas.width = rect.width * devicePixelRatio;
+        canvas.height = rect.height * devicePixelRatio;
+        
+        context.scale(devicePixelRatio, devicePixelRatio);
+        
+        // 描画品質を向上
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+        context.imageSmoothingEnabled = true;
+        
+        // タッチイベントの最適化
+        canvas.style.touchAction = 'none';
+        canvas.style.msTouchAction = 'none';
+      }
+    };
+
+    // 少し遅延させてDOMが完全に読み込まれてから実行
+    const timer = setTimeout(() => {
+      optimizeSignaturePad(sigPad);
+      optimizeSignaturePad(sigPadMinor);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // 署名済みPDFを作成してダウンロード
   const handleDownload = async () => {
     if (!agreed1 || !agreed2) {
@@ -637,21 +673,43 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         {/* 5. 直筆署名 */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">直筆署名</label>
-          <SignatureCanvas
-            ref={sigPad}
-            penColor="black"
-            canvasProps={{
-              width: 400, 
-              height: 100, 
-              className: 'border border-gray-300 rounded w-full'
-            }}
-          />
-          <button 
-            onClick={() => sigPad.current?.clear()} 
-            className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-          >
-            クリア
-          </button>
+          <div className="relative">
+            <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+              <SignatureCanvas
+                ref={sigPad}
+                penColor="black"
+                minWidth={1}
+                maxWidth={3}
+                velocityFilterWeight={0.7}
+                throttle={16}
+                canvasProps={{
+                  width: 400, 
+                  height: 120, 
+                  className: 'w-full h-full touch-none',
+                  style: {
+                    width: '100%',
+                    height: '120px',
+                    display: 'block',
+                    touchAction: 'none'
+                  }
+                }}
+              />
+            </div>
+            <div className="absolute bottom-2 right-2 text-xs text-gray-400 pointer-events-none">
+              ここに署名してください
+            </div>
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <button 
+              onClick={() => sigPad.current?.clear()} 
+              className="text-sm text-blue-500 hover:text-blue-700 px-2 py-1 rounded border border-blue-300 hover:bg-blue-50"
+            >
+              クリア
+            </button>
+            <span className="text-xs text-gray-500">
+              スマホの場合：指で書いてください
+            </span>
+          </div>
         </div>
 
         {/* 6. 18歳未満チェック */}
@@ -700,21 +758,43 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">署名（未成年者）</label>
-            <SignatureCanvas
-              ref={sigPadMinor}
-              penColor="black"
-              canvasProps={{
-                width: 400, 
-                height: 100, 
-                className: 'border border-gray-300 rounded w-full'
-              }}
-            />
-            <button 
-              onClick={() => sigPadMinor.current?.clear()} 
-              className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-            >
-              クリア
-            </button>
+            <div className="relative">
+              <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+                <SignatureCanvas
+                  ref={sigPadMinor}
+                  penColor="black"
+                  minWidth={1}
+                  maxWidth={3}
+                  velocityFilterWeight={0.7}
+                  throttle={16}
+                  canvasProps={{
+                    width: 400, 
+                    height: 120, 
+                    className: 'w-full h-full touch-none',
+                    style: {
+                      width: '100%',
+                      height: '120px',
+                      display: 'block',
+                      touchAction: 'none'
+                    }
+                  }}
+                />
+              </div>
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400 pointer-events-none">
+                ここに署名してください
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-2">
+              <button 
+                onClick={() => sigPadMinor.current?.clear()} 
+                className="text-sm text-blue-500 hover:text-blue-700 px-2 py-1 rounded border border-blue-300 hover:bg-blue-50"
+              >
+                クリア
+              </button>
+              <span className="text-xs text-gray-500">
+                スマホの場合：指で書いてください
+              </span>
+            </div>
           </div>
         </div>
       )}

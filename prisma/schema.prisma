@@ -229,6 +229,8 @@ model ConsentForm {
   customerEmail String   @map("customer_email")
   pdfData       Bytes    @map("pdf_data")
   filename      String
+  blobUrl       String?  @map("blob_url")    // Vercel Blob URL
+  blobPathname  String?  @map("blob_pathname") // Vercel Blob pathname
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { googleDriveService } from '@/lib/google-drive'
+import { vercelBlobService } from '@/lib/vercel-blob'
 
 export async function POST(request: NextRequest) {
   console.log('=== API /consent-forms POST Debug ===');
@@ -38,14 +38,16 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now()
     const filename = `consent-form-${userId}-${timestamp}.pdf`
 
-    // データベースに保存
+    // データベースに保存（Vercel Blob情報も含む）
     const consentForm = await prisma.consentForm.create({
       data: {
         userId,
         customerName,
         customerEmail,
         pdfData: buffer,
-        filename
+        filename,
+        blobUrl: null, // 後で更新
+        blobPathname: null // 後で更新
       }
     })
     
@@ -57,42 +59,51 @@ export async function POST(request: NextRequest) {
       customerEmail
     });
 
-    // Google Driveにも保存
-    let googleDriveFileId: string | null = null;
+    // Vercel Blobにも保存
+    let vercelBlobUrl: string | null = null;
+    let vercelBlobPathname: string | null = null;
     try {
       // 環境変数チェック
-      if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_DRIVE_FOLDER_ID) {
-        console.log('⚠️ Google Drive環境変数が設定されていません。データベース保存のみ実行します。');
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        console.log('⚠️ Vercel Blob環境変数が設定されていません。データベース保存のみ実行します。');
       } else {
-        // 日付ベースのフォルダを作成/取得
-        const currentDate = new Date();
-        const targetFolderId = await googleDriveService.createDateBasedFolder(currentDate);
-        
-        // Google Driveファイル名を生成
-        const googleDriveFileName = googleDriveService.generateConsentFileName(customerName, currentDate.toLocaleDateString('ja-JP'));
-        
-        // Google Driveにアップロード
-        googleDriveFileId = await googleDriveService.uploadFile(
-          googleDriveFileName,
+        // Vercel Blobにアップロード
+        const blobResult = await vercelBlobService.uploadFile(
           buffer,
-          'application/pdf'
+          customerName,
+          customerEmail
         );
         
-        console.log('✅ Google Drive保存完了:', {
-          fileId: googleDriveFileId,
-          fileName: googleDriveFileName
+        vercelBlobUrl = blobResult.url;
+        vercelBlobPathname = blobResult.pathname;
+        
+        console.log('✅ Vercel Blob保存完了:', {
+          url: vercelBlobUrl,
+          pathname: vercelBlobPathname
         });
+        
+        // データベースにBlobの情報を更新
+        await prisma.consentForm.update({
+          where: { id: consentForm.id },
+          data: {
+            blobUrl: vercelBlobUrl,
+            blobPathname: vercelBlobPathname
+          }
+        });
+        
+        console.log('✅ データベースにBlob情報更新完了');
       }
-    } catch (googleDriveError) {
-      console.error('⚠️ Google Drive保存エラー (データベース保存は成功):', googleDriveError);
-      // Google Driveの保存に失敗してもデータベース保存は成功しているので、エラーを投げない
+    } catch (vercelBlobError) {
+      console.error('⚠️ Vercel Blob保存エラー (データベース保存は成功):', vercelBlobError);
+      // Vercel Blobの保存に失敗してもデータベース保存は成功しているので、エラーを投げない
     }
 
     return NextResponse.json({ 
       message: '同意書が正常に保存されました',
       consentFormId: consentForm.id,
       filename: consentForm.filename,
-      googleDriveFileId
+      vercelBlobUrl,
+      vercelBlobPathname
     })
 
   } catch (error) {
