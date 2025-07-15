@@ -9,10 +9,9 @@ interface ConsentFormProps {
 }
 
 export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
-  const [date1, setDate1] = useState('');
-  const [date2, setDate2] = useState('');
-  const [name1, setName1] = useState('');
-  const [name2, setName2] = useState('');
+  // 統一された署名フォーム用の状態
+  const [date, setDate] = useState('');
+  const [name, setName] = useState('');
   const [agreed1, setAgreed1] = useState(false);
   const [agreed2, setAgreed2] = useState(false);
   const [isMinor, setIsMinor] = useState(false);
@@ -21,8 +20,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
   const [minorName, setMinorName] = useState('');
   const [minorDate, setMinorDate] = useState('');
   const sigPadMinor = useRef<any>(null);
-  const sigPad1 = useRef<any>(null);
-  const sigPad2 = useRef<any>(null);
+  const sigPad = useRef<any>(null); // 一つの署名欄
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [pdfDownloaded, setPdfDownloaded] = useState<boolean>(false);
@@ -39,7 +37,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       return setError('同意書と会員会則の両方に同意していただく必要があります');
     }
     // 署名チェック（より安全な方法）
-    if (!sigPad1.current || !sigPad2.current) {
+    if (!sigPad.current) {
       return setError('署名パッドが初期化されていません');
     }
     
@@ -49,16 +47,13 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
     }
     
     // 空の署名をチェック
-    const canvas1 = sigPad1.current.getCanvas();
-    const canvas2 = sigPad2.current.getCanvas();
-    const ctx1 = canvas1.getContext('2d');
-    const ctx2 = canvas2.getContext('2d');
+    const canvas = sigPad.current.getCanvas();
+    const ctx = canvas.getContext('2d');
     
-    const isCanvas1Empty = !ctx1.getImageData(0, 0, canvas1.width, canvas1.height).data.some((channel: number) => channel !== 0);
-    const isCanvas2Empty = !ctx2.getImageData(0, 0, canvas2.width, canvas2.height).data.some((channel: number) => channel !== 0);
+    const isCanvasEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some((channel: number) => channel !== 0);
     
-    if (isCanvas1Empty || isCanvas2Empty) {
-      return setError('両方の署名が必要です');
+    if (isCanvasEmpty) {
+      return setError('署名が必要です');
     }
     
     // 未成年者の場合、本人の署名もチェック
@@ -72,11 +67,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       }
     }
     
-    if (!date1 || !date2) {
-      return setError('両方の日付が必要です');
+    if (!date) {
+      return setError('日付が必要です');
     }
-    if (!name1 || !name2) {
-      return setError('両方のお名前が必要です');
+    if (!name) {
+      return setError('お名前が必要です');
     }
     
     // 未成年者の場合、本人の情報もチェック
@@ -192,30 +187,30 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       }
       yPosition -= 40;
 
-      // 署名エリア1
-      const dateImg1 = createTextImage(`日付: ${date1}`, 12);
-      if (dateImg1) {
-        const datePng1 = await pdfDoc.embedPng(dateImg1);
-        page1.drawImage(datePng1, { x: margin, y: yPosition - 12, width: 200, height: 12 });
+      // 署名エリア（統一）
+      const dateImg = createTextImage(`日付: ${date}`, 12);
+      if (dateImg) {
+        const datePng = await pdfDoc.embedPng(dateImg);
+        page1.drawImage(datePng, { x: margin, y: yPosition - 12, width: 200, height: 12 });
       }
       yPosition -= 25;
 
-      const nameImg1 = createTextImage(`氏名: ${name1}`, 12);
-      if (nameImg1) {
-        const namePng1 = await pdfDoc.embedPng(nameImg1);
-        page1.drawImage(namePng1, { x: margin, y: yPosition - 12, width: 250, height: 12 });
+      const nameImg = createTextImage(`氏名: ${name}`, 12);
+      if (nameImg) {
+        const namePng = await pdfDoc.embedPng(nameImg);
+        page1.drawImage(namePng, { x: margin, y: yPosition - 12, width: 250, height: 12 });
       }
 
-      const signatureLabel1 = createTextImage('署名:', 12);
-      if (signatureLabel1) {
-        const signatureLabelPng1 = await pdfDoc.embedPng(signatureLabel1);
-        page1.drawImage(signatureLabelPng1, { x: 350, y: yPosition + 8, width: 60, height: 12 });
+      const signatureLabel = createTextImage('署名:', 12);
+      if (signatureLabel) {
+        const signatureLabelPng = await pdfDoc.embedPng(signatureLabel);
+        page1.drawImage(signatureLabelPng, { x: 350, y: yPosition + 8, width: 60, height: 12 });
       }
 
-      // 署名画像1を埋め込み
-      const sigImg1 = sigPad1.current.getCanvas().toDataURL('image/png');
-      const pngImage1 = await pdfDoc.embedPng(sigImg1);
-      page1.drawImage(pngImage1, { x: 350, y: yPosition - 30, width: 150, height: 50 });
+      // 署名画像を埋め込み
+      const sigImg = sigPad.current.getCanvas().toDataURL('image/png');
+      const pngImage = await pdfDoc.embedPng(sigImg);
+      page1.drawImage(pngImage, { x: 350, y: yPosition - 30, width: 150, height: 50 });
 
       // 未成年者の場合、本人の署名も追加
       if (isMinor) {
@@ -330,15 +325,15 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       }
       yPosition -= 24;
 
-      // 署名エリア2
-      const dateImg2 = createTextImage(`日付: ${date2}`, 12);
+      // 署名エリア2（同じ署名データを使用）
+      const dateImg2 = createTextImage(`日付: ${date}`, 12);
       if (dateImg2) {
         const datePng2 = await pdfDoc.embedPng(dateImg2);
         page2.drawImage(datePng2, { x: margin, y: yPosition - 12, width: 200, height: 12 });
       }
       yPosition -= 25;
 
-      const nameImg2 = createTextImage(`氏名: ${name2}`, 12);
+      const nameImg2 = createTextImage(`氏名: ${name}`, 12);
       if (nameImg2) {
         const namePng2 = await pdfDoc.embedPng(nameImg2);
         page2.drawImage(namePng2, { x: margin, y: yPosition - 12, width: 250, height: 12 });
@@ -350,8 +345,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         page2.drawImage(signatureLabelPng2, { x: 350, y: yPosition + 8, width: 60, height: 12 });
       }
 
-      // 署名画像2を埋め込み
-      const sigImg2 = sigPad2.current.getCanvas().toDataURL('image/png');
+      // 署名画像2を埋め込み（同じ署名データを使用）
+      const sigImg2 = sigPad.current.getCanvas().toDataURL('image/png');
       const pngImage2 = await pdfDoc.embedPng(sigImg2);
       page2.drawImage(pngImage2, { x: 350, y: yPosition - 30, width: 150, height: 50 });
 
@@ -524,25 +519,104 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         <p className="font-bold text-center">私は、貴サロンのグループレッスン受講に際し上記事項に同意した為、本書に署名致します。</p>
       </div>
 
-      {/* 未成年者チェック */}
-      <div className="mb-6 p-4 border border-orange-200 rounded bg-orange-50">
-        <label className="flex items-center">
+      {/* 署名セクション（希望の順序） */}
+      <div className="mb-8 p-4 border border-gray-200 rounded">
+        <h3 className="font-semibold mb-4 text-lg">署名</h3>
+        
+        {/* 1. 同意書チェック */}
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={agreed1}
+              onChange={e => setAgreed1(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm">
+              上記同意書の内容に同意します
+            </span>
+          </label>
+        </div>
+
+        {/* 2. 会員会則チェック */}
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={agreed2}
+              onChange={e => setAgreed2(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm">
+              会員会則の内容に同意します
+            </span>
+          </label>
+        </div>
+
+        {/* 3. 日付 */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">日付</label>
           <input
-            type="checkbox"
-            checked={isMinor}
-            onChange={e => setIsMinor(e.target.checked)}
-            className="mr-2"
+            type="text"
+            placeholder="例: 2025/07/08"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="border border-gray-300 px-3 py-2 rounded w-full"
           />
-          <span className="text-sm font-medium text-orange-800">
-            私は18歳未満です（親権者の同意が必要です）
-          </span>
-        </label>
+        </div>
+
+        {/* 4. 名前 */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">お名前</label>
+          <input
+            type="text"
+            placeholder="例: 山田太郎"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            className="border border-gray-300 px-3 py-2 rounded w-full"
+          />
+        </div>
+
+        {/* 5. 直筆署名 */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">直筆署名</label>
+          <SignatureCanvas
+            ref={sigPad}
+            penColor="black"
+            canvasProps={{
+              width: 400, 
+              height: 100, 
+              className: 'border border-gray-300 rounded w-full'
+            }}
+          />
+          <button 
+            onClick={() => sigPad.current?.clear()} 
+            className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+          >
+            クリア
+          </button>
+        </div>
+
+        {/* 6. 18歳未満チェック */}
+        <div className="mb-4 p-4 border border-orange-200 rounded bg-orange-50">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={isMinor}
+              onChange={e => setIsMinor(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm font-medium text-orange-800">
+              私は18歳未満です（親権者の同意が必要です）
+            </span>
+          </label>
+        </div>
       </div>
 
       {/* 未成年者の署名セクション */}
       {isMinor && (
         <div className="mb-8 p-4 border border-blue-200 rounded bg-blue-50">
-          <h3 className="font-semibold mb-4 text-lg text-blue-800">未成年者（本人）による同意書への署名</h3>
+          <h3 className="font-semibold mb-4 text-lg text-blue-800">未成年者（本人）による署名</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -587,69 +661,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           </div>
         </div>
       )}
-
-      {/* 同意書署名セクション */}
-      <div className="mb-8 p-4 border border-gray-200 rounded">
-        <div className="mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={agreed1}
-              onChange={e => setAgreed1(e.target.checked)}
-              className="mr-2"
-            />
-            <span className="text-sm">
-              {isMinor ? '上記同意書の内容に親権者として同意します' : '上記同意書の内容に同意します'}
-            </span>
-          </label>
-        </div>
-
-        <h3 className="font-semibold mb-4 text-lg">
-          {isMinor ? '親権者による同意書への署名' : '同意書への署名'}
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">日付</label>
-            <input
-              type="text"
-              placeholder="例: 2025/07/08"
-              value={date1}
-              onChange={e => setDate1(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">お名前</label>
-            <input
-              type="text"
-              placeholder="例: 山田太郎"
-              value={name1}
-              onChange={e => setName1(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded w-full"
-            />
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">署名</label>
-          <SignatureCanvas
-            ref={sigPad1}
-            penColor="black"
-            canvasProps={{
-              width: 400, 
-              height: 100, 
-              className: 'border border-gray-300 rounded w-full'
-            }}
-          />
-          <button 
-            onClick={() => sigPad1.current?.clear()} 
-            className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-          >
-            クリア
-          </button>
-        </div>
-      </div>
 
       {/* 会員会則の内容 */}
       <div className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
@@ -753,68 +764,6 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
       )}
 
-      {/* 会員会則署名セクション */}
-      <div className="mb-8 p-4 border border-gray-200 rounded">
-        <div className="mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={agreed2}
-              onChange={e => setAgreed2(e.target.checked)}
-              className="mr-2"
-            />
-            <span className="text-sm">
-              {isMinor ? '上記会員会則の内容に親権者として同意します' : '上記会員会則の内容に同意します'}
-            </span>
-          </label>
-        </div>
-
-        <h3 className="font-semibold mb-4 text-lg">
-          {isMinor ? '親権者による会員会則への署名' : '会員会則への署名'}
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">日付</label>
-            <input
-              type="text"
-              placeholder="例: 2025.07.08"
-              value={date2}
-              onChange={e => setDate2(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">お名前</label>
-            <input
-              type="text"
-              placeholder="例: 山田太郎"
-              value={name2}
-              onChange={e => setName2(e.target.value)}
-              className="border border-gray-300 px-3 py-2 rounded w-full"
-            />
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">署名</label>
-          <SignatureCanvas
-            ref={sigPad2}
-            penColor="black"
-            canvasProps={{
-              width: 400, 
-              height: 100, 
-              className: 'border border-gray-300 rounded w-full'
-            }}
-          />
-          <button 
-            onClick={() => sigPad2.current?.clear()} 
-            className="mt-2 text-sm text-blue-500 hover:text-blue-700"
-          >
-            クリア
-          </button>
-        </div>
-      </div>
 
       {/* エラー表示 */}
       {error && (
