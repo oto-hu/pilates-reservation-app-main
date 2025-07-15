@@ -15,6 +15,9 @@ moment.locale('ja')
 
 export default function HomePage() {
   const { data: session, status } = useSession()
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  
+  console.log('Modal state:', isImageModalOpen)
 
   const handleSignOut = async () => {
     try {
@@ -205,7 +208,15 @@ export default function HomePage() {
           ご予約の際、<br />お取り間違えにご注意下さい！
           </p>
           <div className="flex justify-center mb-8">
-            <img src="/images/Frame 343.png" alt="予約システム説明" className="max-w-full h-auto rounded-lg shadow-lg" />
+            <img 
+              src="/images/Frame 343.png" 
+              alt="予約システム説明" 
+              className="max-w-full h-auto rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300" 
+              onClick={() => {
+                console.log('Image clicked!')
+                setIsImageModalOpen(true)
+              }}
+            />
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -429,6 +440,32 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Image Modal */}
+      {isImageModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            console.log('Modal background clicked!')
+            setIsImageModalOpen(false)
+          }}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setIsImageModalOpen(false)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-2xl font-bold"
+            >
+              ×
+            </button>
+            <img 
+              src="/images/Frame 343.png" 
+              alt="予約システム説明" 
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

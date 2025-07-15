@@ -59,6 +59,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
   })
 
   const birthDate = watch('birthDate')
+  const postalCode = watch('postalCode')
 
   // 年齢を自動計算
   const calculateAge = (birthDate: string) => {
@@ -79,6 +80,41 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
     setValue('birthDate', value)
     const age = calculateAge(value)
     setValue('age', age)
+  }
+
+  // 郵便番号から住所を取得
+  const fetchAddressFromPostalCode = async (postalCode: string) => {
+    try {
+      // 郵便番号を正規化（ハイフンを除去）
+      const normalizedPostalCode = postalCode.replace(/[^0-9]/g, '')
+      
+      if (normalizedPostalCode.length !== 7) {
+        return
+      }
+
+      const response = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${normalizedPostalCode}`)
+      const data = await response.json()
+      
+      if (data.status === 200 && data.results && data.results.length > 0) {
+        const result = data.results[0]
+        const address = `${result.address1}${result.address2}${result.address3}`
+        setValue('address', address)
+      }
+    } catch (error) {
+      console.error('住所の取得に失敗しました:', error)
+    }
+  }
+
+  // 郵便番号が変更されたときに住所を自動取得
+  const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setValue('postalCode', value)
+    
+    // 郵便番号が7桁（ハイフン含む場合は8桁）になったら住所を取得
+    const normalizedValue = value.replace(/[^0-9]/g, '')
+    if (normalizedValue.length === 7) {
+      fetchAddressFromPostalCode(value)
+    }
   }
 
   const getReservationTypePrice = (type: ReservationType) => {
@@ -319,6 +355,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                       type="text"
                       className="form-input"
                       {...register('postalCode')}
+                      onChange={handlePostalCodeChange}
                       placeholder="123-4567"
                     />
                     {errors.postalCode && (
