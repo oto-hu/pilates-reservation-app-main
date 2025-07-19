@@ -14,10 +14,7 @@ import {
   BarChart3,
   PieChart,
   Activity,
-  Target,
-  MapPin,
-  Star,
-  Heart
+  Target
 } from 'lucide-react'
 
 interface AnalyticsData {
@@ -47,25 +44,10 @@ interface AnalyticsData {
   newUsersByMonth: Record<string, number>
 }
 
-interface MemberAnalyticsData {
-  summary: {
-    totalMembers: number
-    completedProfiles: number
-    completionRate: number
-  }
-  genderDistribution: Array<{ gender: string; count: number }>
-  ageGroups: Array<{ group: string; count: number }>
-  experienceDistribution: Array<{ experience: string; count: number }>
-  motivationDistribution: Array<{ motivation: string; count: number }>
-  addressDistribution: Array<{ city: string; count: number }>
-  monthlyRegistrations: Array<{ month: string; count: number }>
-}
-
 export default function AnalyticsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
-  const [memberAnalyticsData, setMemberAnalyticsData] = useState<MemberAnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState(30)
 
@@ -83,20 +65,14 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true)
-      const [analyticsResponse, memberAnalyticsResponse] = await Promise.all([
-        fetch(`/api/admin/analytics?days=${period}`),
-        fetch('/api/admin/member-analytics')
-      ])
+      const response = await fetch(`/api/admin/analytics?days=${period}`)
       
-      if (!analyticsResponse.ok || !memberAnalyticsResponse.ok) {
+      if (!response.ok) {
         throw new Error('Failed to fetch analytics')
       }
 
-      const analyticsData = await analyticsResponse.json()
-      const memberAnalyticsData = await memberAnalyticsResponse.json()
-      
-      setAnalyticsData(analyticsData)
-      setMemberAnalyticsData(memberAnalyticsData)
+      const data = await response.json()
+      setAnalyticsData(data)
     } catch (error) {
       console.error('Error fetching analytics:', error)
     } finally {
@@ -127,7 +103,7 @@ export default function AnalyticsPage() {
     )
   }
 
-  if (!analyticsData || !memberAnalyticsData) {
+  if (!analyticsData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -183,7 +159,7 @@ export default function AnalyticsPage() {
               <Users className="h-8 w-8 text-blue-500 mr-3" />
               <div>
                 <p className="text-sm font-medium text-gray-600">総会員数</p>
-                <p className="text-2xl font-bold text-gray-900">{memberAnalyticsData.summary.totalMembers}</p>
+                <p className="text-2xl font-bold text-gray-900">{analyticsData.userStats.total}</p>
               </div>
             </div>
           </div>
@@ -202,8 +178,8 @@ export default function AnalyticsPage() {
             <div className="flex items-center">
               <UserCheck className="h-8 w-8 text-purple-500 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">プロフィール完了率</p>
-                <p className="text-2xl font-bold text-gray-900">{memberAnalyticsData.summary.completionRate}%</p>
+                <p className="text-sm font-medium text-gray-600">リピーター率</p>
+                <p className="text-2xl font-bold text-gray-900">{analyticsData.userStats.repeatRate}%</p>
               </div>
             </div>
           </div>
@@ -356,125 +332,6 @@ export default function AnalyticsPage() {
                   </div>
                 )
               })}
-            </div>
-          </div>
-        </div>
-
-        {/* 会員属性分析 */}
-        <div className="mt-8 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">会員属性分析</h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* ピラティス経験分布 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Star className="h-5 w-5 mr-2" />
-                ピラティス経験分布
-              </h3>
-              <div className="space-y-3">
-                {memberAnalyticsData.experienceDistribution.map((item) => (
-                  <div key={item.experience} className="flex items-center justify-between">
-                    <span className="text-gray-600">{item.experience}</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-indigo-500 h-2 rounded-full"
-                          style={{
-                            width: `${formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {item.count} ({formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%)
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 来店きっかけ分布 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Heart className="h-5 w-5 mr-2" />
-                来店きっかけ分布
-              </h3>
-              <div className="space-y-3">
-                {memberAnalyticsData.motivationDistribution.map((item) => (
-                  <div key={item.motivation} className="flex items-center justify-between">
-                    <span className="text-gray-600">{item.motivation}</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-pink-500 h-2 rounded-full"
-                          style={{
-                            width: `${formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {item.count} ({formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%)
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 会員年齢層分布 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Users className="h-5 w-5 mr-2" />
-                会員年齢層分布
-              </h3>
-              <div className="space-y-3">
-                {memberAnalyticsData.ageGroups.map((item) => (
-                  <div key={item.group} className="flex items-center justify-between">
-                    <span className="text-gray-600">{item.group}</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-cyan-500 h-2 rounded-full"
-                          style={{
-                            width: `${formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {item.count} ({formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%)
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 顧客分布（住所別） */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <MapPin className="h-5 w-5 mr-2" />
-                顧客分布（住所別）
-              </h3>
-              <div className="space-y-3">
-                {memberAnalyticsData.addressDistribution.slice(0, 8).map((item) => (
-                  <div key={item.city} className="flex items-center justify-between">
-                    <span className="text-gray-600">{item.city}</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-teal-500 h-2 rounded-full"
-                          style={{
-                            width: `${formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {item.count} ({formatPercentage(item.count, memberAnalyticsData.summary.totalMembers)}%)
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
