@@ -7,12 +7,14 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CalendarDays, Ticket, User, LogOut, Calendar, FileText } from 'lucide-react'
+import { CalendarDays, Ticket, User, LogOut, Calendar, FileText, UserCheck, AlertCircle } from 'lucide-react'
 import { Ticket as TicketType, Reservation } from '@/lib/types'
+import ProfileCompleteModal from '@/components/ProfileCompleteModal'
 
 interface DashboardData {
   tickets: (TicketType & { lessonTypeName: string })[]
   upcomingReservations: (Reservation & { lesson: { title: string; startTime: string } })[]
+  profileCompleted: boolean
 }
 
 export default function MemberDashboard() {
@@ -20,6 +22,8 @@ export default function MemberDashboard() {
   const router = useRouter()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [hasShownModal, setHasShownModal] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -38,6 +42,15 @@ export default function MemberDashboard() {
       if (response.ok) {
         const data = await response.json()
         setDashboardData(data)
+        
+        // 初回ログイン時で、プロフィールが未完了の場合はモーダルを表示
+        if (!data.profileCompleted && !hasShownModal) {
+          const isFirstLogin = !localStorage.getItem('profile-modal-shown')
+          if (isFirstLogin) {
+            setShowProfileModal(true)
+            setHasShownModal(true)
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
@@ -48,6 +61,15 @@ export default function MemberDashboard() {
 
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
+  }
+
+  const handleModalClose = () => {
+    setShowProfileModal(false)
+  }
+
+  const handleModalSkip = () => {
+    localStorage.setItem('profile-modal-shown', 'true')
+    setShowProfileModal(false)
   }
 
   const formatDate = (dateString: string) => {
@@ -106,6 +128,12 @@ export default function MemberDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/member/profile">
+                <Button variant="outline">
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  プロフィール
+                </Button>
+              </Link>
               <Link href="/reserve">
                 <Button variant="outline">
                   <Calendar className="h-4 w-4 mr-2" />
@@ -123,6 +151,30 @@ export default function MemberDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* プロフィール完了促進バナー */}
+        {dashboardData && !dashboardData.profileCompleted && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <AlertCircle className="h-8 w-8 text-orange-600 mr-3" />
+                  <div>
+                    <h3 className="font-semibold text-orange-800">プロフィールを完成させましょう</h3>
+                    <p className="text-orange-700 text-sm mt-1">
+                      より良いサービスを提供するため、プロフィール情報の入力をお願いします
+                    </p>
+                  </div>
+                </div>
+                <Link href="/member/profile">
+                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                    プロフィールを完成
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* チケット情報 */}
           <Card>
@@ -291,6 +343,13 @@ export default function MemberDashboard() {
           </CardContent>
         </Card>
       </main>
+
+      {/* プロフィール完了促進モーダル */}
+      <ProfileCompleteModal
+        isOpen={showProfileModal}
+        onClose={handleModalClose}
+        onSkip={handleModalSkip}
+      />
     </div>
   )
 }

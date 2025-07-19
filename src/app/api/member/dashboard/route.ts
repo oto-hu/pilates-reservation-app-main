@@ -63,13 +63,20 @@ export async function GET(request: NextRequest) {
       lessonTypeName: ticket.name || (ticket.lessonType === 'SMALL_GROUP' ? '少人数制ピラティス' : 'わいわいピラティス')
     }))
 
+    // ユーザーのプロフィール完了状況を取得
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profileCompleted: true }
+    })
+
     console.log('Debug - ユーザーID:', userId)
     console.log('Debug - 現在時刻:', now)
     console.log('Debug - 今後の予約数:', upcomingReservations.length)
 
     return NextResponse.json({
       upcomingReservations,
-      tickets: ticketsWithTypeName
+      tickets: ticketsWithTypeName,
+      profileCompleted: user?.profileCompleted || false
     })
   } catch (error) {
     console.error('Dashboard data fetch error:', error)
