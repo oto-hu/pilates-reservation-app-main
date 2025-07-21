@@ -118,20 +118,19 @@ export default function ProfilePage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <User className="h-8 w-8 text-blue-600 mr-3" />
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">プロフィール設定</h1>
-                <p className="text-sm text-gray-500">追加情報を入力してプロフィールを完成させましょう</p>
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div className="flex items-center min-w-0 flex-1">
+              <User className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <h1 className="text-sm sm:text-lg font-semibold text-gray-900 truncate">プロフィール設定</h1>
+                <p className="text-xs sm:text-sm text-gray-500 truncate hidden sm:block">追加情報を入力してプロフィールを完成させましょう</p>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center ml-4 flex-shrink-0">
               <Link href="/member/dashboard">
-                <Button variant="outline" size="sm" className="sm:size-default">
-                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">ダッシュボードに戻る</span>
-                  <span className="sm:hidden">戻る</span>
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="text-xs sm:text-sm">戻る</span>
                 </Button>
               </Link>
             </div>
