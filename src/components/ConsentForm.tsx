@@ -419,15 +419,40 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       
-      // クライアントサイドでのダウンロード
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = '署名済み_グループレッスン同意書.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // デバイス判定
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // スマホの場合：ダウンロード処理をスキップしてすぐに次のステップへ
+        console.log('📱 モバイルデバイス：PDFダウンロードをスキップ');
+        
+        // PDFはサーバー保存のみで、ダウンロード処理は行わない
+        // ユーザーには「PDFはメールで送信されます」と伝える
+        alert('✅ 署名完了しました！\n\n📧 署名済みPDFは確認メールで送信されます。\n🔄 レッスン予約を完了しています...');
+        
+      } else {
+        // PCの場合：従来通りダウンロード
+        console.log('🖥️ デスクトップ：PDFダウンロード実行');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '署名済み_グループレッスン同意書.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // 成功メッセージを表示
+        const successMessage = `
+✅ 署名済みPDFのダウンロードが完了しました！
+
+📧 確認メールを送信しています...
+🔄 会員登録とレッスン予約を処理中です...
+
+しばらくお待ちください。
+        `;
+        alert(successMessage);
+      }
 
       console.log('✅ PDF作成完了 - 親コンポーネントに渡します');
 
@@ -436,25 +461,21 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       setPdfDownloaded(true);
       setPdfBlob(blob);
       
-      // 成功メッセージを表示
-      const successMessage = `
-✅ 署名済みPDFのダウンロードが完了しました！
-
-📧 確認メールを送信しています...
-🔄 会員登録とレッスン予約を処理中です...
-
-しばらくお待ちください。
-      `;
-      alert(successMessage);
-      
-      // PDFダウンロード完了後、即座にレッスン予約完了ページに遷移
-      console.log('📄 PDFダウンロード完了 - レッスン予約完了ページに遷移');
-      
-      // 短い遅延でコールバック実行（ダウンロード処理を確実に完了させるため）
-      setTimeout(() => {
-        console.log('✅ レッスン予約完了ページへの遷移を実行');
-        onConsentComplete(blob);
-      }, 1000); // 1秒遅延
+      // デバイス別の遷移処理
+      if (isMobile) {
+        // スマホ：即座にレッスン予約完了ページに遷移
+        console.log('📱 スマホ - 即座にレッスン予約完了ページに遷移');
+        setTimeout(() => {
+          onConsentComplete(blob);
+        }, 500); // 0.5秒遅延
+        
+      } else {
+        // PC：従来通りの遅延
+        console.log('🖥️ PC - 従来通りの遅延でレッスン予約完了ページに遷移');
+        setTimeout(() => {
+          onConsentComplete(blob);
+        }, 1000); // 1秒遅延
+      }
     } catch (err) {
       console.error('PDF処理エラー:', err);
       setError('PDFの処理中にエラーが発生しました: ' + (err as Error).message);
