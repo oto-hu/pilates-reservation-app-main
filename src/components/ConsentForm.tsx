@@ -25,10 +25,20 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [pdfDownloaded, setPdfDownloaded] = useState<boolean>(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // ページ読み込み時にスクロールを上部に固定
+  // ページ読み込み時にスクロールを上部に固定とモバイル検出
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // モバイルデバイス判定
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent;
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
   }, []);
 
   // 署名パッドの設定を最適化
@@ -428,7 +438,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         
         // PDFはサーバー保存のみで、ダウンロード処理は行わない
         // ユーザーには「PDFはメールで送信されます」と伝える
-        alert('✅ 署名完了しました！\n\n📧 署名済みPDFは確認メールで送信されます。\n🔄 レッスン予約を完了しています...');
+        alert('✅ 署名完了しました！\n\n📧  レッスン予約を完了しています...');
         
       } else {
         // PCの場合：従来通りダウンロード
@@ -643,11 +653,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                 throttle={16}
                 canvasProps={{
                   width: 800, 
-                  height: 200, 
+                  height: isMobile ? 400 : 200, 
                   className: 'w-full h-full touch-none',
                   style: {
                     width: '100%',
-                    height: '200px',
+                    height: isMobile ? '400px' : '200px',
                     display: 'block',
                     touchAction: 'none'
                   }
@@ -725,11 +735,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                   throttle={16}
                   canvasProps={{
                     width: 800, 
-                    height: 200, 
+                    height: isMobile ? 400 : 200, 
                     className: 'w-full h-full touch-none',
                     style: {
                       width: '100%',
-                      height: '200px',
+                      height: isMobile ? '400px' : '200px',
                       display: 'block',
                       touchAction: 'none'
                     }
@@ -767,9 +777,9 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           <h4 className="text-lg font-semibold text-blue-800 mb-2">次のステップ</h4>
           <p className="text-blue-700 text-sm">
             1. 下記ボタンをクリックして署名済みPDFをダウンロード<br/>
-            2. PDFダウンロード後、自動的に会員登録とレッスン予約が完了します<br/>
-            3. 確認メールが送信されます<br/>
-            <span className="text-orange-600 font-medium">※スマホの場合、PDFを確認後にブラウザに戻ると処理が完了します</span>
+            ※スマホの場合はダウンロードされません。<br/>
+            2. 下記ボタンをクリック後、自動的に会員登録とレッスン予約が完了します<br/>
+            3. 予約完了メールがご登録アドレス宛に送信されます<br/>
           </p>
         </div>
         
@@ -778,16 +788,16 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           disabled={loading || pdfDownloaded}
           className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium"
         >
-          {loading ? '処理中...' : pdfDownloaded ? 'PDF ダウンロード完了' : '署名済みPDFをダウンロードして予約完了'}
+          {loading ? '処理中...' : pdfDownloaded ? 'PDF ダウンロード完了' : '予約を完了する'}
         </button>
         
         {/* PDFダウンロード完了後の手動ボタン */}
         {pdfDownloaded && (
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="text-center">
-              <h4 className="text-lg font-semibold text-green-800 mb-2">PDFダウンロード完了</h4>
+              <h4 className="text-lg font-semibold text-green-800 mb-2">会員登録とレッスン予約完了</h4>
               <p className="text-green-700 text-sm mb-4">
-                PDFをダウンロードしました。自動的にレッスン予約完了ページに進みます。<br/>
+                会員登録とレッスン予約が完了しました。自動的にレッスン予約完了ページに進みます。<br/>
                 <span className="text-orange-600 font-medium">※自動で進まない場合は、下記ボタンをクリックしてください</span>
               </p>
               <button
