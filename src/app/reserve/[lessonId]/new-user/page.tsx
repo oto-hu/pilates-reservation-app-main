@@ -87,8 +87,9 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
       console.log('🔄 ユーザー情報をNewUserReservationFormに返します:', userInfo);
 
       // 成功ページへのリダイレクトは同意書保存完了後に行う
+      // router.replace() を使用して同意書ページを履歴から削除
       setTimeout(() => {
-        router.push(`/reserve/complete?reservationId=${result.reservation.id}&newUser=true`)
+        router.replace(`/reserve/complete?reservationId=${result.reservation.id}&newUser=true`)
       }, 2000); // 同意書保存の時間を考慮
 
       return userInfo;
