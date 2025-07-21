@@ -454,8 +454,8 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
       if (isMobile) {
-        // モバイルデバイスの場合: 複数のイベントで確実に対応
-        console.log('📱 モバイルデバイス検出: 複数のイベントで対応');
+        // モバイルデバイスの場合: 複数のイベント + 短時間フォールバックで確実に対応
+        console.log('📱 モバイルデバイス検出: 複数のイベント + 短時間フォールバックで対応');
         
         let callbackExecuted = false;
         
@@ -470,7 +470,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 1. フォーカスが戻ってきた時にコールバック実行
         const handleFocus = () => {
           console.log('📱 フォーカス復帰検出');
-          setTimeout(executeCallback, 500);
+          setTimeout(executeCallback, 300);
           cleanup();
         };
         
@@ -478,7 +478,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         const handleVisibilityChange = () => {
           if (!document.hidden) {
             console.log('📱 ページ表示復帰検出');
-            setTimeout(executeCallback, 500);
+            setTimeout(executeCallback, 300);
             cleanup();
           }
         };
@@ -486,7 +486,14 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         // 3. ページにフォーカスが戻った時のイベント
         const handlePageShow = () => {
           console.log('📱 ページ表示イベント検出');
-          setTimeout(executeCallback, 500);
+          setTimeout(executeCallback, 300);
+          cleanup();
+        };
+
+        // 4. ブラウザの戻るボタン対応（popstate イベント）
+        const handlePopState = () => {
+          console.log('📱 ブラウザ戻るボタン検出');
+          setTimeout(executeCallback, 100);
           cleanup();
         };
         
@@ -495,16 +502,25 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
           window.removeEventListener('focus', handleFocus);
           document.removeEventListener('visibilitychange', handleVisibilityChange);
           window.removeEventListener('pageshow', handlePageShow);
+          window.removeEventListener('popstate', handlePopState);
         };
         
         // 複数のイベントでリスナーを設定
         window.addEventListener('focus', handleFocus);
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('pageshow', handlePageShow);
+        window.addEventListener('popstate', handlePopState);
         
-        // フォールバック: 4秒後に強制実行
+        // メインフォールバック: 1.5秒後に強制実行（短縮）
         setTimeout(() => {
-          console.log('📱 フォールバック: 強制実行');
+          console.log('📱 メインフォールバック: 強制実行（1.5秒）');
+          executeCallback();
+          cleanup();
+        }, 1500);
+        
+        // 緊急フォールバック: 4秒後に再度強制実行
+        setTimeout(() => {
+          console.log('📱 緊急フォールバック: 再度強制実行（4秒）');
           executeCallback();
           cleanup();
         }, 4000);
