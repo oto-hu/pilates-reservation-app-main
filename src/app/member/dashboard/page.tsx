@@ -155,19 +155,19 @@ export default function MemberDashboard() {
         {/* プロフィール完了促進バナー */}
         {dashboardData && !dashboardData.profileCompleted && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <AlertCircle className="h-8 w-8 text-orange-600 mr-3" />
-                  <div>
-                    <h3 className="font-semibold text-orange-800">プロフィールを完成させましょう</h3>
-                    <p className="text-orange-700 text-sm mt-1">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-start sm:items-center">
+                  <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 mr-3 flex-shrink-0 mt-0.5 sm:mt-0" />
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-orange-800 text-sm sm:text-base">プロフィールを完成させましょう</h3>
+                    <p className="text-orange-700 text-xs sm:text-sm mt-1">
                       より良いサービスを提供するため、プロフィール情報の入力をお願いします
                     </p>
                   </div>
                 </div>
-                <Link href="/member/profile">
-                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Link href="/member/profile" className="flex-shrink-0">
+                  <Button className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto text-sm sm:text-base">
                     プロフィールを完成
                   </Button>
                 </Link>
