@@ -428,7 +428,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         
         // PDFはサーバー保存のみで、ダウンロード処理は行わない
         // ユーザーには「PDFはメールで送信されます」と伝える
-        alert('✅ 署名完了しました！\n\n📧 署名済みPDFは確認メールで送信されます。\n🔄 レッスン予約を完了しています...');
+        alert('✅ 署名完了しました！\n\n📧  レッスン予約を完了しています...');
         
       } else {
         // PCの場合：従来通りダウンロード
