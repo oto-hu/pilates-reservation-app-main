@@ -127,22 +127,23 @@ export default function MemberDashboard() {
                 <p className="text-sm text-gray-500">会員ダッシュボード</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/member/profile">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link href="/member/profile" className="hidden sm:block">
                 <Button variant="outline">
                   <UserCheck className="h-4 w-4 mr-2" />
                   プロフィール
                 </Button>
               </Link>
               <Link href="/reserve">
-                <Button variant="outline">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  レッスン予約
+                <Button variant="outline" size="sm" className="sm:size-default">
+                  <Calendar className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">レッスン予約</span>
+                  <span className="sm:hidden">予約</span>
                 </Button>
               </Link>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                ログアウト
+              <Button variant="outline" size="sm" className="sm:size-default" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">ログアウト</span>
               </Button>
             </div>
           </div>
@@ -175,7 +176,7 @@ export default function MemberDashboard() {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
           {/* チケット情報 */}
           <Card>
             <CardHeader>
@@ -191,23 +192,23 @@ export default function MemberDashboard() {
               {dashboardData?.tickets && dashboardData.tickets.length > 0 ? (
                 <div className="space-y-4">
                   {dashboardData.tickets.map((ticket) => (
-                    <div key={ticket.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium">{ticket.lessonTypeName}</p>
-                        <p className="text-sm text-gray-600">
+                    <div key={ticket.id} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{ticket.lessonTypeName}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
                           有効期限: {formatExpiryDate(ticket.expiresAt.toString())}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-right ml-2">
+                        <div className="text-xl sm:text-2xl font-bold text-blue-600">
                           {ticket.remainingCount}
                         </div>
-                        <div className="text-sm text-gray-500">枚</div>
+                        <div className="text-xs sm:text-sm text-gray-500">枚</div>
                         {isExpired(ticket.expiresAt.toString()) && (
-                          <Badge variant="destructive" className="mt-1">期限切れ</Badge>
+                          <Badge variant="destructive" className="mt-1 text-xs">期限切れ</Badge>
                         )}
                         {isExpiringSoon(ticket.expiresAt.toString()) && !isExpired(ticket.expiresAt.toString()) && (
-                          <Badge variant="outline" className="mt-1 border-orange-500 text-orange-600">期限間近</Badge>
+                          <Badge variant="outline" className="mt-1 border-orange-500 text-orange-600 text-xs">期限間近</Badge>
                         )}
                       </div>
                     </div>
@@ -240,23 +241,24 @@ export default function MemberDashboard() {
               {dashboardData?.upcomingReservations && dashboardData.upcomingReservations.length > 0 ? (
                 <div className="space-y-4">
                   {dashboardData.upcomingReservations.map((reservation) => (
-                    <div key={reservation.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{reservation.lesson.title}</p>
-                        <p className="text-sm text-gray-600">
+                    <div key={reservation.id} className="flex items-start justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <p className="font-medium truncate">{reservation.lesson.title}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
                           {formatDate(reservation.lesson.startTime)}
                         </p>
                         <div className="flex items-center mt-2">
                           <Badge 
                             variant={reservation.reservationType === 'TRIAL' ? 'secondary' : 
                                     reservation.reservationType === 'TICKET' ? 'default' : 'outline'}
+                            className="text-xs"
                           >
                             {reservation.reservationType === 'TRIAL' ? '体験' :
                              reservation.reservationType === 'TICKET' ? 'チケット' : '単回利用'}
                           </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <Link href={`/member/reservations/${reservation.id}`}>
                           <Button variant="outline" size="sm">
                             詳細
@@ -293,8 +295,8 @@ export default function MemberDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
-              <div className="space-y-4 text-sm text-gray-700">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-6 max-h-96 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm text-gray-700">
                 <div className="font-semibold text-gray-900">●入会資格について</div>
                 <p>医師等により運動を禁じられている　・妊娠中　・暴力団関係者　・感染症および感染性のある皮膚病がある　・現在18歳未満(保護者から同意が得られる場合は入会可)</p>
                 <p>同意書・会員会則に記載の内容に同意できない</p>

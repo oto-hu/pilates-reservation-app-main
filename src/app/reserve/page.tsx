@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, Users, Clock, UserCheck, Building2 } from 'lucide-react'
 import { Lesson, CalendarEvent } from '@/lib/types'
-import { formatTime } from '@/lib/utils'
+import { formatTime, formatDate } from '@/lib/utils'
 
 const localizer = momentLocalizer(moment)
 
@@ -213,7 +213,7 @@ export default function ReservePage() {
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
                       <span>
-                        {formatTime(event.start)} - {formatTime(event.end)}
+                        {moment(event.start).format('M月D日(ddd)')} {formatTime(event.start)} - {formatTime(event.end)}
                       </span>
                     </div>
                     {isFull && (

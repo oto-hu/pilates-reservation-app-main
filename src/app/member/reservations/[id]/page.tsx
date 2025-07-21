@@ -197,12 +197,12 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center py-4">
-            <Link href="/member/dashboard" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
+            <Link href="/member/dashboard" className="mr-2 sm:mr-4 p-2 hover:bg-gray-100 rounded-lg">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">予約詳細</h1>
-              <p className="text-sm text-gray-600">予約内容を確認できます</p>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">予約詳細</h1>
+              <p className="text-xs sm:text-sm text-gray-600">予約内容を確認できます</p>
             </div>
           </div>
         </div>
@@ -214,15 +214,16 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
           {/* レッスン情報 */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
-                  {reservation.lesson.title}
+                  <span className="truncate">{reservation.lesson.title}</span>
                 </CardTitle>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-wrap">
                   {getReservationTypeBadge(reservation.reservationType)}
                   <Badge 
                     variant={reservation.paymentStatus === 'CANCELLED' ? 'destructive' : 'outline'}
+                    className="text-xs"
                   >
                     {reservation.paymentStatus === 'CANCELLED' ? 'キャンセル済み' : '予約中'}
                   </Badge>
@@ -230,21 +231,21 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                  <span>{formatDateTime(reservation.lesson.startTime)}</span>
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                <div className="flex items-start">
+                  <Calendar className="h-4 w-4 mr-2 text-gray-500 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm sm:text-base">{formatDateTime(reservation.lesson.startTime)}</span>
                 </div>
                 <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                  <span>
+                  <Clock className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                  <span className="text-sm sm:text-base">
                     {formatTime(reservation.lesson.startTime)} - {formatTime(reservation.lesson.endTime)}
                   </span>
                 </div>
                 {reservation.lesson.instructorName && (
                   <div className="flex items-center">
-                    <User className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>インストラクター: {reservation.lesson.instructorName}</span>
+                    <User className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">インストラクター: {reservation.lesson.instructorName}</span>
                   </div>
                 )}
               </div>
@@ -258,23 +259,23 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center">
-                <User className="h-4 w-4 mr-2 text-gray-500" />
-                <span>{reservation.customerName}</span>
+                <User className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <span className="text-sm sm:text-base break-all">{reservation.customerName}</span>
               </div>
               <div className="flex items-center">
-                <Mail className="h-4 w-4 mr-2 text-gray-500" />
-                <span>{reservation.customerEmail}</span>
+                <Mail className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <span className="text-sm sm:text-base break-all">{reservation.customerEmail}</span>
               </div>
               <div className="flex items-center">
-                <Phone className="h-4 w-4 mr-2 text-gray-500" />
-                <span>{reservation.customerPhone}</span>
+                <Phone className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <span className="text-sm sm:text-base">{reservation.customerPhone}</span>
               </div>
               {reservation.medicalInfo && (
                 <div className="flex items-start">
-                  <FileText className="h-4 w-4 mr-2 text-gray-500 mt-0.5" />
+                  <FileText className="h-4 w-4 mr-2 text-gray-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <span className="font-medium">医学的情報:</span>
-                    <p className="text-gray-600 mt-1">{reservation.medicalInfo}</p>
+                    <span className="font-medium text-sm sm:text-base">医学的情報:</span>
+                    <p className="text-gray-600 mt-1 text-sm sm:text-base">{reservation.medicalInfo}</p>
                   </div>
                 </div>
               )}
@@ -294,9 +295,9 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
                 <div className="space-y-3">
                   {deadline && (
                     <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-blue-800">無料キャンセル期限</p>
-                        <p className="text-sm text-blue-600">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-blue-800 text-sm sm:text-base">無料キャンセル期限</p>
+                        <p className="text-xs sm:text-sm text-blue-600">
                           {deadline.toLocaleDateString('ja-JP', {
                             month: 'long',
                             day: 'numeric',
@@ -305,15 +306,17 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
                           })}
                         </p>
                       </div>
-                      {isWithinFreeCancel ? (
-                        <CheckCircle className="h-6 w-6 text-green-500" />
-                      ) : (
-                        <AlertTriangle className="h-6 w-6 text-orange-500" />
-                      )}
+                      <div className="flex-shrink-0 ml-2">
+                        {isWithinFreeCancel ? (
+                          <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
+                        ) : (
+                          <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />
+                        )}
+                      </div>
                     </div>
                   )}
                   
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-xs sm:text-sm text-gray-600 space-y-1">
                     <p>• <strong>期限内キャンセル</strong>: 無料でキャンセル可能</p>
                     {reservation.reservationType === ReservationType.TICKET && (
                       <p className="ml-4">- チケット利用の場合はチケットが返還されます</p>
@@ -363,11 +366,11 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
                   <AlertDescription>{cancelMessage}</AlertDescription>
                 </Alert>
                 
-                <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                   <Button
                     variant="outline"
                     onClick={() => setShowConfirmDialog(false)}
-                    className="flex-1"
+                    className="flex-1 w-full"
                     disabled={cancelling}
                   >
                     戻る
@@ -375,7 +378,7 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
                   <Button
                     variant="destructive"
                     onClick={handleConfirmCancel}
-                    className="flex-1"
+                    className="flex-1 w-full"
                     disabled={cancelling}
                   >
                     {cancelling ? 'キャンセル中...' : 'キャンセルする'}

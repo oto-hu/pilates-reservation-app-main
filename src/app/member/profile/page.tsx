@@ -126,11 +126,12 @@ export default function ProfilePage() {
                 <p className="text-sm text-gray-500">追加情報を入力してプロフィールを完成させましょう</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <Link href="/member/dashboard">
-                <Button variant="outline">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボードに戻る
+                <Button variant="outline" size="sm" className="sm:size-default">
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">ダッシュボードに戻る</span>
+                  <span className="sm:hidden">戻る</span>
                 </Button>
               </Link>
             </div>
@@ -149,7 +150,7 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* ピラティス経験 */}
                 <div className="space-y-2">
                   <Label htmlFor="pilatesExperience">ピラティス経験</Label>
@@ -216,13 +217,13 @@ export default function ProfilePage() {
               </div>
 
               {/* 保存ボタン */}
-              <div className="flex justify-end space-x-4">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
                 <Link href="/member/dashboard">
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="outline" className="w-full sm:w-auto">
                     キャンセル
                   </Button>
                 </Link>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
                   <Save className="h-4 w-4 mr-2" />
                   {saving ? '保存中...' : 'プロフィールを保存'}
                 </Button>
