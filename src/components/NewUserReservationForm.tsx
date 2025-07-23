@@ -306,13 +306,73 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                   {/* 生年月日 */}
                   <div>
                     <label className="form-label">生年月日 <span className="text-red-500">*</span></label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      {...register('birthDate')}
-                      onChange={handleBirthDateChange}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
+                    <div className="flex gap-2">
+                      <select
+                        className="form-input flex-1"
+                        value={watch('birthDate')?.split('-')[0] || ''}
+                        onChange={(e) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [, month, day] = currentDate.split('-')
+                          const newDate = `${e.target.value}-${month || '01'}-${day || '01'}`
+                          setValue('birthDate', newDate)
+                          handleBirthDateChange({ target: { value: newDate } } as any)
+                        }}
+                      >
+                        <option value="">年</option>
+                        {Array.from({ length: 100 }, (_, i) => {
+                          const year = new Date().getFullYear() - i
+                          return (
+                            <option key={year} value={year}>
+                              {year}年
+                            </option>
+                          )
+                        })}
+                      </select>
+                      
+                      <select
+                        className="form-input flex-1"
+                        value={watch('birthDate')?.split('-')[1] || ''}
+                        onChange={(e) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [year, , day] = currentDate.split('-')
+                          const newDate = `${year || new Date().getFullYear()}-${e.target.value.padStart(2, '0')}-${day || '01'}`
+                          setValue('birthDate', newDate)
+                          handleBirthDateChange({ target: { value: newDate } } as any)
+                        }}
+                      >
+                        <option value="">月</option>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const month = i + 1
+                          return (
+                            <option key={month} value={month}>
+                              {month}月
+                            </option>
+                          )
+                        })}
+                      </select>
+                      
+                      <select
+                        className="form-input flex-1"
+                        value={watch('birthDate')?.split('-')[2] || ''}
+                        onChange={(e) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [year, month] = currentDate.split('-')
+                          const newDate = `${year || new Date().getFullYear()}-${month || '01'}-${e.target.value.padStart(2, '0')}`
+                          setValue('birthDate', newDate)
+                          handleBirthDateChange({ target: { value: newDate } } as any)
+                        }}
+                      >
+                        <option value="">日</option>
+                        {Array.from({ length: 31 }, (_, i) => {
+                          const day = i + 1
+                          return (
+                            <option key={day} value={day}>
+                              {day}日
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
                     {errors.birthDate && (
                       <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>
                     )}

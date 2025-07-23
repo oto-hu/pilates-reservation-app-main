@@ -201,14 +201,70 @@ function RegisterForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="birthDate">生年月日 <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    required
-                    value={formData.birthDate}
-                    onChange={(e) => handleBirthDateChange(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
+                  <div className="flex gap-2">
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+                      value={formData.birthDate?.split('-')[0] || ''}
+                      onChange={(e) => {
+                        const currentDate = formData.birthDate || ''
+                        const [, month, day] = currentDate.split('-')
+                        const newDate = `${e.target.value}-${month || '01'}-${day || '01'}`
+                        handleBirthDateChange(newDate)
+                      }}
+                    >
+                      <option value="">年</option>
+                      {Array.from({ length: 100 }, (_, i) => {
+                        const year = new Date().getFullYear() - i
+                        return (
+                          <option key={year} value={year}>
+                            {year}年
+                          </option>
+                        )
+                      })}
+                    </select>
+                    
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+                      value={formData.birthDate?.split('-')[1] || ''}
+                      onChange={(e) => {
+                        const currentDate = formData.birthDate || ''
+                        const [year, , day] = currentDate.split('-')
+                        const newDate = `${year || new Date().getFullYear()}-${e.target.value.padStart(2, '0')}-${day || '01'}`
+                        handleBirthDateChange(newDate)
+                      }}
+                    >
+                      <option value="">月</option>
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const month = i + 1
+                        return (
+                          <option key={month} value={month}>
+                            {month}月
+                          </option>
+                        )
+                      })}
+                    </select>
+                    
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+                      value={formData.birthDate?.split('-')[2] || ''}
+                      onChange={(e) => {
+                        const currentDate = formData.birthDate || ''
+                        const [year, month] = currentDate.split('-')
+                        const newDate = `${year || new Date().getFullYear()}-${month || '01'}-${e.target.value.padStart(2, '0')}`
+                        handleBirthDateChange(newDate)
+                      }}
+                    >
+                      <option value="">日</option>
+                      {Array.from({ length: 31 }, (_, i) => {
+                        const day = i + 1
+                        return (
+                          <option key={day} value={day}>
+                            {day}日
+                          </option>
+                        )
+                      })}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
