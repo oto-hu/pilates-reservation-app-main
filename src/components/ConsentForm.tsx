@@ -505,7 +505,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
     <div className="max-w-5xl mx-auto py-8 px-6">
       <h1 className="text-2xl font-bold mb-6 text-center">グループレッスン同意書</h1>
       <div className="text-sm space-y-3 mb-6"></div>
-      <p>お手数ですが、ご一読下さい。</p>
+      <p className="text-center">お手数ですが、ご一読下さい。</p>
       
       {/* 同意書の内容 */}
       <div className="mb-8 p-8 border border-gray-300 rounded-lg bg-gray-50">
@@ -524,12 +524,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
         </div>
         
         <p className="font-bold text-center">私は、貴サロンのグループレッスン受講に際し上記事項に同意した為、本書に署名致します。</p>
-        <p className="font-bold mb-4">※【会員会則】はご入会される方へ向けて当日現地にて再度お伝え致します。</p>
       </div>
+      <p className="font-bold mb-4">※【会員会則】はご入会される方へ向けて当日現地にて再度お伝え致します。</p>
 
       {/* 会員会則の内容 */}
       <div className="mb-8 p-8 border border-gray-300 rounded-lg bg-gray-50">
-        <p className="font-bold mb-4">※【会員会則】はご入会される方へ向けて当日現地にて再度お伝え致します。</p>
         <h3 className="text-lg font-bold mb-4">【会員会則】</h3>
         <p className="font-bold mb-4">ピラティスサロンPrealが運営するスタジオ・提携するスタジオでのグループレッスン関する規約になります。</p>
         
