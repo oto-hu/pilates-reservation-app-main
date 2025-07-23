@@ -200,15 +200,85 @@ function RegisterForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="birthDate">生年月日 <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    required
-                    value={formData.birthDate}
-                    onChange={(e) => handleBirthDateChange(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
+                  <Label>生年月日 <span className="text-red-500">*</span></Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* 年 */}
+                    <Select 
+                      value={formData.birthDate ? formData.birthDate.split('-')[0] : ''} 
+                      onValueChange={(year) => {
+                        const [, month, day] = formData.birthDate ? formData.birthDate.split('-') : ['', '', '']
+                        if (month && day) {
+                          handleBirthDateChange(`${year}-${month}-${day}`)
+                        } else {
+                          setFormData(prev => ({ ...prev, birthDate: year ? `${year}-01-01` : '' }))
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="年" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                          <SelectItem key={year} value={String(year)}>
+                            {year}年
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* 月 */}
+                    <Select 
+                      value={formData.birthDate ? formData.birthDate.split('-')[1] : ''} 
+                      onValueChange={(month) => {
+                        const [year, , day] = formData.birthDate ? formData.birthDate.split('-') : ['', '', '']
+                        if (year && day) {
+                          handleBirthDateChange(`${year}-${month.padStart(2, '0')}-${day}`)
+                        } else if (year) {
+                          setFormData(prev => ({ ...prev, birthDate: `${year}-${month.padStart(2, '0')}-01` }))
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="月" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                            {i + 1}月
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* 日 */}
+                    <Select 
+                      value={formData.birthDate ? formData.birthDate.split('-')[2] : ''} 
+                      onValueChange={(day) => {
+                        const [year, month] = formData.birthDate ? formData.birthDate.split('-') : ['', '']
+                        if (year && month) {
+                          handleBirthDateChange(`${year}-${month}-${day.padStart(2, '0')}`)
+                        }
+                      }}
+                      disabled={!formData.birthDate || formData.birthDate.split('-').length < 2}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="日" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          if (!formData.birthDate) return []
+                          const [year, month] = formData.birthDate.split('-')
+                          if (!year || !month) return []
+                          const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate()
+                          return Array.from({ length: daysInMonth }, (_, i) => (
+                            <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                              {i + 1}日
+                            </SelectItem>
+                          ))
+                        })()}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

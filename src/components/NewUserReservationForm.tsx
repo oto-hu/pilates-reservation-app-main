@@ -8,6 +8,7 @@ import { Calendar, Clock, Users, Building2, UserCheck, AlertCircle, Ticket, Cred
 import { Lesson, PaymentMethod, CreateReservationData, ReservationType, LessonType, NewUserReservationData } from '@/lib/types'
 import { formatDate, formatTime } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import ConsentForm from './ConsentForm'
 
 const newUserReservationSchema = z.object({
@@ -306,13 +307,98 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                   {/* 生年月日 */}
                   <div>
                     <label className="form-label">生年月日 <span className="text-red-500">*</span></label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      {...register('birthDate')}
-                      onChange={handleBirthDateChange}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* 年 */}
+                      <Select 
+                        value={watch('birthDate') ? watch('birthDate').split('-')[0] : ''} 
+                        onValueChange={(year) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [, month, day] = currentDate.split('-')
+                          if (month && day) {
+                            const newDate = `${year}-${month}-${day}`
+                            setValue('birthDate', newDate)
+                            handleBirthDateChange({ target: { value: newDate } } as any)
+                          } else {
+                            const newDate = year ? `${year}-01-01` : ''
+                            setValue('birthDate', newDate)
+                            handleBirthDateChange({ target: { value: newDate } } as any)
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="年" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                            <SelectItem key={year} value={String(year)}>
+                              {year}年
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {/* 月 */}
+                      <Select 
+                        value={watch('birthDate') ? watch('birthDate').split('-')[1] : ''} 
+                        onValueChange={(month) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [year, , day] = currentDate.split('-')
+                          if (year && day) {
+                            const newDate = `${year}-${month.padStart(2, '0')}-${day}`
+                            setValue('birthDate', newDate)
+                            handleBirthDateChange({ target: { value: newDate } } as any)
+                          } else if (year) {
+                            const newDate = `${year}-${month.padStart(2, '0')}-01`
+                            setValue('birthDate', newDate)
+                            handleBirthDateChange({ target: { value: newDate } } as any)
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="月" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                              {i + 1}月
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {/* 日 */}
+                      <Select 
+                        value={watch('birthDate') ? watch('birthDate').split('-')[2] : ''} 
+                        onValueChange={(day) => {
+                          const currentDate = watch('birthDate') || ''
+                          const [year, month] = currentDate.split('-')
+                          if (year && month) {
+                            const newDate = `${year}-${month}-${day.padStart(2, '0')}`
+                            setValue('birthDate', newDate)
+                            handleBirthDateChange({ target: { value: newDate } } as any)
+                          }
+                        }}
+                        disabled={!watch('birthDate') || watch('birthDate').split('-').length < 2}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="日" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(() => {
+                            const birthDate = watch('birthDate')
+                            if (!birthDate) return []
+                            const [year, month] = birthDate.split('-')
+                            if (!year || !month) return []
+                            const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate()
+                            return Array.from({ length: daysInMonth }, (_, i) => (
+                              <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                                {i + 1}日
+                              </SelectItem>
+                            ))
+                          })()}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     {errors.birthDate && (
                       <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>
                     )}
