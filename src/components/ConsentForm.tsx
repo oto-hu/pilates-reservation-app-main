@@ -505,7 +505,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
     <div className="max-w-5xl mx-auto py-8 px-6">
       <h1 className="text-2xl font-bold mb-6 text-center">グループレッスン同意書</h1>
       <div className="text-sm space-y-3 mb-6"></div>
-      <p>お手数ですが、ご一読下さい。</p>
+      <p className="text-center">お手数ですが、ご一読下さい。</p>
       
       {/* 同意書の内容 */}
       <div className="mb-8 p-8 border border-gray-300 rounded-lg bg-gray-50">
