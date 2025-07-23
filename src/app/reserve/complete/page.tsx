@@ -185,10 +185,11 @@ function ReservationCompleteForm() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <h3 className="font-medium text-blue-800 mb-2">ご来店時の注意事項</h3>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• レッスン開始15分前までにお越しください</li>
-            <li>• 動きやすい服装でお参りください</li>
-            <li>• タオルと水分補給用の飲み物をお持ちください</li>
-            <li>• 前日21:00までなら無料でキャンセル・変更が可能です</li>
+            <li>• 体験時はレッスン開始15分前にお越しください</li>
+            <li>• 更衣室はございません。動きやすい服装でお越しいただく、もしくはお手洗い等でのお着替えをお願い致します。</li>
+            <li>• 滑り止め靴下、タオル、お飲み物をご持参下さい。</li>
+            <li>• レッスン前日21:00以降のキャンセルはチケット1回分消化となりますのでご注意下さい。</li>
+            <li><strong>• 一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</strong></li>
           </ul>
         </div>
 

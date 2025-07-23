@@ -124,7 +124,7 @@ export default function MemberDashboard() {
                 <h1 className="text-lg font-semibold text-gray-900">
                   {session?.user?.name}さん
                 </h1>
-                <p className="text-sm text-gray-500">会員ダッシュボード</p>
+                <p className="text-sm text-gray-500">会員マイページ</p>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -261,7 +261,7 @@ export default function MemberDashboard() {
                       <div className="text-right flex-shrink-0">
                         <Link href={`/member/reservations/${reservation.id}`}>
                           <Button variant="outline" size="sm">
-                            詳細
+                            詳細・キャンセルはこちら
                           </Button>
                         </Link>
                       </div>
@@ -303,7 +303,7 @@ export default function MemberDashboard() {
                 <p>虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分にされる事を了承できない</p>
                 
                 <div className="font-semibold text-gray-900 mt-6">●レッスンに関して</div>
-                <p>チケット残数は会員ログイン後に名ページにてご確認をお願い致します。</p>
+                <p>チケット残数は会員ログイン後にマイページにてご確認をお願い致します。</p>
                 <p>万が一お客様の会員情報が消失した場合、チケット情報に関しては当サロンの記録情報に準じます。</p>
                 <p>チケットが残っている状態のみレッスンを受講する事ができます。</p>
                 <p>キャンセルはレッスン予約日の前日21時00分までにキャンセル処理をお願い致します。</p>
@@ -332,14 +332,12 @@ export default function MemberDashboard() {
 
                 <div className="font-semibold text-gray-900 mt-6">●損害賠償責任免責</div>
                 <p>会員が当サロンが運営するスタジオ・提携するスタジオでのレッスン中、又は左記スタジオ周辺で</p>
-                <p>受けた損害に対して当サロン・インストラクター及び開催場所管理者は損害に関する一切の責任を</p>
-                <p>負いません。</p>
+                <p>受けた損害に対して当サロン・インストラクター及び開催場所管理者は損害に関する一切の責任を負いません。</p>
                 <p>自己所有物の破損、紛失、盗難や事故、怪我に対する請求、訴訟その他一切の責任を追及できません。</p>
                 
                 <div className="font-semibold text-gray-900 mt-6">●同意</div>
                 <p>虚偽申告が発覚又は会則及びコンプライアンスに違反した際に退会処分とさせて頂く場合がございます。</p>
-                <p>サロンの判断により、事前予告なく会則の内容を変更・追加・削除(以下「変更内容」)される事があります。その際、変更内容や適用開始時期をスタジオ所定の方法で告知するものとします。会員は変更内容に</p>
-                <p>同意したものとみなされます。</p>
+                <p>サロンの判断により、事前予告なく会則の内容を変更・追加・削除(以下「変更内容」)される事があります。その際、変更内容や適用開始時期をスタジオ所定の方法で告知するものとします。会員は変更内容に同意したものとみなされます。</p>
               </div>
             </div>
           </CardContent>

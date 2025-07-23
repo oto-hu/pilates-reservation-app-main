@@ -311,6 +311,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                       className="form-input"
                       {...register('birthDate')}
                       onChange={handleBirthDateChange}
+                      max={new Date().toISOString().split('T')[0]}
                     />
                     {errors.birthDate && (
                       <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>

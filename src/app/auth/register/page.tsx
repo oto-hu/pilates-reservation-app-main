@@ -207,6 +207,7 @@ function RegisterForm() {
                     required
                     value={formData.birthDate}
                     onChange={(e) => handleBirthDateChange(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
 
