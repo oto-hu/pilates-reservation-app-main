@@ -11,9 +11,22 @@ import { CalendarDays, Ticket, User, LogOut, Calendar, FileText, UserCheck, Aler
 import { Ticket as TicketType, Reservation } from '@/lib/types'
 import ProfileCompleteModal from '@/components/ProfileCompleteModal'
 
+interface WaitingListEntry {
+  id: string
+  createdAt: string
+  lesson: {
+    id: string
+    title: string
+    startTime: string
+    endTime: string
+    location: string | null
+  }
+}
+
 interface DashboardData {
   tickets: (TicketType & { lessonTypeName: string })[]
   upcomingReservations: (Reservation & { lesson: { title: string; startTime: string } })[]
+  waitingList: WaitingListEntry[]
   profileCompleted: boolean
 }
 
@@ -61,6 +74,30 @@ export default function MemberDashboard() {
 
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
+  }
+
+  const handleCancelWaitingList = async (lessonId: string, lessonTitle: string) => {
+    if (!confirm(`${lessonTitle}のキャンセル待ちを解除しますか？`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/lessons/${lessonId}/waiting-list`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        alert('キャンセル待ちを解除しました')
+        // ダッシュボードデータを再取得
+        fetchDashboardData()
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'キャンセル待ちの解除に失敗しました')
+      }
+    } catch (error) {
+      console.error('キャンセル待ち解除エラー:', error)
+      alert('キャンセル待ちの解除に失敗しました')
+    }
   }
 
   const handleModalClose = () => {
@@ -176,7 +213,7 @@ export default function MemberDashboard() {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
           {/* チケット情報 */}
           <Card>
             <CardHeader>
@@ -277,6 +314,60 @@ export default function MemberDashboard() {
                       レッスンを予約する
                     </Button>
                   </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* キャンセル待ち一覧 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CalendarDays className="h-5 w-5 mr-2" />
+                キャンセル待ち
+              </CardTitle>
+              <CardDescription>
+                キャンセル待ち登録中のレッスンを確認できます
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {dashboardData?.waitingList && dashboardData.waitingList.length > 0 ? (
+                <div className="space-y-4">
+                  {dashboardData.waitingList.map((waitingItem) => (
+                    <div key={waitingItem.id} className="flex items-start justify-between p-3 sm:p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <p className="font-medium truncate text-yellow-800">{waitingItem.lesson.title}</p>
+                        <p className="text-xs sm:text-sm text-yellow-600">
+                          {formatDate(waitingItem.lesson.startTime)}
+                        </p>
+                        {waitingItem.lesson.location && (
+                          <p className="text-xs text-yellow-600 mt-1">
+                            会場: {waitingItem.lesson.location}
+                          </p>
+                        )}
+                        <div className="flex items-center mt-2">
+                          <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-700">
+                            キャンセル待ち中
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCancelWaitingList(waitingItem.lesson.id, waitingItem.lesson.title)}
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        >
+                          解除
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <CalendarDays className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">キャンセル待ち中のレッスンはありません</p>
                 </div>
               )}
             </CardContent>

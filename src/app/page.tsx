@@ -17,7 +17,6 @@ export default function HomePage() {
   const { data: session, status } = useSession()
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   
-  console.log('Modal state:', isImageModalOpen)
 
   const handleSignOut = async () => {
     try {
@@ -211,9 +210,11 @@ export default function HomePage() {
             <img 
               src="/images/Frame 343.png" 
               alt="予約システム説明" 
-              className="max-w-full h-auto rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300" 
+              className="max-w-full h-auto rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
+              loading="lazy"
+              width="800"
+              height="600"
               onClick={() => {
-                console.log('Image clicked!')
                 setIsImageModalOpen(true)
               }}
             />
@@ -236,7 +237,7 @@ export default function HomePage() {
           </div>
           <p className="mt-6 flex justify-center">
             <span className="bg-primary-50 text-primary-700 text-base font-bold px-4 py-2 rounded-full border border-primary-200 shadow-sm">
-              初めての方は体験料金:【1000円】から始められます
+              験料金:【1000円】
             </span>
           </p>
         </div>
@@ -445,10 +446,7 @@ export default function HomePage() {
       {isImageModalOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-          onClick={() => {
-            console.log('Modal background clicked!')
-            setIsImageModalOpen(false)
-          }}
+          onClick={() => setIsImageModalOpen(false)}
         >
           <div className="relative max-w-4xl max-h-full">
             <button
@@ -461,6 +459,7 @@ export default function HomePage() {
               src="/images/Frame 343.png" 
               alt="予約システム説明" 
               className="max-w-full max-h-full object-contain rounded-lg"
+              loading="lazy"
               onClick={(e) => e.stopPropagation()}
             />
           </div>

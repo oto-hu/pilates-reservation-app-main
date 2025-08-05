@@ -19,7 +19,18 @@ export async function POST(request: NextRequest) {
       pilatesExperience,
       motivation,
       medicalHistory,
-      goals
+      goals,
+      // 追加項目
+      howDidYouKnowUs,
+      referrerName,
+      otherSource,
+      transportation,
+      hasPilatesExperience,
+      hasExerciseHabit,
+      hasInjuryHistory,
+      injuryDetails,
+      injuryTiming,
+      trialMotivations
     } = body
 
     const updatedUser = await prisma.user.update({
@@ -31,6 +42,17 @@ export async function POST(request: NextRequest) {
         motivation,
         medicalHistory,
         goals,
+        // 追加項目
+        howDidYouKnowUs,
+        referrerName,
+        otherSource,
+        transportation,
+        hasPilatesExperience,
+        hasExerciseHabit,
+        hasInjuryHistory,
+        injuryDetails,
+        injuryTiming,
+        trialMotivations,
         profileCompleted: true
       }
     })
@@ -73,7 +95,18 @@ export async function GET(request: NextRequest) {
         motivation: true,
         medicalHistory: true,
         goals: true,
-        profileCompleted: true
+        profileCompleted: true,
+        // 追加項目
+        howDidYouKnowUs: true,
+        referrerName: true,
+        otherSource: true,
+        transportation: true,
+        hasPilatesExperience: true,
+        hasExerciseHabit: true,
+        hasInjuryHistory: true,
+        injuryDetails: true,
+        injuryTiming: true,
+        trialMotivations: true
       }
     })
 

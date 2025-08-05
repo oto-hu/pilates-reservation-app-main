@@ -216,20 +216,39 @@ export default function TrialPage() {
                       </div>
                     )}
 
-                    {!isPast && !isFull ? (
+                    {!isPast ? (
                       <div className="space-y-3">
-                        <Link
-                          href={`/reserve/${lesson.id}/new-user`}
-                          className="w-full text-center inline-block px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors shadow-lg"
-                        >
-                          体験レッスンを予約する
-                        </Link>
+                        {!isFull ? (
+                          <Link
+                            href={`/reserve/${lesson.id}/new-user`}
+                            className="w-full text-center inline-block px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors shadow-lg"
+                          >
+                            体験レッスンを予約する
+                          </Link>
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                              <h4 className="text-lg font-semibold text-yellow-800 mb-2">このレッスンは満席です</h4>
+                              <p className="text-yellow-700 mb-3">
+                                キャンセルが出た場合に体験レッスン（1,000円・当日PayPay払い）として自動的に予約が確定されます
+                              </p>
+                              <div className="space-y-2 text-sm text-yellow-600">
+                                <p>• キャンセル待ちで予約になった時にはメールでお知らせします</p>
+                                <p>• 先着順で処理されます</p>
+                              </div>
+                            </div>
+                            <Link
+                              href={`/reserve/${lesson.id}/new-user?waitlist=true`}
+                              className="w-full text-center inline-block px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors shadow-lg"
+                            >
+                              キャンセル待ちに登録する
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center py-4">
-                        <p className="text-gray-500">
-                          {isPast ? 'このレッスンは終了しています' : 'このレッスンは満席です'}
-                        </p>
+                        <p className="text-gray-500">このレッスンは終了しています</p>
                       </div>
                     )}
                   </div>

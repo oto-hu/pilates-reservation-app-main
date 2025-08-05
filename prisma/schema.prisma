@@ -68,6 +68,18 @@ model User {
   medicalHistory      String?  @map("medical_history")
   goals              String?  @map("goals")
   profileCompleted   Boolean? @default(false) @map("profile_completed")
+  // 追加項目
+  howDidYouKnowUs     String?  @map("how_did_you_know_us")  // ホームページ、店頭看板・店頭チラシ、インスタグラム、ポスティングチラシ、紹介、その他
+  referrerName        String?  @map("referrer_name")       // 紹介者名（手入力）
+  otherSource         String?  @map("other_source")        // その他の詳細（手入力）
+  transportation      String?  @map("transportation")      // 徒歩or自転車、車、バス、電車
+  hasPilatesExperience Boolean? @map("has_pilates_experience") // ピラティス経験の有無
+  hasExerciseHabit    Boolean? @map("has_exercise_habit")   // 運動習慣の有無
+  hasInjuryHistory    Boolean? @map("has_injury_history")   // 怪我や病気、手術経験の有無
+  injuryDetails       String?  @map("injury_details")      // 怪我の内容（手入力）
+  injuryTiming        String?  @map("injury_timing")       // 怪我の時期（手入力）
+  trialMotivations    String?  @map("trial_motivations")   // 体験のきっかけや目的（複数選択可、カンマ区切り）
+  membershipStatus    String?  @default("active") @map("membership_status") // 会員ステータス（active, suspended, withdrawn）
   trialDate         DateTime? @map("trial_date")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

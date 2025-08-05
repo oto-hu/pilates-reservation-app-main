@@ -52,16 +52,22 @@ function ReservationCompleteForm() {
 
   const fetchReservation = async () => {
     try {
+      console.log('予約完了ページ - 予約ID:', reservationId) // デバッグログ
       const response = await fetch(`/api/reservations/${reservationId}`)
       
+      console.log('予約取得API レスポンス status:', response.status) // デバッグログ
+      
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('予約取得エラー:', errorData) // デバッグログ
         throw new Error('Failed to fetch reservation')
       }
 
       const data = await response.json()
+      console.log('予約データ取得成功:', data) // デバッグログ
       setReservation(data)
     } catch (error) {
-      console.error('Error fetching reservation:', error)
+      console.error('予約取得処理エラー:', error)
     } finally {
       setLoading(false)
     }

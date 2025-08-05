@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// import { Checkbox } from '@/components/ui/checkbox' // 存在しないためコメントアウト
 import { User, Save, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,6 +22,17 @@ interface ProfileData {
   medicalHistory: string | null
   goals: string | null
   profileCompleted: boolean
+  // 追加項目
+  howDidYouKnowUs: string | null
+  referrerName: string | null
+  otherSource: string | null
+  transportation: string | null
+  hasPilatesExperience: boolean | null
+  hasExerciseHabit: boolean | null
+  hasInjuryHistory: boolean | null
+  injuryDetails: string | null
+  injuryTiming: string | null
+  trialMotivations: string | null
 }
 
 export default function ProfilePage() {
@@ -33,7 +45,18 @@ export default function ProfilePage() {
     pilatesExperience: '',
     motivation: '',
     medicalHistory: '',
-    goals: ''
+    goals: '',
+    // 追加項目
+    howDidYouKnowUs: '',
+    referrerName: '',
+    otherSource: '',
+    transportation: '',
+    hasPilatesExperience: null as boolean | null,
+    hasExerciseHabit: null as boolean | null,
+    hasInjuryHistory: null as boolean | null,
+    injuryDetails: '',
+    injuryTiming: '',
+    trialMotivations: [] as string[]
   })
 
   useEffect(() => {
@@ -57,7 +80,18 @@ export default function ProfilePage() {
           pilatesExperience: data.pilatesExperience || '',
           motivation: data.motivation || '',
           medicalHistory: data.medicalHistory || '',
-          goals: data.goals || ''
+          goals: data.goals || '',
+          // 追加項目
+          howDidYouKnowUs: data.howDidYouKnowUs || '',
+          referrerName: data.referrerName || '',
+          otherSource: data.otherSource || '',
+          transportation: data.transportation || '',
+          hasPilatesExperience: data.hasPilatesExperience,
+          hasExerciseHabit: data.hasExerciseHabit,
+          hasInjuryHistory: data.hasInjuryHistory,
+          injuryDetails: data.injuryDetails || '',
+          injuryTiming: data.injuryTiming || '',
+          trialMotivations: data.trialMotivations ? data.trialMotivations.split(',') : []
         })
       }
     } catch (error) {
@@ -72,12 +106,17 @@ export default function ProfilePage() {
     setSaving(true)
 
     try {
+      const submitData = {
+        ...formData,
+        trialMotivations: formData.trialMotivations.join(',')
+      }
+      
       const response = await fetch('/api/profile/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       })
 
       if (response.ok) {
@@ -95,10 +134,19 @@ export default function ProfilePage() {
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }))
+  }
+
+  const handleMotivationToggle = (motivation: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      trialMotivations: checked 
+        ? [...prev.trialMotivations, motivation]
+        : prev.trialMotivations.filter(m => m !== motivation)
     }))
   }
 
@@ -149,10 +197,222 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                {/* ピラティス経験 */}
+              {/* 当スタジオをどちらでお知りになりましたか */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●当スタジオをどちらでお知りになりましたか？</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="howDidYouKnowUs">きっかけ</Label>
+                    <Select 
+                      value={formData.howDidYouKnowUs} 
+                      onValueChange={(value) => handleInputChange('howDidYouKnowUs', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="選択してください" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ホームページ">ホームページ</SelectItem>
+                        <SelectItem value="店頭看板・店頭チラシ">店頭看板・店頭チラシ</SelectItem>
+                        <SelectItem value="インスタグラム">インスタグラム</SelectItem>
+                        <SelectItem value="ポスティングチラシ">ポスティングチラシ</SelectItem>
+                        <SelectItem value="紹介">紹介</SelectItem>
+                        <SelectItem value="その他">その他</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {formData.howDidYouKnowUs === '紹介' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="referrerName">紹介者名</Label>
+                      <Input
+                        id="referrerName"
+                        type="text"
+                        placeholder="紹介者のお名前を入力してください"
+                        value={formData.referrerName}
+                        onChange={(e) => handleInputChange('referrerName', e.target.value)}
+                      />
+                    </div>
+                  )}
+                  
+                  {formData.howDidYouKnowUs === 'その他' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="otherSource">その他の詳細</Label>
+                      <Input
+                        id="otherSource"
+                        type="text"
+                        placeholder="詳細を入力してください"
+                        value={formData.otherSource}
+                        onChange={(e) => handleInputChange('otherSource', e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 交通手段 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●交通手段を教えてください</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="pilatesExperience">ピラティス経験</Label>
+                  <Select 
+                    value={formData.transportation} 
+                    onValueChange={(value) => handleInputChange('transportation', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="交通手段を選択してください" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="徒歩or自転車">徒歩or自転車</SelectItem>
+                      <SelectItem value="車">車</SelectItem>
+                      <SelectItem value="バス">バス</SelectItem>
+                      <SelectItem value="電車">電車</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* ピラティス経験 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●ピラティスのご経験はございますか？</h3>
+                <div className="space-y-2">
+                  <div className="flex gap-6">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasPilatesExperience"
+                        checked={formData.hasPilatesExperience === false}
+                        onChange={() => handleInputChange('hasPilatesExperience', false)}
+                        className="text-blue-600"
+                      />
+                      <span>なし</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasPilatesExperience"
+                        checked={formData.hasPilatesExperience === true}
+                        onChange={() => handleInputChange('hasPilatesExperience', true)}
+                        className="text-blue-600"
+                      />
+                      <span>あり</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 運動習慣 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●現在、運動習慣はございますか？</h3>
+                <div className="space-y-2">
+                  <div className="flex gap-6">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasExerciseHabit"
+                        checked={formData.hasExerciseHabit === false}
+                        onChange={() => handleInputChange('hasExerciseHabit', false)}
+                        className="text-blue-600"
+                      />
+                      <span>なし</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasExerciseHabit"
+                        checked={formData.hasExerciseHabit === true}
+                        onChange={() => handleInputChange('hasExerciseHabit', true)}
+                        className="text-blue-600"
+                      />
+                      <span>あり</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 怪我や病気の履歴 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●現在、過去に怪我や病気、手術経験はございますか？</h3>
+                <div className="space-y-4">
+                  <div className="flex gap-6">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasInjuryHistory"
+                        checked={formData.hasInjuryHistory === false}
+                        onChange={() => handleInputChange('hasInjuryHistory', false)}
+                        className="text-blue-600"
+                      />
+                      <span>なし</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="hasInjuryHistory"
+                        checked={formData.hasInjuryHistory === true}
+                        onChange={() => handleInputChange('hasInjuryHistory', true)}
+                        className="text-blue-600"
+                      />
+                      <span>あり</span>
+                    </label>
+                  </div>
+                  
+                  {formData.hasInjuryHistory === true && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="injuryDetails">内容</Label>
+                        <Input
+                          id="injuryDetails"
+                          type="text"
+                          placeholder="怪我や病気の内容を入力してください"
+                          value={formData.injuryDetails}
+                          onChange={(e) => handleInputChange('injuryDetails', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="injuryTiming">いつ頃</Label>
+                        <Input
+                          id="injuryTiming"
+                          type="text"
+                          placeholder="時期を入力してください（例：2020年頃）"
+                          value={formData.injuryTiming}
+                          onChange={(e) => handleInputChange('injuryTiming', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 体験のきっかけや目的 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">●体験のきっかけや目的を教えてください（複数回答可）</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    '姿勢改善',
+                    '痛み改善', 
+                    'ダイエット',
+                    '体幹強化',
+                    '運動不足解消',
+                    '慢性的な疲労'
+                  ].map((motivation) => (
+                    <label key={motivation} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.trialMotivations.includes(motivation)}
+                        onChange={(e) => handleMotivationToggle(motivation, e.target.checked)}
+                        className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm">{motivation}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">既存のプロフィール項目</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {/* ピラティス経験レベル */}
+                <div className="space-y-2">
+                  <Label htmlFor="pilatesExperience">ピラティス経験レベル</Label>
                   <Select 
                     value={formData.pilatesExperience} 
                     onValueChange={(value) => handleInputChange('pilatesExperience', value)}
@@ -189,6 +449,7 @@ export default function ProfilePage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
               </div>
 
               {/* 疾患履歴・健康状態 */}

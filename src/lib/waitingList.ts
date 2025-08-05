@@ -23,51 +23,106 @@ export async function processWaitingList(lessonId: string) {
       return null
     }
 
-    const availableTicket = await prisma.ticket.findFirst({
+    // ユーザーの予約履歴を確認（体験レッスン対象者の判定）
+    const hasReservationHistory = await prisma.reservation.findFirst({
       where: {
         userId: waitingListEntry.userId,
-        lessonType: waitingListEntry.lesson.lessonType,
-        remainingCount: { gt: 0 },
-        expiresAt: { gt: new Date() }
+        paymentStatus: { not: PaymentStatus.CANCELLED }
       }
     })
 
-    if (!availableTicket) {
-      await prisma.waitingList.delete({
-        where: { id: waitingListEntry.id }
+    const canUseTrialOption = waitingListEntry.user.role === 'member' && !hasReservationHistory
+
+    // 体験レッスン対象者の場合
+    if (canUseTrialOption) {
+      // 体験レッスンで予約を作成（チケット不要）
+    } else {
+      // 既存会員の場合はチケットをチェック
+      const availableTicket = await prisma.ticket.findFirst({
+        where: {
+          userId: waitingListEntry.userId,
+          lessonType: waitingListEntry.lesson.lessonType,
+          remainingCount: { gt: 0 },
+          expiresAt: { gt: new Date() }
+        }
       })
-      return processWaitingList(lessonId)
+
+      if (!availableTicket) {
+        await prisma.waitingList.delete({
+          where: { id: waitingListEntry.id }
+        })
+        return processWaitingList(lessonId)
+      }
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const reservation = await tx.reservation.create({
-        data: {
-          lessonId,
-          userId: waitingListEntry.userId,
-          customerName: waitingListEntry.user.name || '',
-          customerEmail: waitingListEntry.user.email || '',
-          customerPhone: '',
-          reservationType: ReservationType.TICKET,
-          paymentMethod: PaymentMethod.TICKET,
-          paymentStatus: PaymentStatus.PENDING
-        },
-        include: {
-          lesson: true
+      // 体験レッスン対象者の場合
+      if (canUseTrialOption) {
+        const reservation = await tx.reservation.create({
+          data: {
+            lessonId,
+            userId: waitingListEntry.userId,
+            customerName: waitingListEntry.user.name || '',
+            customerEmail: waitingListEntry.user.email || '',
+            customerPhone: '',
+            reservationType: ReservationType.TRIAL,
+            paymentMethod: PaymentMethod.PAY_AT_STUDIO,
+            paymentStatus: PaymentStatus.PENDING
+          },
+          include: {
+            lesson: true
+          }
+        })
+
+        await tx.waitingList.delete({
+          where: { id: waitingListEntry.id }
+        })
+
+        return { reservation, user: waitingListEntry.user }
+      } else {
+        // 既存会員（チケット利用）の場合
+        const availableTicket = await tx.ticket.findFirst({
+          where: {
+            userId: waitingListEntry.userId,
+            lessonType: waitingListEntry.lesson.lessonType,
+            remainingCount: { gt: 0 },
+            expiresAt: { gt: new Date() }
+          }
+        })
+
+        if (!availableTicket) {
+          throw new Error('利用可能なチケットが見つかりません')
         }
-      })
 
-      await tx.ticket.update({
-        where: { id: availableTicket.id },
-        data: {
-          remainingCount: { decrement: 1 }
-        }
-      })
+        const reservation = await tx.reservation.create({
+          data: {
+            lessonId,
+            userId: waitingListEntry.userId,
+            customerName: waitingListEntry.user.name || '',
+            customerEmail: waitingListEntry.user.email || '',
+            customerPhone: '',
+            reservationType: ReservationType.TICKET,
+            paymentMethod: PaymentMethod.TICKET,
+            paymentStatus: PaymentStatus.PENDING
+          },
+          include: {
+            lesson: true
+          }
+        })
 
-      await tx.waitingList.delete({
-        where: { id: waitingListEntry.id }
-      })
+        await tx.ticket.update({
+          where: { id: availableTicket.id },
+          data: {
+            remainingCount: { decrement: 1 }
+          }
+        })
 
-      return { reservation, user: waitingListEntry.user }
+        await tx.waitingList.delete({
+          where: { id: waitingListEntry.id }
+        })
+
+        return { reservation, user: waitingListEntry.user }
+      }
     })
 
     // キャンセル待ちから予約確定時のメール通知を送信
@@ -85,10 +140,14 @@ export async function processWaitingList(lessonId: string) {
         timeZone: 'Asia/Tokyo'
       })
       
+      // 体験レッスンかどうかを判定
+      const isTrialLesson = result.reservation.reservationType === ReservationType.TRIAL
+      
       const emailData = generateWaitingListConfirmationEmail(
         result.user.name || '',
         result.reservation.lesson.title,
-        lessonDate
+        lessonDate,
+        isTrialLesson
       )
       
       emailData.to = result.user.email || ''

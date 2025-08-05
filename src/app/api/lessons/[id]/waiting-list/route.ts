@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import { ReservationType, PaymentMethod, PaymentStatus } from '@/lib/types'
+import { sendEmail, generateWaitingListRegistrationEmail } from '@/lib/notifications'
 
 // このAPIルートを動的に実行するように設定
 export const dynamic = 'force-dynamic'
@@ -48,8 +49,20 @@ export async function POST(
 
     if (existingWaitingList) {
       return NextResponse.json(
-        { error: 'Already on waiting list' },
+        { error: 'キャンセル待ち登録が完了しました。メール内容をご確認ください。' },
         { status: 400 }
+      )
+    }
+
+    // ユーザー情報を取得
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
       )
     }
 
@@ -60,6 +73,51 @@ export async function POST(
         userId
       }
     })
+
+    // キャンセル待ち登録完了メールを送信
+    try {
+      // 日本時間でフォーマット
+      const lessonDate = new Date(lesson.startTime).toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Tokyo'
+      })
+
+      // 予約履歴を確認して予約タイプを判定
+      const hasReservationHistory = await prisma.reservation.findFirst({
+        where: {
+          userId: userId,
+          paymentStatus: { not: PaymentStatus.CANCELLED }
+        }
+      })
+
+      const reservationType = (user.role === 'member' && !hasReservationHistory) 
+        ? '体験レッスン（1,000円・当日PayPay払い）' 
+        : 'チケット利用'
+
+      const emailData = generateWaitingListRegistrationEmail(
+        user.name || '',
+        lesson.title,
+        lessonDate,
+        lesson.location || '会場未設定',
+        reservationType
+      )
+
+      emailData.to = user.email || ''
+      await sendEmail(emailData)
+
+      console.log('キャンセル待ち登録完了メールを送信しました:', {
+        to: emailData.to,
+        subject: emailData.subject
+      })
+    } catch (emailError) {
+      console.error('キャンセル待ち登録完了メール送信エラー:', emailError)
+      // メール送信失敗はキャンセル待ち登録成功に影響しない
+    }
 
     return NextResponse.json(
       { message: 'Successfully joined waiting list' },
@@ -91,6 +149,15 @@ export async function DELETE(
     const lessonId = params.id
     const userId = session.user.id
 
+    // レッスンとユーザー情報を取得（メール送信用）
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId }
+    })
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    })
+
     await prisma.waitingList.delete({
       where: {
         lessonId_userId: {
@@ -99,6 +166,55 @@ export async function DELETE(
         }
       }
     })
+
+    // キャンセル待ち解除メールを送信
+    if (lesson && user && user.email) {
+      try {
+        const { sendEmail, generateWaitingListCancellationEmail } = await import('@/lib/notifications')
+        
+        // 日本時間でフォーマット
+        const lessonDate = new Date(lesson.startTime).toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Tokyo'
+        })
+
+        // 予約履歴を確認して予約タイプを判定
+        const hasReservationHistory = await prisma.reservation.findFirst({
+          where: {
+            userId: userId,
+            paymentStatus: { not: PaymentStatus.CANCELLED }
+          }
+        })
+
+        const reservationType = (user.role === 'member' && !hasReservationHistory) 
+          ? '体験レッスン（1,000円・当日PayPay払い）' 
+          : 'チケット利用'
+
+        const emailData = generateWaitingListCancellationEmail(
+          user.name || '',
+          lesson.title,
+          lessonDate,
+          lesson.location || '会場未設定',
+          reservationType
+        )
+
+        emailData.to = user.email
+        await sendEmail(emailData)
+
+        console.log('キャンセル待ち解除メールを送信しました:', {
+          to: emailData.to,
+          subject: emailData.subject
+        })
+      } catch (emailError) {
+        console.error('キャンセル待ち解除メール送信エラー:', emailError)
+        // メール送信失敗はキャンセル待ち解除成功に影響しない
+      }
+    }
 
     return NextResponse.json(
       { message: 'Successfully removed from waiting list' }

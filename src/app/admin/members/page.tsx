@@ -32,6 +32,18 @@ interface Member {
   goals: string | null
   profileCompleted: boolean
   trialDate: string | null
+  // 追加項目
+  howDidYouKnowUs: string | null
+  referrerName: string | null
+  otherSource: string | null
+  transportation: string | null
+  hasPilatesExperience: boolean | null
+  hasExerciseHabit: boolean | null
+  hasInjuryHistory: boolean | null
+  injuryDetails: string | null
+  injuryTiming: string | null
+  trialMotivations: string | null
+  membershipStatus: string | null
   createdAt: string
   updatedAt: string
 }
@@ -96,34 +108,28 @@ export default function MembersPage() {
 
   const exportToCSV = () => {
     const csvHeaders = [
-      'ID', '氏名', 'フリガナ', '生年月日', '年齢', '性別', '郵便番号', '住所', 'メールアドレス', '電話番号',
-      '緊急連絡先名', '緊急連絡先フリガナ', '緊急連絡先電話', '緊急連絡先続柄',
-      'ピラティス経験', '来店きっかけ', '疾患履歴', '目標', 'プロフィール完了', '体験日', '登録日', '更新日'
+      '会員No', '氏名', '性別', '生年月日', '年齢', '郵便番号', '住所', '体験日', '集客', 
+      '交通手段', 'ピラティス経験', '疾患', '疾患詳細', 'きっかけ', '担当者', '退会/休会', '紹介者数'
     ]
     
-    const csvData = filteredMembers.map(member => [
-      member.id,
+    const csvData = filteredMembers.map((member, index) => [
+      index + 1, // 会員No（上から順に番号）
       member.name || '',
-      member.furigana || '',
+      member.gender || '',
       member.birthDate ? new Date(member.birthDate).toLocaleDateString('ja-JP') : '',
       member.age || '',
-      member.gender || '',
       member.postalCode || '',
       member.address || '',
-      member.email || '',
-      member.phone || '',
-      member.emergencyContactName || '',
-      member.emergencyContactFurigana || '',
-      member.emergencyContactPhone || '',
-      member.emergencyContactRelation || '',
-      member.pilatesExperience || '',
-      member.motivation || '',
-      member.medicalHistory || '',
-      member.goals || '',
-      member.profileCompleted ? '完了' : '未完了',
       member.trialDate ? new Date(member.trialDate).toLocaleDateString('ja-JP') : '',
-      new Date(member.createdAt).toLocaleDateString('ja-JP'),
-      new Date(member.updatedAt).toLocaleDateString('ja-JP')
+      member.howDidYouKnowUs || '',
+      member.transportation || '',
+      member.hasPilatesExperience !== null ? (member.hasPilatesExperience ? 'あり' : 'なし') : '',
+      member.hasInjuryHistory !== null ? (member.hasInjuryHistory ? 'あり' : 'なし') : '',
+      member.hasInjuryHistory ? `${member.injuryDetails || ''}${member.injuryDetails && member.injuryTiming ? ' - ' : ''}${member.injuryTiming || ''}` : '',
+      member.trialMotivations || '',
+      '', // 担当者（管理者手入力）
+      member.membershipStatus === 'withdrawn' ? '退会' : member.membershipStatus === 'suspended' ? '休会' : '有効', // 退会/休会
+      ''  // 紹介者数（管理者手入力）
     ])
 
     const csvContent = [

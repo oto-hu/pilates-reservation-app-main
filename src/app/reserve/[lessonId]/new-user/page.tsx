@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Lesson, NewUserReservationData } from '@/lib/types'
@@ -15,6 +16,8 @@ interface NewUserReservationPageProps {
 
 export default function NewUserReservationPage({ params }: NewUserReservationPageProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isWaitlist = searchParams.get('waitlist') === 'true'
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -54,49 +57,131 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
     setSubmitting(true)
 
     try {
-      const reservationData: NewUserReservationData = {
-        ...data,
-        lessonId: lesson.id
+      if (isWaitlist) {
+        // キャンセル待ち登録の場合
+        console.log('📤 キャンセル待ち登録データ:', data);
+
+        // まず新規会員登録
+        const userResponse = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: data.name,
+            furigana: data.furigana,
+            email: data.email,
+            password: data.password,
+            birthDate: data.birthDate,
+            age: data.age,
+            gender: data.gender,
+            postalCode: data.postalCode,
+            address: data.address,
+            emergencyContactName: data.emergencyContactName,
+            emergencyContactFurigana: data.emergencyContactFurigana,
+            emergencyContactPhone: data.emergencyContactPhone,
+            emergencyContactRelation: data.emergencyContactRelation,
+            memo: data.memo
+          })
+        })
+
+        if (!userResponse.ok) {
+          const errorData = await userResponse.json()
+          throw new Error(errorData.error || 'Failed to create user')
+        }
+
+        const userResult = await userResponse.json()
+        console.log('✅ 新規会員登録完了:', userResult);
+
+        // 会員登録後、Next-authでログインしてキャンセル待ち登録
+        const loginResult = await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          redirect: false
+        })
+
+        if (loginResult?.ok) {
+          console.log('✅ 自動ログイン成功');
+          
+          // 少し待機してセッションが確立されるまで待つ
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // キャンセル待ちに登録
+          const waitlistResponse = await fetch(`/api/lessons/${lesson.id}/waiting-list`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+
+          if (waitlistResponse.ok) {
+            console.log('✅ キャンセル待ち登録完了');
+            
+            // 成功ページへリダイレクト（キャンセル待ち完了）
+            setTimeout(() => {
+              router.replace(`/member/dashboard`)
+            }, 1000);
+
+            return {
+              userId: userResult.user.id,
+              customerName: userResult.user.name,
+              customerEmail: userResult.user.email
+            };
+          } else {
+            const errorData = await waitlistResponse.json().catch(() => ({}))
+            console.error('キャンセル待ち登録エラー:', errorData)
+            throw new Error('キャンセル待ち登録に失敗しました')
+          }
+        } else {
+          console.error('自動ログインエラー:', loginResult?.error)
+          throw new Error('自動ログインに失敗しました')
+        }
+      } else {
+        // 通常の新規ユーザー予約の場合
+        const reservationData: NewUserReservationData = {
+          ...data,
+          lessonId: lesson.id
+        }
+
+        console.log('📤 送信データ:', reservationData);
+
+        const response = await fetch('/api/reservations/new-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(reservationData)
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to create reservation')
+        }
+
+        const result = await response.json()
+        console.log('✅ ユーザー・予約作成完了:', result);
+
+        // NewUserReservationFormに返すためのユーザー情報
+        const userInfo = {
+          userId: result.user.id,
+          customerName: result.user.name,
+          customerEmail: result.user.email
+        };
+
+        console.log('🔄 ユーザー情報をNewUserReservationFormに返します:', userInfo);
+
+        // 成功ページへのリダイレクトは同意書保存完了後に行う
+        // router.replace() を使用して同意書ページを履歴から削除
+        setTimeout(() => {
+          router.replace(`/reserve/complete?reservationId=${result.reservation.id}&newUser=true`)
+        }, 2000); // 同意書保存の時間を考慮
+
+        return userInfo;
       }
-
-      console.log('📤 送信データ:', reservationData);
-
-      const response = await fetch('/api/reservations/new-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reservationData)
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create reservation')
-      }
-
-      const result = await response.json()
-      console.log('✅ ユーザー・予約作成完了:', result);
-
-      // NewUserReservationFormに返すためのユーザー情報
-      const userInfo = {
-        userId: result.user.id,
-        customerName: result.user.name,
-        customerEmail: result.user.email
-      };
-
-      console.log('🔄 ユーザー情報をNewUserReservationFormに返します:', userInfo);
-
-      // 成功ページへのリダイレクトは同意書保存完了後に行う
-      // router.replace() を使用して同意書ページを履歴から削除
-      setTimeout(() => {
-        router.replace(`/reserve/complete?reservationId=${result.reservation.id}&newUser=true`)
-      }, 2000); // 同意書保存の時間を考慮
-
-      return userInfo;
 
     } catch (error) {
-      console.error('Error creating reservation:', error)
-      alert(error instanceof Error ? error.message : '予約の作成に失敗しました')
+      console.error('Error creating reservation/waitlist:', error)
+      alert(error instanceof Error ? error.message : '登録に失敗しました')
       throw error
     } finally {
       setSubmitting(false)
@@ -125,7 +210,7 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
   const isPast = currentTime > thirtyMinutesBeforeStart
   const isFull = availableSpots <= 0
 
-  if (isPast || isFull) {
+  if (isPast || (isFull && !isWaitlist)) {
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
@@ -168,8 +253,12 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">新規会員登録・レッスン予約</h1>
-              <p className="text-sm text-gray-600">会員登録とレッスン予約を同時に行います</p>
+              <h1 className="text-xl font-bold text-gray-900">
+                {isWaitlist ? '新規会員登録・キャンセル待ち' : '新規会員登録・レッスン予約'}
+              </h1>
+              <p className="text-sm text-gray-600">
+                {isWaitlist ? '会員登録とキャンセル待ち登録を同時に行います' : '会員登録とレッスン予約を同時に行います'}
+              </p>
             </div>
           </div>
         </div>
@@ -179,6 +268,7 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
         lesson={lesson}
         onSubmit={handleSubmit}
         submitting={submitting}
+        isWaitlist={isWaitlist}
       />
     </div>
   )

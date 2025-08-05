@@ -10,8 +10,19 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { User, Save, ArrowLeft, Calendar, MapPin, Phone, Mail, AlertTriangle } from 'lucide-react'
+import { User, Save, ArrowLeft, Calendar, MapPin, Phone, Mail, AlertTriangle, Settings, CreditCard, Plus, Minus } from 'lucide-react'
 import Link from 'next/link'
+
+interface Ticket {
+  id: string
+  name: string | null
+  lessonType: string
+  remainingCount: number
+  expiresAt: string
+  createdAt: string
+  updatedAt: string
+  lessonTypeName?: string
+}
 
 interface Member {
   id: string
@@ -33,6 +44,8 @@ interface Member {
   medicalHistory: string | null
   goals: string | null
   profileCompleted: boolean
+  membershipStatus: string | null
+  tickets?: Ticket[]
   createdAt: string
   updatedAt: string
 }
@@ -44,6 +57,7 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState<Partial<Member>>({})
+  const [ticketAdjustments, setTicketAdjustments] = useState<{[key: string]: number}>({})
 
   useEffect(() => {
     if (status === 'loading') return
@@ -58,7 +72,7 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
 
   const fetchMember = async () => {
     try {
-      const response = await fetch(`/api/admin/users/${params.id}`)
+      const response = await fetch(`/api/admin/members/${params.id}`)
       if (response.ok) {
         const data = await response.json()
         setMember(data)
@@ -97,6 +111,42 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
       alert('会員情報の更新に失敗しました')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleTicketAdjustment = async (ticketId: string, adjustment: number) => {
+    try {
+      const response = await fetch(`/api/admin/tickets/${ticketId}/adjust`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adjustment }),
+      })
+
+      if (response.ok) {
+        // 会員情報を再取得してチケット情報を更新
+        await fetchMember()
+        alert('チケット残数が調整されました')
+      } else {
+        throw new Error('Failed to adjust ticket')
+      }
+    } catch (error) {
+      console.error('Ticket adjustment error:', error)
+      alert('チケット残数の調整に失敗しました')
+    }
+  }
+
+  const getMembershipStatusBadge = (status: string | null) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-100 text-green-800">有効</Badge>
+      case 'suspended':
+        return <Badge className="bg-yellow-100 text-yellow-800">休会</Badge>
+      case 'withdrawn':
+        return <Badge className="bg-red-100 text-red-800">退会</Badge>
+      default:
+        return <Badge className="bg-green-100 text-green-800">有効</Badge>
     }
   }
 
@@ -158,6 +208,7 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {getMembershipStatusBadge(member.membershipStatus)}
               <Badge variant={member.profileCompleted ? 'default' : 'outline'}>
                 {member.profileCompleted ? 'プロフィール完了' : 'プロフィール未完了'}
               </Badge>
@@ -398,6 +449,90 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
               </div>
             </CardContent>
           </Card>
+
+          {/* 会員ステータス管理 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                会員ステータス管理
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="membershipStatus">会員ステータス</Label>
+                  <Select 
+                    value={formData.membershipStatus || 'active'} 
+                    onValueChange={(value) => handleInputChange('membershipStatus', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="ステータスを選択" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">有効</SelectItem>
+                      <SelectItem value="suspended">休会</SelectItem>
+                      <SelectItem value="withdrawn">退会</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* チケット管理 */}
+          {member.tickets && member.tickets.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  チケット管理
+                </CardTitle>
+                <CardDescription>
+                  チケット残数の手動調整が可能です。適切に処理されなかった場合の修正にご利用ください。
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {member.tickets.map((ticket) => (
+                    <div key={ticket.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium">{ticket.lessonTypeName || ticket.name}</h4>
+                          <p className="text-sm text-gray-600">
+                            残り{ticket.remainingCount}回 | 
+                            有効期限: {new Date(ticket.expiresAt).toLocaleDateString('ja-JP')}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleTicketAdjustment(ticket.id, -1)}
+                            disabled={ticket.remainingCount <= 0}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="mx-2 min-w-[2rem] text-center font-medium">
+                            {ticket.remainingCount}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleTicketAdjustment(ticket.id, 1)}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* システム情報 */}
           <Card>

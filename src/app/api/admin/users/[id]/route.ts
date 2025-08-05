@@ -41,6 +41,7 @@ export async function GET(
         medicalHistory: true,
         goals: true,
         profileCompleted: true,
+        membershipStatus: true,
         createdAt: true,
         updatedAt: true
       }
@@ -98,7 +99,8 @@ export async function PUT(
         pilatesExperience: body.pilatesExperience,
         motivation: body.motivation,
         medicalHistory: body.medicalHistory,
-        goals: body.goals
+        goals: body.goals,
+        membershipStatus: body.membershipStatus
       },
       select: {
         id: true,
@@ -120,6 +122,7 @@ export async function PUT(
         medicalHistory: true,
         goals: true,
         profileCompleted: true,
+        membershipStatus: true,
         createdAt: true,
         updatedAt: true
       }

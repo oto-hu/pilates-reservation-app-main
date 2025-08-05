@@ -139,6 +139,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
   const onSubmit = async (data: ReservationForm) => {
     if (!lesson) return
 
+    console.log('予約処理開始:', data) // デバッグログ
     setSubmitting(true)
 
     try {
@@ -154,6 +155,8 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         agreeToConsent: true // 削除されたフィールド
       }
 
+      console.log('送信データ:', reservationData) // デバッグログ
+
       const response = await fetch('/api/reservations', {
         method: 'POST',
         headers: {
@@ -162,16 +165,26 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         body: JSON.stringify(reservationData)
       })
 
+      console.log('APIレスポンス status:', response.status) // デバッグログ
+
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('APIエラー:', errorData) // デバッグログ
         throw new Error(errorData.error || 'Failed to create reservation')
       }
 
       const result = await response.json()
-      router.push(`/reserve/complete?reservationId=${result.reservation.id}`)
+      console.log('予約成功:', result) // デバッグログ
+      console.log('遷移先URL:', `/reserve/complete?reservationId=${result.reservation.id}`) // デバッグログ
+      
+      // 遷移前に少し待機
+      setTimeout(() => {
+        console.log('ページ遷移実行') // デバッグログ
+        router.push(`/reserve/complete?reservationId=${result.reservation.id}`)
+      }, 100)
 
     } catch (error) {
-      console.error('Error creating reservation:', error)
+      console.error('予約処理エラー:', error)
       alert(error instanceof Error ? error.message : '予約の作成に失敗しました')
     } finally {
       setSubmitting(false)
@@ -299,20 +312,34 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
             </h2>
             
             {/* 満席の場合にキャンセル待ちオプションを表示 */}
-            {isFull && !isPast && session?.user?.role === 'member' && getAvailableTickets().length > 0 && (
-              <div className="mb-8">
+            {isFull && !isPast && session?.user?.role === 'member' && (canUseTrialOption() || getAvailableTickets().length > 0) && (
+              <div className="mb-8 text-left">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ちに登録</h3>
                   <p className="text-yellow-700 mb-4">
-                    このレッスンは満席ですが、キャンセルが出た場合に自動的にチケットで予約が確定されます
+                    このレッスンは満席ですが、キャンセルが出た場合に自動的に予約が確定されます
                   </p>
                   <div className="space-y-2">
-                    <p className="text-sm text-yellow-600">
-                      • 利用可能チケット: {getAvailableTickets()[0]?.remainingCount}枚
-                    </p>
-                    <p className="text-sm text-yellow-600">
-                      • キャンセル待ちからの自動予約確定時にチケット1枚消費されます
-                    </p>
+                    {canUseTrialOption() && (
+                      <>
+                        <p className="text-sm text-yellow-600">
+                          • 予約タイプ: 体験レッスン（1,000円・当日PayPay払い）
+                        </p>
+                        <p className="text-sm text-yellow-600">
+                          • キャンセル待ちからの自動予約確定時に体験レッスンとして予約されます
+                        </p>
+                      </>
+                    )}
+                    {!canUseTrialOption() && getAvailableTickets().length > 0 && (
+                      <>
+                        <p className="text-sm text-yellow-600">
+                          • 利用可能チケット: {getAvailableTickets()[0]?.remainingCount}枚
+                        </p>
+                        <p className="text-sm text-yellow-600">
+                          • キャンセル待ちからの自動予約確定時にチケット1枚消費されます
+                        </p>
+                      </>
+                    )}
                     <p className="text-sm text-yellow-600">
                       • キャンセル待ちで予約になった時にはメールでお知らせします
                     </p>
@@ -332,8 +359,8 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
             )}
 
             {/* キャンセル待ち登録ができない場合のメッセージ */}
-            {isFull && !isPast && session?.user?.role === 'member' && getAvailableTickets().length === 0 && (
-              <div className="mb-8">
+            {isFull && !isPast && session?.user?.role === 'member' && !canUseTrialOption() && getAvailableTickets().length === 0 && (
+              <div className="mb-8 text-left">
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                   <p className="text-gray-600 mb-2">
                     キャンセル待ちにはチケットが必要です

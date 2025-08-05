@@ -255,6 +255,7 @@ export function generateWaitingListConfirmationEmail(
   isTrialLesson: boolean = false
 ): NotificationData {
   const arrivalTime = isTrialLesson ? 'レッスン開始15分前までにお越しください' : 'レッスン開始10分前までにお越しください'
+  const paymentInfo = isTrialLesson ? '1,000円（当日PayPay払い）' : 'チケット1枚（自動消費済み）'
   
   const subject = `【Preal(プリール)予約確定】キャンセル待ちから予約が確定しました`
   const html = `
@@ -268,7 +269,7 @@ export function generateWaitingListConfirmationEmail(
         <h3 style="color: #155724; margin-top: 0;">確定予約詳細</h3>
         <p><strong>レッスン名:</strong> ${lessonTitle}</p>
         <p><strong>日時:</strong> ${lessonDate}</p>
-        <p><strong>お支払い:</strong> チケット1枚（自動消費済み）</p>
+        <p><strong>お支払い:</strong> ${paymentInfo}</p>
       </div>
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
@@ -276,7 +277,10 @@ export function generateWaitingListConfirmationEmail(
           <li>${arrivalTime}</li>
           <li>動きやすい服装でお越しください</li>
           <li>タオル、お水をご持参ください</li>
-          <li>前日21:00までのキャンセルは無料です</li>
+          ${isTrialLesson ? 
+            '<li>体験レッスンのお支払いは当日PayPayでお願いします</li>' : 
+            '<li>前日21:00までのキャンセルは無料です</li>'
+          }
         </ul>
       </div>
       <p>お会いできることを楽しみにしております。</p>
@@ -297,7 +301,7 @@ ${customerName}様
 【確定予約詳細】
 レッスン名: ${lessonTitle}
 日時: ${lessonDate}
-お支払い: チケット1枚（自動消費済み）
+お支払い: ${paymentInfo}
 
 【注意事項】
 ・${arrivalTime}
@@ -306,6 +310,155 @@ ${customerName}様
 ・前日21:00までのキャンセルは無料です
 
 お会いできることを楽しみにしております。
+
+グループに関するお問い合わせはこちらから
+https://lin.ee/faHGlyM
+
+Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+Preal(プリール)
+お問い合わせ: preal.pilates@gmail.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
+
+
+// キャンセル待ち登録完了通知メール
+export function generateWaitingListRegistrationEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string,
+  lessonLocation: string,
+  reservationType: string
+): NotificationData {
+  const subject = `【Preal(プリール)キャンセル待ち完了】${lessonTitle}のキャンセル待ち登録を承りました`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">
+        キャンセル待ち登録完了
+      </h2>
+      <p>${customerName}様</p>
+      <p>下記レッスンのキャンセル待ち登録を承りました。</p>
+      <div style="background-color: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #856404; margin-top: 0;">予約情報</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+        <p><strong>会場:</strong> ${lessonLocation}</p>
+        <p><strong>予約タイプ:</strong> ${reservationType}</p>
+      </div>
+      <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #0056b3; margin-top: 0;">注意事項</h4>
+        <ul style="color: #0056b3; margin: 0;">
+          <li>当レッスンにキャンセルが発生した場合、自動的にご予約が確定となります。</li>
+          <li>繰り上がりは前日21:00以降も自動的に行われます。</li>
+          <li>ご予定に変更が生じた場合は、キャンセル待ち登録の解除のお手続きをお願い致します。</li>
+        </ul>
+      </div>
+      <p>キャンセルが発生次第、すぐにご連絡いたします。</p>
+      <p>グループに関するお問い合わせはこちらから。</p>
+      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
+      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p style="margin-top: 30px;">
+        Preal(プリール)<br>
+        お問い合わせ: preal.pilates@gmail.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+下記レッスンのキャンセル待ち登録を承りました。
+
+【予約情報】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+会場: ${lessonLocation}
+予約タイプ: ${reservationType}
+
+【注意事項】
+・当レッスンにキャンセルが発生した場合、自動的にご予約が確定となります。
+・繰り上がりは前日21:00以降も自動的に行われます。
+・ご予定に変更が生じた場合は、キャンセル待ち登録の解除のお手続きをお願い致します。
+
+キャンセルが発生次第、すぐにご連絡いたします。
+
+グループに関するお問い合わせはこちらから
+https://lin.ee/faHGlyM
+
+Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+Preal(プリール)
+お問い合わせ: preal.pilates@gmail.com
+  `
+  return {
+    to: '',
+    subject,
+    html,
+    text
+  }
+}
+
+// キャンセル待ち登録解除通知メール
+export function generateWaitingListCancellationEmail(
+  customerName: string,
+  lessonTitle: string,
+  lessonDate: string,
+  lessonLocation: string,
+  reservationType: string
+): NotificationData {
+  const subject = `【Preal(プリール)キャンセル待ち解除】${lessonTitle}のキャンセル待ち登録を解除しました`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid #6c757d; padding-bottom: 10px;">
+        キャンセル待ち登録解除
+      </h2>
+      <p>${customerName}様</p>
+      <p>下記レッスンのキャンセル待ち登録を解除しました。またのご予約をお待ちしております。</p>
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #495057; margin-top: 0;">予約情報</h3>
+        <p><strong>レッスン名:</strong> ${lessonTitle}</p>
+        <p><strong>日時:</strong> ${lessonDate}</p>
+        <p><strong>会場:</strong> ${lessonLocation}</p>
+        <p><strong>予約タイプ:</strong> ${reservationType}</p>
+      </div>
+      <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #0056b3; margin-top: 0;">今後のご予約について</h4>
+        <p style="color: #0056b3; margin: 5px 0;">• 新しいレッスンのご予約やキャンセル待ち登録は、いつでもマイページから承っております</p>
+        <p style="color: #0056b3; margin: 5px 0;">• ご不明な点がございましたら、お気軽にお問い合わせください</p>
+        <p style="color: #0056b3; margin: 5px 0;">• またのご利用を心よりお待ちしております</p>
+      </div>
+      <p>引き続きPreal(プリール)をよろしくお願いいたします。</p>
+      <p>グループに関するお問い合わせはこちらから。</p>
+      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
+      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p style="margin-top: 30px;">
+        Preal(プリール)<br>
+        お問い合わせ: preal.pilates@gmail.com
+      </p>
+    </div>
+  `
+  const text = `
+${customerName}様
+
+下記レッスンのキャンセル待ち登録を解除しました。またのご予約をお待ちしております。
+
+【予約情報】
+レッスン名: ${lessonTitle}
+日時: ${lessonDate}
+会場: ${lessonLocation}
+予約タイプ: ${reservationType}
+
+【今後のご予約について】
+・新しいレッスンのご予約やキャンセル待ち登録は、いつでもマイページから承っております
+・ご不明な点がございましたら、お気軽にお問い合わせください
+・またのご利用を心よりお待ちしております
+
+引き続きPreal(プリール)をよろしくお願いいたします。
 
 グループに関するお問い合わせはこちらから
 https://lin.ee/faHGlyM

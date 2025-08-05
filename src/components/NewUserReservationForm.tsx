@@ -38,9 +38,10 @@ interface NewUserReservationFormProps {
   lesson: Lesson
   onSubmit: (data: NewUserReservationData) => Promise<{ userId: string; customerName: string; customerEmail: string }>
   submitting: boolean
+  isWaitlist?: boolean
 }
 
-export default function NewUserReservationForm({ lesson, onSubmit, submitting }: NewUserReservationFormProps) {
+export default function NewUserReservationForm({ lesson, onSubmit, submitting, isWaitlist = false }: NewUserReservationFormProps) {
   const [selectedReservationType, setSelectedReservationType] = useState<ReservationType>(ReservationType.TRIAL)
   const [showConsentForm, setShowConsentForm] = useState(false)
   const [formData, setFormData] = useState<NewUserReservationData | null>(null)
@@ -224,6 +225,19 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
         {/* Lesson Info */}
         <div className="card mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">{lesson.title}</h2>
+          
+          {isWaitlist && (
+            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ち登録</h3>
+              <p className="text-yellow-700 mb-2">
+                このレッスンは満席ですが、キャンセルが出た場合に体験レッスン（1,000円・当日PayPay払い）として自動的に予約が確定されます
+              </p>
+              <div className="space-y-1 text-sm text-yellow-600">
+                <p>• キャンセル待ちで予約になった時にはメールでお知らせします</p>
+                <p>• 先着順で処理されます</p>
+              </div>
+            </div>
+          )}
           
           <div className="space-y-3 text-gray-600">
             <div className="flex items-center">
@@ -615,7 +629,7 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting }:
                   処理中...
                 </>
               ) : (
-                '同意書に進む'
+                isWaitlist ? 'キャンセル待ち登録に進む' : '同意書に進む'
               )}
             </Button>
           </div>

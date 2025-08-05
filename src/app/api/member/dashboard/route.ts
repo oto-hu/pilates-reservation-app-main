@@ -63,6 +63,34 @@ export async function GET(request: NextRequest) {
       lessonTypeName: ticket.name || (ticket.lessonType === 'SMALL_GROUP' ? '少人数制ピラティス' : 'わいわいピラティス')
     }))
 
+    // キャンセル待ちリストを取得
+    const waitingList = await prisma.waitingList.findMany({
+      where: {
+        userId: userId,
+        lesson: {
+          endTime: {
+            gte: now // レッスン終了時間が現在時刻以降
+          }
+        }
+      },
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            title: true,
+            startTime: true,
+            endTime: true,
+            location: true
+          }
+        }
+      },
+      orderBy: {
+        lesson: {
+          startTime: 'asc'
+        }
+      }
+    })
+
     // ユーザーのプロフィール完了状況を取得
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -72,10 +100,12 @@ export async function GET(request: NextRequest) {
     console.log('Debug - ユーザーID:', userId)
     console.log('Debug - 現在時刻:', now)
     console.log('Debug - 今後の予約数:', upcomingReservations.length)
+    console.log('Debug - キャンセル待ち数:', waitingList.length)
 
     return NextResponse.json({
       upcomingReservations,
       tickets: ticketsWithTypeName,
+      waitingList,
       profileCompleted: user?.profileCompleted || false
     })
   } catch (error) {

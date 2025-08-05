@@ -71,6 +71,24 @@ export interface User {
   role: string
   memo?: string
   consentAgreedAt?: Date
+  // プロフィール項目
+  pilatesExperience?: string
+  motivation?: string
+  medicalHistory?: string
+  goals?: string
+  profileCompleted?: boolean
+  // 追加項目
+  howDidYouKnowUs?: string
+  referrerName?: string
+  otherSource?: string
+  transportation?: string
+  hasPilatesExperience?: boolean
+  hasExerciseHabit?: boolean
+  hasInjuryHistory?: boolean
+  injuryDetails?: string
+  injuryTiming?: string
+  trialMotivations?: string
+  membershipStatus?: string
   createdAt: Date
   updatedAt: Date
   reservations?: Reservation[]
