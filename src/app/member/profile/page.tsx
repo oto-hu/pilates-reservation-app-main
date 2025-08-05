@@ -17,10 +17,6 @@ interface ProfileData {
   id: string
   name: string
   email: string
-  pilatesExperience: string | null
-  motivation: string | null
-  medicalHistory: string | null
-  goals: string | null
   profileCompleted: boolean
   // 追加項目
   howDidYouKnowUs: string | null
@@ -42,10 +38,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
-    pilatesExperience: '',
-    motivation: '',
-    medicalHistory: '',
-    goals: '',
     // 追加項目
     howDidYouKnowUs: '',
     referrerName: '',
@@ -77,10 +69,6 @@ export default function ProfilePage() {
         const data = await response.json()
         setProfileData(data)
         setFormData({
-          pilatesExperience: data.pilatesExperience || '',
-          motivation: data.motivation || '',
-          medicalHistory: data.medicalHistory || '',
-          goals: data.goals || '',
           // 追加項目
           howDidYouKnowUs: data.howDidYouKnowUs || '',
           referrerName: data.referrerName || '',
@@ -407,74 +395,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">既存のプロフィール項目</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                {/* ピラティス経験レベル */}
-                <div className="space-y-2">
-                  <Label htmlFor="pilatesExperience">ピラティス経験レベル</Label>
-                  <Select 
-                    value={formData.pilatesExperience} 
-                    onValueChange={(value) => handleInputChange('pilatesExperience', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="経験レベルを選択してください" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="初心者">初心者（未経験）</SelectItem>
-                      <SelectItem value="初級者">初級者（数回経験あり）</SelectItem>
-                      <SelectItem value="中級者">中級者（定期的に通っている）</SelectItem>
-                      <SelectItem value="上級者">上級者（長期間継続）</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                {/* 来店きっかけ */}
-                <div className="space-y-2">
-                  <Label htmlFor="motivation">来店きっかけ</Label>
-                  <Select 
-                    value={formData.motivation} 
-                    onValueChange={(value) => handleInputChange('motivation', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="きっかけを選択してください" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="友人・知人の紹介">友人・知人の紹介</SelectItem>
-                      <SelectItem value="インターネット検索">インターネット検索</SelectItem>
-                      <SelectItem value="SNS">SNS（Instagram、Facebook等）</SelectItem>
-                      <SelectItem value="チラシ・広告">チラシ・広告</SelectItem>
-                      <SelectItem value="通りがかり">通りがかり</SelectItem>
-                      <SelectItem value="その他">その他</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              </div>
-
-              {/* 疾患履歴・健康状態 */}
-              <div className="space-y-2">
-                <Label htmlFor="medicalHistory">疾患履歴・健康状態</Label>
-                <Textarea
-                  id="medicalHistory"
-                  placeholder="現在治療中の疾患、過去の大きな病気やけが、アレルギー、服用中の薬など、レッスンに影響する可能性のある健康状態をご記入ください。特にない場合は「特になし」とご記入ください。"
-                  value={formData.medicalHistory}
-                  onChange={(e) => handleInputChange('medicalHistory', e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              {/* 目標 */}
-              <div className="space-y-2">
-                <Label htmlFor="goals">ピラティスで達成したい目標</Label>
-                <Textarea
-                  id="goals"
-                  placeholder="体力向上、柔軟性向上、姿勢改善、ダイエット、リラックスなど、ピラティスを通して達成したい目標をご記入ください。"
-                  value={formData.goals}
-                  onChange={(e) => handleInputChange('goals', e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
 
               {/* 保存ボタン */}
               <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
