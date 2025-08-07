@@ -73,7 +73,7 @@ export default function MemberReservePage() {
               会員様はログイン後にレッスン予約・チケット管理・予約履歴の確認ができます
             </p>
             
-            <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="text-center">
                 <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="h-8 w-8 text-primary-500" />
