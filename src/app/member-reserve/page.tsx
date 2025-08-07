@@ -79,7 +79,7 @@ export default function MemberReservePage() {
                   <Calendar className="h-8 w-8 text-primary-500" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">レッスン予約</h3>
-                <p className="text-sm text-gray-600">チケット利用または単回利用でレッスンを予約</p>
+                <p className="text-sm text-gray-600">チケットが残っているとレッスン予約可能</p>
               </div>
               <div className="text-center">
                 <div className="bg-secondary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -95,28 +95,13 @@ export default function MemberReservePage() {
                 <h3 className="font-semibold text-gray-900 mb-2">予約管理</h3>
                 <p className="text-sm text-gray-600">予約の確認・キャンセル・変更</p>
               </div>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-              <h3 className="font-semibold text-blue-800 mb-3">会員様の特典</h3>
-              <ul className="text-blue-700 space-y-2 text-left">
-                <li className="flex items-center">
-                  <span className="mr-2">✓</span>
-                  チケット利用でお得な料金でレッスン受講
-                </li>
-                <li className="flex items-center">
-                  <span className="mr-2">✓</span>
-                  キャンセル待ち機能の利用
-                </li>
-                <li className="flex items-center">
-                  <span className="mr-2">✓</span>
-                  予約履歴の確認
-                </li>
-                <li className="flex items-center">
-                  <span className="mr-2">✓</span>
-                  マイページでのチケット残数確認
-                </li>
-              </ul>
+              <div className="text-center">
+                <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="h-8 w-8 text-primary-500" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">キャンセル待ち</h3>
+                <p className="text-sm text-gray-600">満席時にキャンセル待ち登録可能</p>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -190,13 +175,6 @@ export default function MemberReservePage() {
             >
               <LogIn className="mr-2 h-5 w-5" />
               会員ログイン
-            </Link>
-            <Link
-              href="/auth/register"
-              className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary-600 text-lg font-semibold rounded-lg transition-colors"
-            >
-              <User className="mr-2 h-5 w-5" />
-              新規会員登録
             </Link>
           </div>
         </div>

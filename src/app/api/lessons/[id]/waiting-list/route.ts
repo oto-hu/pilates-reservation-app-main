@@ -96,7 +96,7 @@ export async function POST(
       })
 
       const reservationType = (user.role === 'member' && !hasReservationHistory) 
-        ? '体験レッスン（1,000円・当日PayPay払い）' 
+        ? '体験レッスン' 
         : 'チケット利用'
 
       const emailData = generateWaitingListRegistrationEmail(
@@ -192,7 +192,7 @@ export async function DELETE(
         })
 
         const reservationType = (user.role === 'member' && !hasReservationHistory) 
-          ? '体験レッスン（1,000円・当日PayPay払い）' 
+          ? '体験レッスン' 
           : 'チケット利用'
 
         const emailData = generateWaitingListCancellationEmail(

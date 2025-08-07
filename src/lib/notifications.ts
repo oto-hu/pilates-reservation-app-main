@@ -104,13 +104,8 @@ export function generateReservationConfirmationEmail(
         </ul>
       </div>
       <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
-      <p>グループに関するお問い合わせはこちらから。</p>
-      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
-      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
-      <p style="margin-top: 30px;">
-        Preal(プリール)<br>
-        お問い合わせ: preal.pilates@gmail.com
-      </p>
+      <p>Preralグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p>グループに関するお問い合わせはこちらから：<a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
     </div>
   `
   const text = `
@@ -130,13 +125,10 @@ ${noticeItems.map(item => `・${item}`).join('\n')}
 
 ご不明な点がございましたら、お気軽にお問い合わせください。
 
-グループに関するお問い合わせはこちらから
+Preralグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+グループに関するお問い合わせはこちらから：
 https://lin.ee/faHGlyM
-
-Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
-
-Preal(プリール)
-お問い合わせ: preal.pilates@gmail.com
   `
   return {
     to: '',
@@ -193,20 +185,9 @@ export function generateCancellationConfirmationEmail(
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
         ${getTicketMessage()}
       </div>
-      <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #0056b3; margin-top: 0;">今後のご予約について</h4>
-        <p style="color: #0056b3; margin: 5px 0;">• 新しいレッスンのご予約は、いつでもマイページから承っております</p>
-        <p style="color: #0056b3; margin: 5px 0;">• ご不明な点がございましたら、お気軽にお問い合わせください</p>
-        <p style="color: #0056b3; margin: 5px 0;">• またのご利用を心よりお待ちしております</p>
-      </div>
       <p>引き続きPreal(プリール)をよろしくお願いいたします。</p>
-      <p>グループに関するお問い合わせはこちらから。</p>
-      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
-      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
-      <p style="margin-top: 30px;">
-        Preal(プリール)<br>
-        お問い合わせ: preal.pilates@gmail.com
-      </p>
+      <p>Preralグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p>グループに関するお問い合わせはこちらから：<a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
     </div>
   `
   const text = `
@@ -223,20 +204,13 @@ ${customerName}様
 予約タイプ: ${reservationType}
 ${getTicketMessageText()}
 
-【今後のご予約について】
-• 新しいレッスンのご予約は、いつでもマイページから承っております
-• ご不明な点がございましたら、お気軽にお問い合わせください
-• またのご利用を心よりお待ちしております
 
 引き続きPreal(プリール)をよろしくお願いいたします。
 
-グループに関するお問い合わせはこちらから
+Preralグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+グループに関するお問い合わせはこちらから：
 https://lin.ee/faHGlyM
-
-Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
-
-Preal(プリール)
-お問い合わせ: preal.pilates@gmail.com
   `
   return {
     to: '',
@@ -255,7 +229,6 @@ export function generateWaitingListConfirmationEmail(
   isTrialLesson: boolean = false
 ): NotificationData {
   const arrivalTime = isTrialLesson ? 'レッスン開始15分前までにお越しください' : 'レッスン開始10分前までにお越しください'
-  const paymentInfo = isTrialLesson ? '1,000円（当日PayPay払い）' : 'チケット1枚（自動消費済み）'
   
   const subject = `【Preal(プリール)予約確定】キャンセル待ちから予約が確定しました`
   const html = `
@@ -269,7 +242,7 @@ export function generateWaitingListConfirmationEmail(
         <h3 style="color: #155724; margin-top: 0;">確定予約詳細</h3>
         <p><strong>レッスン名:</strong> ${lessonTitle}</p>
         <p><strong>日時:</strong> ${lessonDate}</p>
-        <p><strong>お支払い:</strong> ${paymentInfo}</p>
+        <p><strong>お支払い:</strong> チケット1枚（自動消費済み）</p>
       </div>
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
@@ -277,20 +250,12 @@ export function generateWaitingListConfirmationEmail(
           <li>${arrivalTime}</li>
           <li>動きやすい服装でお越しください</li>
           <li>タオル、お水をご持参ください</li>
-          ${isTrialLesson ? 
-            '<li>体験レッスンのお支払いは当日PayPayでお願いします</li>' : 
-            '<li>前日21:00までのキャンセルは無料です</li>'
-          }
+          <li>前日21:00までのキャンセルは無料です</li>
         </ul>
       </div>
       <p>お会いできることを楽しみにしております。</p>
-      <p>グループに関するお問い合わせはこちらから。</p>
-      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
-      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
-      <p style="margin-top: 30px;">
-        Preal(プリール)<br>
-        お問い合わせ: preal.pilates@gmail.com
-      </p>
+      <p>Preralグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p>グループに関するお問い合わせはこちらから：<a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
     </div>
   `
   const text = `
@@ -301,7 +266,7 @@ ${customerName}様
 【確定予約詳細】
 レッスン名: ${lessonTitle}
 日時: ${lessonDate}
-お支払い: ${paymentInfo}
+お支払い: チケット1枚（自動消費済み）
 
 【注意事項】
 ・${arrivalTime}
@@ -311,13 +276,10 @@ ${customerName}様
 
 お会いできることを楽しみにしております。
 
-グループに関するお問い合わせはこちらから
+Preralグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+グループに関するお問い合わせはこちらから：
 https://lin.ee/faHGlyM
-
-Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
-
-Preal(プリール)
-お問い合わせ: preal.pilates@gmail.com
   `
   return {
     to: '',
@@ -360,13 +322,8 @@ export function generateWaitingListRegistrationEmail(
         </ul>
       </div>
       <p>キャンセルが発生次第、すぐにご連絡いたします。</p>
-      <p>グループに関するお問い合わせはこちらから。</p>
-      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
-      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
-      <p style="margin-top: 30px;">
-        Preal(プリール)<br>
-        お問い合わせ: preal.pilates@gmail.com
-      </p>
+      <p>Preralグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p>グループに関するお問い合わせはこちらから：<a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
     </div>
   `
   const text = `
@@ -387,13 +344,10 @@ ${customerName}様
 
 キャンセルが発生次第、すぐにご連絡いたします。
 
-グループに関するお問い合わせはこちらから
+Preralグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+グループに関するお問い合わせはこちらから：
 https://lin.ee/faHGlyM
-
-Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
-
-Preal(プリール)
-お問い合わせ: preal.pilates@gmail.com
   `
   return {
     to: '',
@@ -426,20 +380,9 @@ export function generateWaitingListCancellationEmail(
         <p><strong>会場:</strong> ${lessonLocation}</p>
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
       </div>
-      <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #0056b3; margin-top: 0;">今後のご予約について</h4>
-        <p style="color: #0056b3; margin: 5px 0;">• 新しいレッスンのご予約やキャンセル待ち登録は、いつでもマイページから承っております</p>
-        <p style="color: #0056b3; margin: 5px 0;">• ご不明な点がございましたら、お気軽にお問い合わせください</p>
-        <p style="color: #0056b3; margin: 5px 0;">• またのご利用を心よりお待ちしております</p>
-      </div>
       <p>引き続きPreal(プリール)をよろしくお願いいたします。</p>
-      <p>グループに関するお問い合わせはこちらから。</p>
-      <p><a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
-      <p>Prealグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
-      <p style="margin-top: 30px;">
-        Preal(プリール)<br>
-        お問い合わせ: preal.pilates@gmail.com
-      </p>
+      <p>Preralグループレッスン予約サイト：<a href="https://pilates-reservation-app-main.vercel.app/">https://pilates-reservation-app-main.vercel.app/</a></p>
+      <p>グループに関するお問い合わせはこちらから：<a href="https://lin.ee/faHGlyM">https://lin.ee/faHGlyM</a></p>
     </div>
   `
   const text = `
@@ -453,20 +396,12 @@ ${customerName}様
 会場: ${lessonLocation}
 予約タイプ: ${reservationType}
 
-【今後のご予約について】
-・新しいレッスンのご予約やキャンセル待ち登録は、いつでもマイページから承っております
-・ご不明な点がございましたら、お気軽にお問い合わせください
-・またのご利用を心よりお待ちしております
-
 引き続きPreal(プリール)をよろしくお願いいたします。
 
-グループに関するお問い合わせはこちらから
+Preralグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
+
+グループに関するお問い合わせはこちらから：
 https://lin.ee/faHGlyM
-
-Prealグループレッスン予約サイト：https://pilates-reservation-app-main.vercel.app/
-
-Preal(プリール)
-お問い合わせ: preal.pilates@gmail.com
   `
   return {
     to: '',

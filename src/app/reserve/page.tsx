@@ -273,7 +273,7 @@ export default function ReservePage() {
                           href={`/reserve/${lesson.id}`}
                           className="bg-yellow-500 hover:bg-yellow-600 text-white w-full text-center inline-block px-4 py-2 font-semibold rounded-lg transition-colors shadow"
                         >
-                          詳細・キャンセル待ち
+                          キャンセル待ち登録はこちら
                         </Link>
                       )}
                     </div>

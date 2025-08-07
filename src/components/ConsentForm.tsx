@@ -655,11 +655,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                 throttle={16}
                 canvasProps={{
                   width: 800, 
-                  height: isMobile ? 400 : 200, 
+                  height: isMobile ? 800 : 200, 
                   className: 'w-full h-full touch-none',
                   style: {
                     width: '100%',
-                    height: isMobile ? '400px' : '200px',
+                    height: isMobile ? '800px' : '200px',
                     display: 'block',
                     touchAction: 'none'
                   }
@@ -737,11 +737,11 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
                   throttle={16}
                   canvasProps={{
                     width: 800, 
-                    height: isMobile ? 400 : 200, 
+                    height: isMobile ? 800 : 200, 
                     className: 'w-full h-full touch-none',
                     style: {
                       width: '100%',
-                      height: isMobile ? '400px' : '200px',
+                      height: isMobile ? '800px' : '200px',
                       display: 'block',
                       touchAction: 'none'
                     }

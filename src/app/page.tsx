@@ -206,6 +206,7 @@ export default function HomePage() {
           2か所でグループレッスンを<br />開催しております。<br /><br />
           ご予約の際、<br />お取り間違えにご注意下さい！
           </p>
+          <p>↓体験予約方法はこちら↓</p>
           <div className="flex justify-center mb-8">
             <img 
               src="/images/Frame 343.png" 
@@ -237,7 +238,7 @@ export default function HomePage() {
           </div>
           <p className="mt-6 flex justify-center">
             <span className="bg-primary-50 text-primary-700 text-base font-bold px-4 py-2 rounded-full border border-primary-200 shadow-sm">
-              験料金:【1000円】
+              体験料金:【1000円】
             </span>
           </p>
         </div>
