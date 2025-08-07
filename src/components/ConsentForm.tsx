@@ -427,7 +427,7 @@ export default function ConsentForm({ onConsentComplete }: ConsentFormProps) {
 
       // PDF保存とダウンロード
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blob = new Blob([pdfBytes.buffer], { type: 'application/pdf' });
       
       // デバイス判定
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
