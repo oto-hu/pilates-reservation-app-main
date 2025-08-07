@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     // Vercel Blobから取得できない場合はデータベースから取得
     if (consentForm.pdfData) {
-      return new NextResponse(consentForm.pdfData, {
+      return new NextResponse(new Uint8Array(consentForm.pdfData), {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${filename}"`,
