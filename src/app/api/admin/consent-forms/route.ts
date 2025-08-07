@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // PDFファイルをレスポンスとして返す
-    return new NextResponse(consentForm.pdfData, {
+    return new NextResponse(new Uint8Array(consentForm.pdfData), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${consentForm.filename}"`,
