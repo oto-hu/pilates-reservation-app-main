@@ -216,7 +216,7 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center py-4">
-              <Link href="/reserve" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
+              <Link href="/trial" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <h1 className="text-xl font-bold text-gray-900">予約不可</h1>
@@ -234,8 +234,8 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
               他のレッスンをご検討ください
             </p>
             
-            <Link href="/reserve" className="btn-primary">
-              レッスン一覧に戻る
+            <Link href="/trial" className="btn-primary">
+              体験レッスン一覧に戻る
             </Link>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center py-4">
-            <Link href="/reserve" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
+            <Link href="/trial" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
