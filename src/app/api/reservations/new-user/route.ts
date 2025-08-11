@@ -16,8 +16,8 @@ const newUserReservationSchema = z.object({
   birthDate: z.string().min(1, '生年月日は必須です'),
   age: z.string().optional(),
   gender: z.string().min(1, '性別は必須です'),
-  postalCode: z.string().optional(),
-  address: z.string().optional(),
+  postalCode: z.string().min(1, '郵便番号は必須です'),
+  address: z.string().min(1, '住所は必須です'),
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
   emergencyContactName: z.string().optional(),
@@ -27,7 +27,7 @@ const newUserReservationSchema = z.object({
   memo: z.string().optional(),
   
   // 予約情報
-  lessonId: z.string().min(1, 'レッスンIDは必須です'),
+  medicalInfo: z.string().optional(),
   reservationType: z.nativeEnum(ReservationType)
 })
 
@@ -110,8 +110,8 @@ export async function POST(request: NextRequest) {
           birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : null,
           age: calculatedAge,
           gender: validatedData.gender,
-          postalCode: validatedData.postalCode || null,
-          address: validatedData.address || null,
+          postalCode: validatedData.postalCode,
+          address: validatedData.address,
           email: validatedData.email,
           password: hashedPassword,
           emergencyContactName: validatedData.emergencyContactName || null,

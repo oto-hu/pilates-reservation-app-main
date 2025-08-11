@@ -18,8 +18,8 @@ const newUserReservationSchema = z.object({
   birthDate: z.string().min(1, '生年月日を入力してください'),
   age: z.string().optional(),
   gender: z.string().min(1, '性別を選択してください'),
-  postalCode: z.string().optional(),
-  address: z.string().optional(),
+  postalCode: z.string().min(1, '郵便番号を入力してください'),
+  address: z.string().min(1, '住所を入力してください'),
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上で入力してください'),
   emergencyContactName: z.string().optional(),
@@ -438,9 +438,9 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting, i
                     <label className="form-label">性別 <span className="text-red-500">*</span></label>
                     <select className="form-input" {...register('gender')}>
                       <option value="">選択してください</option>
-                      <option value="male">男性</option>
-                      <option value="female">女性</option>
-                      <option value="other">その他</option>
+                      <option value="男性">男性</option>
+                      <option value="女性">女性</option>
+                      <option value="その他">その他</option>
                     </select>
                     {errors.gender && (
                       <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
