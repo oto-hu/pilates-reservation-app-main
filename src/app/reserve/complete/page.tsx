@@ -180,8 +180,17 @@ function ReservationCompleteForm() {
             <div>
               <h3 className="font-medium text-gray-900 mb-3">お支払い情報</h3>
               <div className="flex items-center text-sm text-gray-600">
-                <Building2 className="h-4 w-4 mr-2" />
-                <span>現地支払い - 1,000円（当日PayPayでお支払いください）</span>
+                {reservation.paymentMethod === PaymentMethod.TICKET ? (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    <span>チケット利用</span>
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <span>現地支払い - 1,000円（当日PayPayでお支払いください）</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -191,7 +200,9 @@ function ReservationCompleteForm() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <h3 className="font-medium text-blue-800 mb-2">ご来店時の注意事項</h3>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• 体験時はレッスン開始15分前にお越しください</li>
+            <li>
+              • {reservation.reservationType === 'TICKET' ? 'レッスン開始10分前にお越しください' : '体験時はレッスン開始15分前にお越しください'}
+            </li>
             <li>• 更衣室はございません。動きやすい服装でお越しいただく、もしくはお手洗い等でのお着替えをお願い致します。</li>
             <li>• 滑り止め靴下、タオル、お飲み物をご持参下さい。</li>
             <li>• レッスン前日21:00以降のキャンセルはチケット1回分消化となりますのでご注意下さい。</li>
