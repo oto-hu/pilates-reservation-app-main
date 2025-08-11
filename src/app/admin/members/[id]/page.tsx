@@ -45,6 +45,7 @@ interface Member {
   goals: string | null
   profileCompleted: boolean
   membershipStatus: string | null
+  assignedStaff: string | null
   tickets?: Ticket[]
   createdAt: string
   updatedAt: string
@@ -475,6 +476,15 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
                       <SelectItem value="withdrawn">退会</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="assignedStaff">担当者</Label>
+                  <Input
+                    id="assignedStaff"
+                    value={formData.assignedStaff || ''}
+                    onChange={(e) => handleInputChange('assignedStaff', e.target.value)}
+                    placeholder="担当者名を入力してください"
+                  />
                 </div>
               </div>
             </CardContent>

@@ -44,6 +44,7 @@ interface Member {
   injuryTiming: string | null
   trialMotivations: string | null
   membershipStatus: string | null
+  assignedStaff: string | null
   createdAt: string
   updatedAt: string
 }
@@ -108,8 +109,8 @@ export default function MembersPage() {
 
   const exportToCSV = () => {
     const csvHeaders = [
-      '会員No', '氏名', '性別', '生年月日', '年齢', '郵便番号', '住所', '体験日', '集客', 
-      '交通手段', 'ピラティス経験', '疾患', '疾患詳細', 'きっかけ', '担当者', '退会/休会', '紹介者数'
+      '会員No', '氏名', '性別', '生年月日', '年齢', '郵便番号', '住所', '体験日', 
+      'ピラティス経験', '疾患', '疾患詳細', 'きっかけ', '担当者', '退会/休会', '紹介者数'
     ]
     
     const csvData = filteredMembers.map((member, index) => [
@@ -121,13 +122,11 @@ export default function MembersPage() {
       member.postalCode || '',
       member.address || '',
       member.trialDate ? new Date(member.trialDate).toLocaleDateString('ja-JP') : '',
-      member.howDidYouKnowUs || '',
-      member.transportation || '',
       member.hasPilatesExperience !== null ? (member.hasPilatesExperience ? 'あり' : 'なし') : '',
       member.hasInjuryHistory !== null ? (member.hasInjuryHistory ? 'あり' : 'なし') : '',
       member.hasInjuryHistory ? `${member.injuryDetails || ''}${member.injuryDetails && member.injuryTiming ? ' - ' : ''}${member.injuryTiming || ''}` : '',
       member.trialMotivations || '',
-      '', // 担当者（管理者手入力）
+      member.assignedStaff || '', // 担当者（データベースから取得）
       member.membershipStatus === 'withdrawn' ? '退会' : member.membershipStatus === 'suspended' ? '休会' : '有効', // 退会/休会
       ''  // 紹介者数（管理者手入力）
     ])

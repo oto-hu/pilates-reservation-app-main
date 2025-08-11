@@ -80,6 +80,7 @@ model User {
   injuryTiming        String?  @map("injury_timing")       // 怪我の時期（手入力）
   trialMotivations    String?  @map("trial_motivations")   // 体験のきっかけや目的（複数選択可、カンマ区切り）
   membershipStatus    String?  @default("active") @map("membership_status") // 会員ステータス（active, suspended, withdrawn）
+  assignedStaff       String?  @map("assigned_staff")      // 担当者（管理者が手入力）
   trialDate         DateTime? @map("trial_date")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
