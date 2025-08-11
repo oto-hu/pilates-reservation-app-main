@@ -27,6 +27,7 @@ const newUserReservationSchema = z.object({
   memo: z.string().optional(),
   
   // 予約情報
+  lessonId: z.string().min(1, 'レッスンIDは必須です'),
   medicalInfo: z.string().optional(),
   reservationType: z.nativeEnum(ReservationType)
 })
