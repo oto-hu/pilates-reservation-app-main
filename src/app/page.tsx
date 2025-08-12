@@ -15,16 +15,35 @@ moment.locale('ja')
 
 // カスタムスタイル - カレンダーのモバイル表示改善
 const customCalendarStyle = `
+  .homepage-calendar {
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  
   .homepage-calendar .rbc-calendar {
-    min-height: 500px;
+    height: 100% !important;
+    max-height: 600px;
+    overflow: hidden;
   }
   
   @media (max-width: 768px) {
+    .homepage-calendar {
+      height: 500px;
+    }
+    
+    .homepage-calendar .rbc-calendar {
+      height: 100% !important;
+      max-height: 500px;
+    }
+    
     .homepage-calendar .rbc-toolbar {
       flex-direction: column;
       gap: 0.5rem;
       margin-bottom: 1rem;
       padding: 0.5rem;
+      flex-shrink: 0;
     }
     
     .homepage-calendar .rbc-toolbar-label {
@@ -70,22 +89,22 @@ const customCalendarStyle = `
       display: none;
     }
     
-    .homepage-calendar .rbc-time-view .rbc-time-header {
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 0;
-    }
-    
     .homepage-calendar .rbc-time-content {
-      border-top: none;
-      overflow-x: auto;
-    }
-    
-    .homepage-calendar .rbc-time-header-content {
-      border-left: 1px solid #ddd;
+      overflow-y: auto;
+      max-height: calc(100% - 120px);
     }
   }
   
   @media (max-width: 480px) {
+    .homepage-calendar {
+      height: 450px;
+    }
+    
+    .homepage-calendar .rbc-calendar {
+      height: 100% !important;
+      max-height: 450px;
+    }
+    
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
       width: 40px;
       font-size: 0.625rem;
@@ -108,6 +127,10 @@ const customCalendarStyle = `
     .homepage-calendar .rbc-button-link {
       padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
+    }
+    
+    .homepage-calendar .rbc-time-content {
+      max-height: calc(100% - 100px);
     }
   }
 `

@@ -17,15 +17,34 @@ moment.locale('ja')
 
 // カスタムスタイル
 const customCalendarStyle = `
+  .calendar-container {
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  
   .calendar-container .rbc-calendar {
-    min-height: 500px;
+    height: 100% !important;
+    max-height: 600px;
+    overflow: hidden;
   }
   
   @media (max-width: 768px) {
+    .calendar-container {
+      height: 500px;
+    }
+    
+    .calendar-container .rbc-calendar {
+      height: 100% !important;
+      max-height: 500px;
+    }
+    
     .calendar-container .rbc-toolbar {
       flex-direction: column;
       gap: 0.5rem;
       margin-bottom: 1rem;
+      flex-shrink: 0;
     }
     
     .calendar-container .rbc-toolbar-label {
@@ -60,16 +79,22 @@ const customCalendarStyle = `
       display: none;
     }
     
-    .calendar-container .rbc-time-view .rbc-time-header {
-      border-bottom: 1px solid #ddd;
-    }
-    
     .calendar-container .rbc-time-content {
-      border-top: none;
+      overflow-y: auto;
+      max-height: calc(100% - 80px);
     }
   }
   
   @media (max-width: 480px) {
+    .calendar-container {
+      height: 450px;
+    }
+    
+    .calendar-container .rbc-calendar {
+      height: 100% !important;
+      max-height: 450px;
+    }
+    
     .calendar-container .rbc-time-view .rbc-time-gutter {
       width: 40px;
     }
@@ -86,6 +111,10 @@ const customCalendarStyle = `
     .calendar-container .rbc-header {
       font-size: 0.625rem;
       padding: 0.125rem;
+    }
+    
+    .calendar-container .rbc-time-content {
+      max-height: calc(100% - 70px);
     }
   }
 `
