@@ -15,6 +15,81 @@ import { formatTime, formatDate } from '@/lib/utils'
 const localizer = momentLocalizer(moment)
 moment.locale('ja')
 
+// カスタムスタイル
+const customCalendarStyle = `
+  .calendar-container .rbc-calendar {
+    min-height: 500px;
+  }
+  
+  @media (max-width: 768px) {
+    .calendar-container .rbc-toolbar {
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .calendar-container .rbc-toolbar-label {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+    
+    .calendar-container .rbc-btn-group {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .calendar-container .rbc-header {
+      font-size: 0.75rem;
+      padding: 0.25rem;
+    }
+    
+    .calendar-container .rbc-time-view .rbc-time-gutter {
+      width: 50px;
+    }
+    
+    .calendar-container .rbc-time-view .rbc-time-slot {
+      font-size: 0.75rem;
+    }
+    
+    .calendar-container .rbc-event {
+      font-size: 0.75rem;
+      padding: 2px 4px;
+    }
+    
+    .calendar-container .rbc-allday-cell {
+      display: none;
+    }
+    
+    .calendar-container .rbc-time-view .rbc-time-header {
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .calendar-container .rbc-time-content {
+      border-top: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .calendar-container .rbc-time-view .rbc-time-gutter {
+      width: 40px;
+    }
+    
+    .calendar-container .rbc-time-view .rbc-time-slot {
+      font-size: 0.625rem;
+    }
+    
+    .calendar-container .rbc-event {
+      font-size: 0.625rem;
+      padding: 1px 2px;
+    }
+    
+    .calendar-container .rbc-header {
+      font-size: 0.625rem;
+      padding: 0.125rem;
+    }
+  }
+`
+
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -161,6 +236,9 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* カスタムスタイルの追加 */}
+      <style jsx>{customCalendarStyle}</style>
+      
       {/* Header */}
       <header className="bg-white shadow-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,13 +337,14 @@ export default function AdminDashboardPage() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Main Calendar */}
+        {/* Main Calendar - Full Width on Mobile, Grid on Desktop */}
+        <div className="space-y-8 lg:grid lg:grid-cols-4 lg:gap-8 lg:space-y-0">
+          {/* Calendar Section - Full width on mobile, 3 columns on desktop */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex justify-between items-center mb-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
                 <h2 className="text-xl font-semibold text-gray-900">レッスンカレンダー</h2>
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setView('day')}
@@ -292,40 +371,42 @@ export default function AdminDashboardPage() {
                       月
                     </button>
                   </div>
-                  <Link href="/admin/lessons/new" className="btn-primary">
+                  <Link href="/admin/lessons/new" className="btn-primary flex items-center justify-center">
                     <Plus className="h-4 w-4 mr-2" />
                     新規レッスン
                   </Link>
                 </div>
               </div>
 
-              <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: 600 }}
-                view={view}
-                date={currentDate}
-                onView={handleViewChange}
-                onNavigate={setCurrentDate}
-                onSelectEvent={handleSelectEvent}
-                eventPropGetter={eventStyleGetter}
-                messages={{
-                  next: '次',
-                  previous: '前',
-                  today: '今日',
-                  month: '月',
-                  week: '週',
-                  day: '日'
-                }}
-                min={new Date(2024, 0, 1, 10, 0, 0)}
-                max={new Date(2024, 0, 1, 22, 0, 0)}
-              />
+              <div className="calendar-container">
+                <Calendar
+                  localizer={localizer}
+                  events={events}
+                  startAccessor="start"
+                  endAccessor="end"
+                  style={{ height: 600 }}
+                  view={view}
+                  date={currentDate}
+                  onView={handleViewChange}
+                  onNavigate={setCurrentDate}
+                  onSelectEvent={handleSelectEvent}
+                  eventPropGetter={eventStyleGetter}
+                  messages={{
+                    next: '次',
+                    previous: '前',
+                    today: '今日',
+                    month: '月',
+                    week: '週',
+                    day: '日'
+                  }}
+                  min={new Date(2024, 0, 1, 10, 0, 0)}
+                  max={new Date(2024, 0, 1, 22, 0, 0)}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - Below calendar on mobile, right side on desktop */}
           <div className="lg:col-span-1 space-y-6">
             {/* Quick Stats */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

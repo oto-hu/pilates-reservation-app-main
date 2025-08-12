@@ -13,6 +13,105 @@ import { formatTime } from '@/lib/utils'
 const localizer = momentLocalizer(moment)
 moment.locale('ja')
 
+// カスタムスタイル - カレンダーのモバイル表示改善
+const customCalendarStyle = `
+  .homepage-calendar .rbc-calendar {
+    min-height: 500px;
+  }
+  
+  @media (max-width: 768px) {
+    .homepage-calendar .rbc-toolbar {
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+    
+    .homepage-calendar .rbc-toolbar-label {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+      font-weight: bold;
+    }
+    
+    .homepage-calendar .rbc-btn-group {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .homepage-calendar .rbc-button-link {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      background: #f8f9fa;
+      margin: 0 2px;
+      border-radius: 4px;
+    }
+    
+    .homepage-calendar .rbc-header {
+      font-size: 0.75rem;
+      padding: 0.5rem 0.25rem;
+      font-weight: 600;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-gutter {
+      width: 50px;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-slot {
+      font-size: 0.75rem;
+    }
+    
+    .homepage-calendar .rbc-event {
+      font-size: 0.75rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    .homepage-calendar .rbc-allday-cell {
+      display: none;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-header {
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 0;
+    }
+    
+    .homepage-calendar .rbc-time-content {
+      border-top: none;
+      overflow-x: auto;
+    }
+    
+    .homepage-calendar .rbc-time-header-content {
+      border-left: 1px solid #ddd;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .homepage-calendar .rbc-time-view .rbc-time-gutter {
+      width: 40px;
+      font-size: 0.625rem;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-slot {
+      font-size: 0.625rem;
+    }
+    
+    .homepage-calendar .rbc-event {
+      font-size: 0.625rem;
+      padding: 1px 2px;
+    }
+    
+    .homepage-calendar .rbc-header {
+      font-size: 0.625rem;
+      padding: 0.25rem;
+    }
+    
+    .homepage-calendar .rbc-button-link {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+  }
+`
+
 export default function HomePage() {
   const { data: session, status } = useSession()
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
@@ -128,6 +227,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
+      {/* カスタムスタイルの追加 */}
+      <style jsx>{customCalendarStyle}</style>
+      
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -385,30 +487,32 @@ export default function HomePage() {
           </div>
 
           {/* Calendar */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-            <BigCalendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 600 }}
-              onSelectEvent={handleSelectEvent}
-              eventPropGetter={eventStyleGetter}
-              defaultView="week"
-              views={['week']}
-              date={currentDate}
-              onNavigate={setCurrentDate}
-              messages={{
-                next: '次週',
-                previous: '前週',
-                today: '今週',
-                month: '月',
-                week: '週',
-                day: '日'
-              }}
-              min={new Date(2024, 0, 1, 9, 0, 0)} // 10:00 AM
-              max={new Date(2024, 0, 1, 22, 0, 0)} // 10:00 PM
-            />
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 sm:p-6">
+            <div className="homepage-calendar">
+              <BigCalendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: 600 }}
+                onSelectEvent={handleSelectEvent}
+                eventPropGetter={eventStyleGetter}
+                defaultView="week"
+                views={['week']}
+                date={currentDate}
+                onNavigate={setCurrentDate}
+                messages={{
+                  next: '次週',
+                  previous: '前週',
+                  today: '今週',
+                  month: '月',
+                  week: '週',
+                  day: '日'
+                }}
+                min={new Date(2024, 0, 1, 9, 0, 0)} // 10:00 AM
+                max={new Date(2024, 0, 1, 22, 0, 0)} // 10:00 PM
+              />
+            </div>
           </div>
         </div>
       </section>
