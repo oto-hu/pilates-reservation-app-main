@@ -416,17 +416,15 @@ export default function HomePage() {
       {/* Studio Info */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
-            <div className="bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg p-8 text-center max-w-md">
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">今すぐ予約</h4>
-              <p className="text-gray-600 mb-6">
-                体験レッスンのご予約<br />お待ちしております。
-              </p>
-              <Link href="#reserve" className="btn-primary inline-flex items-center px-6 py-3 text-lg">
-                <Calendar className="mr-2 h-5 w-5" />
-                予約ページへ
-              </Link>
-            </div>
+          <div className="bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg p-8 text-center w-full">
+            <h4 className="text-2xl font-bold text-gray-900 mb-4">今すぐ予約</h4>
+            <p className="text-gray-600 mb-6">
+              体験レッスンのご予約<br />お待ちしております。
+            </p>
+            <Link href="#reserve" className="btn-primary inline-flex items-center px-6 py-3 text-lg">
+              <Calendar className="mr-2 h-5 w-5" />
+              予約ページへ
+            </Link>
           </div>
         </div>
       </section>

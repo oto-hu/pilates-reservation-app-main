@@ -8,7 +8,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import moment from 'moment'
 import 'moment/locale/ja'
-import { Plus, LogOut, Users, Calendar as CalendarIcon, Settings, Eye } from 'lucide-react'
+import { Plus, LogOut, Users, Calendar as CalendarIcon, Settings, Eye, Menu, X, BarChart3, CreditCard, FileText, Layout } from 'lucide-react'
 import { Lesson, Reservation, CalendarEvent } from '@/lib/types'
 import { formatTime, formatDate } from '@/lib/utils'
 
@@ -22,6 +22,7 @@ export default function AdminDashboardPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
   const [view, setView] = useState<'week' | 'month' | 'day'>('week')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleViewChange = (newView: any) => {
     if (newView === 'month' || newView === 'week' || newView === 'day') {
@@ -131,13 +132,25 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' })
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/admin/login')
   }
 
-  if (status === 'loading' || loading) {
+  const menuItems = [
+    { href: '/admin/analytics', label: '統計分析', icon: BarChart3 },
+    { href: '/admin/members', label: '会員管理', icon: Users },
+    { href: '/admin/reservations', label: '予約管理', icon: CalendarIcon },
+    { href: '/admin/tickets', label: 'チケット管理', icon: CreditCard },
+    { href: '/admin/ticket-groups', label: 'チケットカテゴリ管理', icon: Settings },
+    { href: '/admin/lesson-templates', label: 'テンプレート管理', icon: Layout },
+    { href: '/admin/consent-forms', label: '同意書管理', icon: FileText },
+    { href: '/', label: 'サイト表示', icon: Eye },
+  ]
+
+  if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
           <p className="mt-4 text-gray-600">読み込み中...</p>
@@ -149,7 +162,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -161,31 +174,14 @@ export default function AdminDashboardPage() {
                 </p>
               )}
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin/analytics" className="text-gray-500 hover:text-gray-700">
-                統計分析
-              </Link>
-              <Link href="/admin/members" className="text-gray-500 hover:text-gray-700">
-                会員管理
-              </Link>
-              <Link href="/admin/reservations" className="text-gray-500 hover:text-gray-700">
-                予約管理
-              </Link>
-              <Link href="/admin/tickets" className="text-gray-500 hover:text-gray-700">
-                チケット管理
-              </Link>
-              <Link href="/admin/ticket-groups" className="text-gray-500 hover:text-gray-700">
-                チケットカテゴリ管理
-              </Link>
-              <Link href="/admin/lesson-templates" className="text-gray-500 hover:text-gray-700">
-                テンプレート管理
-              </Link>
-              <Link href="/admin/consent-forms" className="text-gray-500 hover:text-gray-700">
-                同意書管理
-              </Link>
-              <Link href="/" className="text-gray-500 hover:text-gray-700">
-                <Eye className="h-5 w-5" />
-              </Link>
+            
+            {/* PC Menu - lg以上で表示 */}
+            <div className="hidden lg:flex items-center space-x-4">
+              {menuItems.map((item) => (
+                <Link key={item.href} href={item.href} className="text-gray-500 hover:text-gray-700">
+                  {item.label}
+                </Link>
+              ))}
               <button
                 onClick={handleSignOut}
                 className="flex items-center text-gray-500 hover:text-gray-700"
@@ -194,9 +190,73 @@ export default function AdminDashboardPage() {
                 ログアウト
               </button>
             </div>
+
+            {/* Mobile Hamburger Button - lg未満で表示 */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Mobile Sidebar Menu */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Sidebar */}
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 lg:hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">メニュー</h2>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <nav className="p-4">
+              <div className="space-y-2">
+                {menuItems.map((item) => {
+                  const IconComponent = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <IconComponent className="h-5 w-5 mr-3 text-gray-500" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+                
+                <button
+                  onClick={() => {
+                    handleSignOut()
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="flex items-center w-full px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <LogOut className="h-5 w-5 mr-3 text-gray-500" />
+                  ログアウト
+                </button>
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
