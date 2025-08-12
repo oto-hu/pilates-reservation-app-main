@@ -242,7 +242,7 @@ export function generateWaitingListConfirmationEmail(
         <h3 style="color: #155724; margin-top: 0;">確定予約詳細</h3>
         <p><strong>レッスン名:</strong> ${lessonTitle}</p>
         <p><strong>日時:</strong> ${lessonDate}</p>
-        <p><strong>お支払い:</strong> チケット1枚（自動消費済み）</p>
+        <p><strong>お支払い:</strong> チケット1枚</p>
       </div>
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
@@ -266,7 +266,7 @@ ${customerName}様
 【確定予約詳細】
 レッスン名: ${lessonTitle}
 日時: ${lessonDate}
-お支払い: チケット1枚（自動消費済み）
+お支払い: チケット1枚
 
 【注意事項】
 ・${arrivalTime}

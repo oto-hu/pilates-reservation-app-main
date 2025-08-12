@@ -325,12 +325,6 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                   <div className="space-y-2">
                     {canUseTrialOption() && (
                       <>
-                        <p className="text-sm text-yellow-600">
-                          • キャンセル待ちで予約になった時にはメールでお知らせします
-                        </p>
-                        <p className="text-sm text-yellow-600">
-                          • 当レッスンにキャンセルが発生した場合は先着順で自動的にご予約が確定となります
-                        </p>
                       </>
                     )}
                     {!canUseTrialOption() && getAvailableTickets().length > 0 && (
@@ -340,12 +334,6 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                         </p>
                         <p className="text-sm text-yellow-600">
                           • キャンセル待ちからの自動予約確定時にチケット1枚消費されます
-                        </p>
-                        <p className="text-sm text-yellow-600">
-                          • キャンセル待ちで予約になった時にはメールでお知らせします
-                        </p>
-                        <p className="text-sm text-yellow-600">
-                          • 当レッスンにキャンセルが発生した場合は先着順で自動的にご予約が確定となります
                         </p>
                       </>
                     )}

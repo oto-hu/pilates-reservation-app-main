@@ -226,7 +226,7 @@ export default function HomePage() {
               className="inline-flex items-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white text-lg font-semibold rounded-lg transition-colors shadow-lg"
             >
               <Calendar className="mr-2 h-5 w-5" />
-              体験のご予約はこちら
+              体験のご予約はこちら（キャンセル待ち含む）
             </Link>
             <Link
               href="/member-reserve"

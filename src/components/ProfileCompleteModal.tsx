@@ -45,26 +45,6 @@ export default function ProfileCompleteModal({ isOpen, onClose, onSkip }: Profil
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">入力いただく情報</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• ピラティス経験レベル</li>
-              <li>• 来店のきっかけ</li>
-              <li>• 健康状態・疾患履歴</li>
-              <li>• ピラティスで達成したい目標</li>
-            </ul>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-green-900 mb-2">入力のメリット</h3>
-            <ul className="text-sm text-green-800 space-y-1">
-              <li>• あなたに最適なレッスンをご提案</li>
-              <li>• インストラクターからの個別アドバイス</li>
-              <li>• 安全で効果的なレッスン体験</li>
-              <li>• 目標達成に向けたサポート</li>
-            </ul>
-          </div>
-
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               onClick={handleComplete}
