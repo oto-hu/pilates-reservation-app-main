@@ -78,23 +78,36 @@ const customCalendarStyle = `
       display: flex;
       flex-direction: column;
       height: 100%;
+      position: relative;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-header {
       flex-shrink: 0;
       height: 50px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: white;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-content {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
+      scroll-behavior: auto;
       max-height: calc(100% - 130px);
+      position: relative;
+      overscroll-behavior: contain;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
       width: 55px;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: white;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-slot {
@@ -149,6 +162,10 @@ const customCalendarStyle = `
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
       width: 50px;
       font-size: 0.625rem;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: white;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-slot {

@@ -80,23 +80,36 @@ const customCalendarStyle = `
       display: flex;
       flex-direction: column;
       height: 100%;
+      position: relative;
     }
     
     .calendar-container .rbc-time-view .rbc-time-header {
       flex-shrink: 0;
       height: 50px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: white;
     }
     
     .calendar-container .rbc-time-view .rbc-time-content {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
+      scroll-behavior: auto;
       max-height: calc(100% - 120px);
+      position: relative;
+      overscroll-behavior: contain;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
     
     .calendar-container .rbc-time-view .rbc-time-gutter {
       width: 55px;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: white;
     }
     
     .calendar-container .rbc-time-view .rbc-time-slot {
