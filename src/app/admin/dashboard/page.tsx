@@ -32,25 +32,25 @@ const customCalendarStyle = `
   
   @media (max-width: 768px) {
     .calendar-container {
-      height: 500px;
+      height: 520px;
     }
     
     .calendar-container .rbc-calendar {
       height: 100% !important;
-      max-height: 500px;
+      max-height: 520px;
     }
     
     .calendar-container .rbc-toolbar {
       flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      gap: 0.25rem;
+      margin-bottom: 0.25rem;
       flex-shrink: 0;
-      padding: 0.5rem;
+      padding: 0.25rem;
     }
     
     .calendar-container .rbc-toolbar-label {
-      font-size: 1rem;
-      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      margin: 0.125rem 0;
     }
     
     .calendar-container .rbc-btn-group {
@@ -61,27 +61,28 @@ const customCalendarStyle = `
     .calendar-container .rbc-header {
       font-size: 0.75rem;
       padding: 0.125rem;
-      height: 30px;
-      line-height: 30px;
+      height: 25px;
+      line-height: 25px;
     }
     
     .calendar-container .rbc-time-view .rbc-time-gutter {
-      width: 50px;
+      width: 45px;
     }
     
     .calendar-container .rbc-time-view .rbc-time-slot {
-      font-size: 0.75rem;
-      height: 20px;
-      min-height: 20px;
+      font-size: 0.625rem;
+      height: 15px;
+      min-height: 15px;
     }
     
     .calendar-container .rbc-timeslot-group {
-      min-height: 40px;
+      min-height: 30px;
     }
     
     .calendar-container .rbc-event {
-      font-size: 0.75rem;
-      padding: 2px 4px;
+      font-size: 0.625rem;
+      padding: 1px 3px;
+      line-height: 1.2;
     }
     
     .calendar-container .rbc-allday-cell {
@@ -90,68 +91,72 @@ const customCalendarStyle = `
     
     .calendar-container .rbc-time-content {
       overflow-y: auto;
-      max-height: calc(100% - 100px);
+      max-height: calc(100% - 80px);
       flex: 1;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
     
     .calendar-container .rbc-time-view .rbc-time-header {
       flex-shrink: 0;
-      height: 50px;
+      height: 40px;
     }
   }
   
   @media (max-width: 480px) {
     .calendar-container {
-      height: 450px;
+      height: 480px;
     }
     
     .calendar-container .rbc-calendar {
       height: 100% !important;
-      max-height: 450px;
+      max-height: 480px;
     }
     
     .calendar-container .rbc-toolbar {
-      margin-bottom: 0.25rem;
-      padding: 0.25rem;
+      margin-bottom: 0.125rem;
+      padding: 0.125rem;
+      gap: 0.125rem;
     }
     
     .calendar-container .rbc-toolbar-label {
-      font-size: 0.875rem;
-      margin: 0.125rem 0;
+      font-size: 0.75rem;
+      margin: 0.0625rem 0;
     }
     
     .calendar-container .rbc-time-view .rbc-time-gutter {
-      width: 40px;
+      width: 35px;
     }
     
     .calendar-container .rbc-time-view .rbc-time-slot {
-      font-size: 0.625rem;
-      height: 18px;
-      min-height: 18px;
+      font-size: 0.5rem;
+      height: 12px;
+      min-height: 12px;
     }
     
     .calendar-container .rbc-timeslot-group {
-      min-height: 36px;
+      min-height: 24px;
     }
     
     .calendar-container .rbc-event {
-      font-size: 0.625rem;
+      font-size: 0.5rem;
       padding: 1px 2px;
+      line-height: 1.1;
     }
     
     .calendar-container .rbc-header {
-      font-size: 0.625rem;
-      padding: 0.125rem;
-      height: 25px;
-      line-height: 25px;
+      font-size: 0.5rem;
+      padding: 0.0625rem;
+      height: 20px;
+      line-height: 20px;
     }
     
     .calendar-container .rbc-time-content {
-      max-height: calc(100% - 80px);
+      max-height: calc(100% - 65px);
     }
     
     .calendar-container .rbc-time-view .rbc-time-header {
-      height: 40px;
+      height: 30px;
     }
   }
 `

@@ -30,25 +30,25 @@ const customCalendarStyle = `
   
   @media (max-width: 768px) {
     .homepage-calendar {
-      height: 500px;
+      height: 520px;
     }
     
     .homepage-calendar .rbc-calendar {
       height: 100% !important;
-      max-height: 500px;
+      max-height: 520px;
     }
     
     .homepage-calendar .rbc-toolbar {
       flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
+      gap: 0.25rem;
+      margin-bottom: 0.25rem;
+      padding: 0.25rem;
       flex-shrink: 0;
     }
     
     .homepage-calendar .rbc-toolbar-label {
-      font-size: 1rem;
-      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      margin: 0.125rem 0;
       font-weight: bold;
     }
     
@@ -58,39 +58,41 @@ const customCalendarStyle = `
     }
     
     .homepage-calendar .rbc-button-link {
-      padding: 0.5rem 1rem;
+      padding: 0.375rem 0.75rem;
       border: 1px solid #ddd;
       background: #f8f9fa;
-      margin: 0 2px;
+      margin: 0 1px;
       border-radius: 4px;
+      font-size: 0.75rem;
     }
     
     .homepage-calendar .rbc-header {
       font-size: 0.75rem;
       padding: 0.125rem;
       font-weight: 600;
-      height: 30px;
-      line-height: 30px;
+      height: 25px;
+      line-height: 25px;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
-      width: 50px;
+      width: 45px;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-slot {
-      font-size: 0.75rem;
-      height: 20px;
-      min-height: 20px;
+      font-size: 0.625rem;
+      height: 15px;
+      min-height: 15px;
     }
     
     .homepage-calendar .rbc-timeslot-group {
-      min-height: 40px;
+      min-height: 30px;
     }
     
     .homepage-calendar .rbc-event {
-      font-size: 0.75rem;
-      padding: 2px 4px;
+      font-size: 0.625rem;
+      padding: 1px 3px;
       border-radius: 3px;
+      line-height: 1.2;
     }
     
     .homepage-calendar .rbc-allday-cell {
@@ -99,75 +101,79 @@ const customCalendarStyle = `
     
     .homepage-calendar .rbc-time-content {
       overflow-y: auto;
-      max-height: calc(100% - 120px);
+      max-height: calc(100% - 100px);
       flex: 1;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-header {
       flex-shrink: 0;
-      height: 50px;
+      height: 40px;
     }
   }
   
   @media (max-width: 480px) {
     .homepage-calendar {
-      height: 450px;
+      height: 480px;
     }
     
     .homepage-calendar .rbc-calendar {
       height: 100% !important;
-      max-height: 450px;
+      max-height: 480px;
     }
     
     .homepage-calendar .rbc-toolbar {
-      margin-bottom: 0.25rem;
-      padding: 0.25rem;
+      margin-bottom: 0.125rem;
+      padding: 0.125rem;
+      gap: 0.125rem;
     }
     
     .homepage-calendar .rbc-toolbar-label {
-      font-size: 0.875rem;
-      margin: 0.125rem 0;
+      font-size: 0.75rem;
+      margin: 0.0625rem 0;
       font-weight: bold;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
-      width: 40px;
-      font-size: 0.625rem;
+      width: 35px;
+      font-size: 0.5rem;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-slot {
-      font-size: 0.625rem;
-      height: 18px;
-      min-height: 18px;
+      font-size: 0.5rem;
+      height: 12px;
+      min-height: 12px;
     }
     
     .homepage-calendar .rbc-timeslot-group {
-      min-height: 36px;
+      min-height: 24px;
     }
     
     .homepage-calendar .rbc-event {
-      font-size: 0.625rem;
+      font-size: 0.5rem;
       padding: 1px 2px;
+      line-height: 1.1;
     }
     
     .homepage-calendar .rbc-header {
-      font-size: 0.625rem;
-      padding: 0.125rem;
-      height: 25px;
-      line-height: 25px;
+      font-size: 0.5rem;
+      padding: 0.0625rem;
+      height: 20px;
+      line-height: 20px;
     }
     
     .homepage-calendar .rbc-button-link {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.625rem;
     }
     
     .homepage-calendar .rbc-time-content {
-      max-height: calc(100% - 100px);
+      max-height: calc(100% - 85px);
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-header {
-      height: 40px;
+      height: 30px;
     }
   }
 `
