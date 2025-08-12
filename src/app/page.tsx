@@ -30,25 +30,25 @@ const customCalendarStyle = `
   
   @media (max-width: 768px) {
     .homepage-calendar {
-      height: 520px;
+      height: 550px;
     }
     
     .homepage-calendar .rbc-calendar {
       height: 100% !important;
-      max-height: 520px;
+      max-height: 550px;
     }
     
     .homepage-calendar .rbc-toolbar {
       flex-direction: column;
       gap: 0.25rem;
-      margin-bottom: 0.25rem;
-      padding: 0.25rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
       flex-shrink: 0;
     }
     
     .homepage-calendar .rbc-toolbar-label {
-      font-size: 0.875rem;
-      margin: 0.125rem 0;
+      font-size: 1rem;
+      margin: 0.25rem 0;
       font-weight: bold;
     }
     
@@ -58,122 +58,129 @@ const customCalendarStyle = `
     }
     
     .homepage-calendar .rbc-button-link {
-      padding: 0.375rem 0.75rem;
+      padding: 0.5rem 0.75rem;
       border: 1px solid #ddd;
       background: #f8f9fa;
-      margin: 0 1px;
+      margin: 0 2px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.875rem;
     }
     
     .homepage-calendar .rbc-header {
-      font-size: 0.75rem;
-      padding: 0.125rem;
+      font-size: 0.875rem;
+      padding: 0.25rem;
       font-weight: 600;
-      height: 25px;
-      line-height: 25px;
+      height: 35px;
+      line-height: 35px;
+    }
+    
+    .homepage-calendar .rbc-time-view {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-header {
+      flex-shrink: 0;
+      height: 50px;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      max-height: calc(100% - 130px);
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
-      width: 45px;
+      width: 55px;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-slot {
-      font-size: 0.625rem;
-      height: 15px;
-      min-height: 15px;
+      font-size: 0.75rem;
+      height: 25px;
+      min-height: 25px;
     }
     
     .homepage-calendar .rbc-timeslot-group {
-      min-height: 30px;
+      min-height: 50px;
     }
     
     .homepage-calendar .rbc-event {
-      font-size: 0.625rem;
-      padding: 1px 3px;
+      font-size: 0.75rem;
+      padding: 2px 4px;
       border-radius: 3px;
-      line-height: 1.2;
+      line-height: 1.3;
     }
     
     .homepage-calendar .rbc-allday-cell {
       display: none;
     }
-    
-    .homepage-calendar .rbc-time-content {
-      overflow-y: auto;
-      max-height: calc(100% - 100px);
-      flex: 1;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-    }
-    
-    .homepage-calendar .rbc-time-view .rbc-time-header {
-      flex-shrink: 0;
-      height: 40px;
-    }
   }
   
   @media (max-width: 480px) {
     .homepage-calendar {
-      height: 480px;
+      height: 500px;
     }
     
     .homepage-calendar .rbc-calendar {
       height: 100% !important;
-      max-height: 480px;
+      max-height: 500px;
     }
     
     .homepage-calendar .rbc-toolbar {
-      margin-bottom: 0.125rem;
-      padding: 0.125rem;
-      gap: 0.125rem;
+      margin-bottom: 0.25rem;
+      padding: 0.25rem;
+      gap: 0.25rem;
     }
     
     .homepage-calendar .rbc-toolbar-label {
-      font-size: 0.75rem;
-      margin: 0.0625rem 0;
+      font-size: 0.875rem;
+      margin: 0.125rem 0;
       font-weight: bold;
     }
     
-    .homepage-calendar .rbc-time-view .rbc-time-gutter {
-      width: 35px;
-      font-size: 0.5rem;
-    }
-    
-    .homepage-calendar .rbc-time-view .rbc-time-slot {
-      font-size: 0.5rem;
-      height: 12px;
-      min-height: 12px;
-    }
-    
-    .homepage-calendar .rbc-timeslot-group {
-      min-height: 24px;
-    }
-    
-    .homepage-calendar .rbc-event {
-      font-size: 0.5rem;
-      padding: 1px 2px;
-      line-height: 1.1;
-    }
-    
-    .homepage-calendar .rbc-header {
-      font-size: 0.5rem;
-      padding: 0.0625rem;
-      height: 20px;
-      line-height: 20px;
-    }
-    
     .homepage-calendar .rbc-button-link {
-      padding: 0.25rem 0.5rem;
+      padding: 0.375rem 0.625rem;
+      font-size: 0.75rem;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-gutter {
+      width: 50px;
       font-size: 0.625rem;
     }
     
-    .homepage-calendar .rbc-time-content {
-      max-height: calc(100% - 85px);
+    .homepage-calendar .rbc-time-view .rbc-time-slot {
+      font-size: 0.625rem;
+      height: 20px;
+      min-height: 20px;
+    }
+    
+    .homepage-calendar .rbc-timeslot-group {
+      min-height: 40px;
+    }
+    
+    .homepage-calendar .rbc-event {
+      font-size: 0.625rem;
+      padding: 1px 3px;
+      line-height: 1.2;
+    }
+    
+    .homepage-calendar .rbc-header {
+      font-size: 0.75rem;
+      padding: 0.125rem;
+      height: 30px;
+      line-height: 30px;
+      font-weight: 600;
+    }
+    
+    .homepage-calendar .rbc-time-view .rbc-time-content {
+      max-height: calc(100% - 110px);
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-header {
-      height: 30px;
+      height: 40px;
     }
   }
 `
