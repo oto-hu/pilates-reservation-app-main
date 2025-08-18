@@ -228,13 +228,13 @@ export default function NewUserReservationForm({ lesson, onSubmit, submitting, i
           
           {isWaitlist && (
             <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ち登録</h3>
+              <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ち登録されますか？</h3>
               <p className="text-yellow-700 mb-2">
-                このレッスンは満席ですが、キャンセルが出た場合に体験レッスンとして自動的に予約が確定されます
+              当レッスンは満席ですが、キャンセル待ち登録が可能です
               </p>
               <div className="space-y-1 text-sm text-yellow-600">
-                <p>• キャンセル待ちで予約になった時にはメールでお知らせします</p>
-                <p>• 当レッスンにキャンセルが発生した場合は先着順で自動的にご予約が確定となります</p>
+                <p>キャンセルが出た際に先着順で自動的にご予約が確定されます</p>
+                <p>繰り上げでご予約が確定した際はメールにてお知らせします</p>
               </div>
             </div>
           )}

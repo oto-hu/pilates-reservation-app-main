@@ -230,12 +230,11 @@ export default function TrialPage() {
                             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                               <h4 className="text-lg font-semibold text-yellow-800 mb-2">このレッスンは満席です</h4>
                               <p className="text-yellow-700 mb-3">
-                                キャンセルが出た場合に体験レッスンとして自動的に予約が確定されます
+                              当レッスンは満席ですが、キャンセル待ち登録が可能です
                               </p>
-                              <div className="space-y-2 text-sm text-yellow-600">
-                                <p>• キャンセル待ちで予約になった時にはメールでお知らせします</p>
-                                <p>• 当レッスンにキャンセルが発生した場合は先着順で自動的にご予約が確定となります</p>
-                              </div>
+                              <p className="text-yellow-700 mb-3">
+                                キャンセルが出た際は先着順で自動的にご予約が確定されます
+                              </p>
                             </div>
                             <Link
                               href={`/reserve/${lesson.id}/new-user?waitlist=true`}

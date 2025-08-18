@@ -317,10 +317,13 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-yellow-800 mb-2">キャンセル待ちに登録されますか？</h3>
                   <p className="text-yellow-700 mb-2">
-                    当レッスンは満席ですが、会員様・体験希望の方ともにキャンセル待ち登録が可能です。
+                  当レッスンは満席ですが、キャンセル待ち登録が可能です。
                   </p>
                   <p className="text-yellow-700 mb-4 font-medium">
-                    ●当レッスンにキャンセルが発生した場合、先着順で自動的にご予約が確定となります
+                    キャンセルが出た際に先着順で自動的にご予約が確定されます
+                  </p>
+                  <p className="text-yellow-700 mb-4 font-medium">
+                    繰り上げでご予約が確定した際はメールにてお知らせします
                   </p>
                   <div className="space-y-2">
                     {canUseTrialOption() && (
