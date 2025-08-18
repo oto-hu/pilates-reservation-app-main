@@ -116,29 +116,36 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:h-16 space-y-3 sm:space-y-0">
             <div className="flex items-center">
-              <Link href="/admin/dashboard" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-3" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">統計分析</h1>
-                <p className="text-gray-600">会員・予約データの分析</p>
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  <span className="sm:hidden">分析</span>
+                  <span className="hidden sm:inline">統計分析</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">会員・予約データの分析</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <select
                 value={period}
                 onChange={(e) => setPeriod(parseInt(e.target.value))}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs sm:px-3 sm:py-2 sm:text-sm"
               >
                 <option value={7}>過去7日間</option>
                 <option value={30}>過去30日間</option>
                 <option value={90}>過去90日間</option>
                 <option value={365}>過去1年間</option>
               </select>
+              <Link href="/admin/dashboard">
+                <button className="btn-outline flex items-center px-3 sm:px-4 py-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline sm:ml-2">ダッシュボードに戻る</span>
+                </button>
+              </Link>
             </div>
           </div>
         </div>

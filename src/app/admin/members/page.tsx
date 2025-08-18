@@ -167,24 +167,27 @@ export default function MembersPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:h-16 space-y-3 sm:space-y-0">
             <div className="flex items-center">
-              <Users className="h-8 w-8 text-blue-600 mr-3" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-3" />
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">会員管理</h1>
-                <p className="text-sm text-gray-500">会員情報の閲覧・編集</p>
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  <span className="sm:hidden">会員</span>
+                  <span className="hidden sm:inline">会員管理</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">会員情報の閲覧・編集</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Link href="/admin/dashboard">
-                <Button variant="outline">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボードに戻る
+                <Button variant="outline" size="sm" className="px-3 sm:px-4">
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline sm:ml-2">ダッシュボードに戻る</span>
                 </Button>
               </Link>
-              <Button onClick={exportToCSV} variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                CSV エクスポート
+              <Button onClick={exportToCSV} variant="outline" size="sm" className="px-3 sm:px-4">
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline sm:ml-2">CSV エクスポート</span>
               </Button>
             </div>
           </div>
