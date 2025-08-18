@@ -90,14 +90,46 @@ export async function POST(request: NextRequest) {
       lessonType = LessonType.LARGE_GROUP
     }
 
+    // 既存の同じチケットグループのチケットを確認
+    const existingTickets = await prisma.ticket.findMany({
+      where: {
+        userId,
+        ticketGroupId
+      }
+    })
+
     // 有効期限を5ヶ月後に設定
     const expiresAt = new Date()
     expiresAt.setMonth(expiresAt.getMonth() + 5)
 
-    console.log('Creating ticket with:', {
+    let totalRemainingCount = parseInt(count)
+    
+    // 既存チケットがある場合は統合
+    if (existingTickets.length > 0) {
+      // 既存チケットの残枚数を合計
+      const existingTotal = existingTickets.reduce((sum, ticket) => sum + ticket.remainingCount, 0)
+      totalRemainingCount += existingTotal
+
+      console.log('Consolidating tickets:', {
+        existingTickets: existingTickets.length,
+        existingTotal,
+        newCount: parseInt(count),
+        totalCount: totalRemainingCount
+      })
+
+      // 既存チケットを削除
+      await prisma.ticket.deleteMany({
+        where: {
+          userId,
+          ticketGroupId
+        }
+      })
+    }
+
+    console.log('Creating consolidated ticket with:', {
       userId,
       lessonType,
-      remainingCount: count,
+      remainingCount: totalRemainingCount,
       expiresAt,
       ticketGroupId
     })
@@ -107,7 +139,7 @@ export async function POST(request: NextRequest) {
         userId,
         name: ticketGroup.name, // チケットグループ名をチケット名として保存
         lessonType,
-        remainingCount: parseInt(count),
+        remainingCount: totalRemainingCount,
         expiresAt,
         ticketGroupId
       },
