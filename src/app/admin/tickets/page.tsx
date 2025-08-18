@@ -31,7 +31,10 @@ export default function TicketManagementPage() {
   const [selectedMember, setSelectedMember] = useState<MemberWithTickets | null>(null)
   const [showGrantForm, setShowGrantForm] = useState(false)
   const [ticketGroups, setTicketGroups] = useState<TicketGroup[]>([])
-  const [grantForm, setGrantForm] = useState({
+  const [grantForm, setGrantForm] = useState<{
+    ticketGroupId: string
+    count: number | string
+  }>({
     ticketGroupId: '',
     count: 1
   })
@@ -86,7 +89,8 @@ export default function TicketManagementPage() {
   }
 
   const handleGrantTickets = async () => {
-    if (!selectedMember || !grantForm.ticketGroupId || grantForm.count <= 0) return
+    const countValue = typeof grantForm.count === 'string' ? parseInt(grantForm.count) || 1 : grantForm.count
+    if (!selectedMember || !grantForm.ticketGroupId || countValue <= 0) return
 
     setGranting(true)
     try {
@@ -98,7 +102,7 @@ export default function TicketManagementPage() {
         body: JSON.stringify({
           userId: selectedMember.id,
           ticketGroupId: grantForm.ticketGroupId,
-          count: grantForm.count
+          count: countValue
         }),
       })
 
@@ -317,7 +321,23 @@ export default function TicketManagementPage() {
                     min="1"
                     max="50"
                     value={grantForm.count}
-                    onChange={(e) => setGrantForm(prev => ({ ...prev, count: parseInt(e.target.value) || 1 }))}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value === '') {
+                        setGrantForm(prev => ({ ...prev, count: '' as any }))
+                      } else {
+                        const numValue = parseInt(value)
+                        if (!isNaN(numValue)) {
+                          setGrantForm(prev => ({ ...prev, count: numValue }))
+                        }
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value
+                      if (value === '' || parseInt(value) < 1) {
+                        setGrantForm(prev => ({ ...prev, count: 1 }))
+                      }
+                    }}
                   />
                 </div>
 
