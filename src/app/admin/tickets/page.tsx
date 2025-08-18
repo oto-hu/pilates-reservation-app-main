@@ -88,8 +88,12 @@ export default function TicketManagementPage() {
     }
   }
 
+  const getCountValue = () => {
+    return typeof grantForm.count === 'string' ? parseInt(grantForm.count) || 1 : grantForm.count
+  }
+
   const handleGrantTickets = async () => {
-    const countValue = typeof grantForm.count === 'string' ? parseInt(grantForm.count) || 1 : grantForm.count
+    const countValue = getCountValue()
     if (!selectedMember || !grantForm.ticketGroupId || countValue <= 0) return
 
     setGranting(true)
@@ -365,7 +369,7 @@ export default function TicketManagementPage() {
                   </Button>
                   <Button
                     onClick={handleGrantTickets}
-                    disabled={granting || !grantForm.ticketGroupId || grantForm.count <= 0}
+                    disabled={granting || !grantForm.ticketGroupId || getCountValue() <= 0}
                     className="flex-1"
                   >
                     {granting ? '付与中...' : 'チケット付与'}
