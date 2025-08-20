@@ -163,12 +163,10 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex items-center ml-4 flex-shrink-0">
-              <Link href="/member/dashboard">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="text-xs sm:text-sm">戻る</span>
-                </Button>
-              </Link>
+              <Button variant="outline" size="sm" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="text-xs sm:text-sm">戻る</span>
+              </Button>
             </div>
           </div>
         </div>

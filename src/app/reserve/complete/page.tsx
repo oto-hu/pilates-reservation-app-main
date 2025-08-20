@@ -213,12 +213,21 @@ function ReservationCompleteForm() {
         {/* Action Buttons */}
         <div className="space-y-3">
           <Link
-            href="/reserve"
+            href="/"
             className="btn-primary w-full text-center py-3 text-lg"
           >
             <Home className="h-5 w-5 mr-2 inline" />
-            レッスン一覧に戻る
+            トップページに戻る
           </Link>
+          {isNewUser && (
+            <Link
+              href="/member/dashboard"
+              className="bg-blue-500 hover:bg-blue-600 text-white w-full text-center py-3 text-lg rounded-lg font-semibold transition-colors shadow-lg flex items-center justify-center"
+            >
+              <UserCheck className="h-5 w-5 mr-2 inline" />
+              マイページを確認する
+            </Link>
+          )}
         </div>
       </div>
     </div>

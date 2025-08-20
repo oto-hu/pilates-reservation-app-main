@@ -460,18 +460,13 @@ function RegisterForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="emergencyContactRelation">続柄</Label>
-                  <Select value={formData.emergencyContactRelation} onValueChange={(value) => handleInputChange('emergencyContactRelation', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="続柄を選択" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="配偶者">配偶者</SelectItem>
-                      <SelectItem value="親">親</SelectItem>
-                      <SelectItem value="子">子</SelectItem>
-                      <SelectItem value="兄弟姉妹">兄弟姉妹</SelectItem>
-                      <SelectItem value="その他">その他</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="emergencyContactRelation"
+                    type="text"
+                    value={formData.emergencyContactRelation}
+                    onChange={(e) => handleInputChange('emergencyContactRelation', e.target.value)}
+                    placeholder="配偶者、親、子など"
+                  />
                 </div>
               </div>
             </div>

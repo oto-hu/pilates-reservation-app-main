@@ -385,9 +385,12 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center py-4">
-            <Link href="/reserve" className="mr-4 p-2 hover:bg-gray-100 rounded-lg">
+            <button 
+              onClick={() => router.back()} 
+              className="mr-4 p-2 hover:bg-gray-100 rounded-lg"
+            >
               <ArrowLeft className="h-5 w-5" />
-            </Link>
+            </button>
             <div>
               <h1 className="text-xl font-bold text-gray-900">レッスン予約</h1>
               <p className="text-sm text-gray-600">お客様情報を入力してください</p>

@@ -197,9 +197,12 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center py-4">
-            <Link href="/member/dashboard" className="mr-2 sm:mr-4 p-2 hover:bg-gray-100 rounded-lg">
+            <button 
+              onClick={() => router.back()} 
+              className="mr-2 sm:mr-4 p-2 hover:bg-gray-100 rounded-lg"
+            >
               <ArrowLeft className="h-5 w-5" />
-            </Link>
+            </button>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">予約詳細</h1>
               <p className="text-xs sm:text-sm text-gray-600">予約内容を確認できます</p>

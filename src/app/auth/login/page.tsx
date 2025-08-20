@@ -111,9 +111,10 @@ function LoginForm() {
 
           <div className="mt-4 text-center text-sm">
             アカウントをお持ちでない方は{' '}
-            <Link href="/auth/register" className="text-blue-600 hover:text-blue-500">
-              新規会員登録
+            <Link href="/trial" className="text-blue-600 hover:text-blue-500">
+              体験レッスンのご予約
             </Link>
+            からお進みください
           </div>
 
           <div className="mt-2 text-center text-sm">
