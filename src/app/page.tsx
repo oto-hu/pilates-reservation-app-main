@@ -562,7 +562,7 @@ export default function HomePage() {
                           className={`w-full text-center inline-block px-4 py-2 font-semibold rounded-lg transition-colors shadow
                             ${isFull ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-primary-500 hover:bg-primary-600 text-white'}`}
                         >
-                          {isFull ? 'キャンセル待ち（会員様専用）' : '予約する'}
+                          {isFull ? 'キャンセル待ち（会員様専用）' : '予約する（会員様専用）'}
                         </button>
                       ) : null}
                     </div>
