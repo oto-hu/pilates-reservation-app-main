@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
 
-    // ユーザー統計
+    // ユーザー統計（期間内登録者）
     const users = await prisma.user.findMany({
       where: {
         role: 'member',
@@ -30,6 +30,11 @@ export async function GET(request: NextRequest) {
           }
         }
       }
+    })
+
+    // 全会員数（期間制限なし）
+    const totalMembers = await prisma.user.count({
+      where: { role: 'member' }
     })
 
     // 男女比
@@ -114,7 +119,8 @@ export async function GET(request: NextRequest) {
         endDate: new Date().toISOString()
       },
       userStats: {
-        total: users.length,
+        total: totalMembers, // 全会員数（期間制限なし）
+        newUsers: users.length, // 期間内の新規登録者数
         genderStats,
         ageStats,
         averageAge,
