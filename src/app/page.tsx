@@ -97,10 +97,12 @@ const customCalendarStyle = `
       scroll-behavior: auto;
       max-height: calc(100% - 130px);
       position: relative;
-      overscroll-behavior: contain;
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
       scroll-snap-type: none;
+      -webkit-scroll-snap-type: none;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
@@ -229,6 +231,47 @@ export default function HomePage() {
   useEffect(() => {
     fetchLessons()
   }, [currentDate])
+
+  // カレンダーのスクロール制御
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const timeContent = document.querySelector('.homepage-calendar .rbc-time-content') as HTMLElement
+      if (timeContent) {
+        let lastScrollTop = timeContent.scrollTop
+        let scrollTimeout: NodeJS.Timeout
+        
+        const handleScroll = (e: Event) => {
+          const target = e.target as HTMLElement
+          clearTimeout(scrollTimeout)
+          
+          scrollTimeout = setTimeout(() => {
+            // スクロールが止まった位置を記録
+            lastScrollTop = target.scrollTop
+          }, 100)
+        }
+        
+        const handleTouchEnd = () => {
+          // タッチが終わった時の位置を保持
+          setTimeout(() => {
+            if (timeContent.scrollTop !== lastScrollTop) {
+              timeContent.scrollTop = lastScrollTop
+            }
+          }, 50)
+        }
+        
+        timeContent.addEventListener('scroll', handleScroll, { passive: true })
+        timeContent.addEventListener('touchend', handleTouchEnd, { passive: true })
+        
+        return () => {
+          timeContent.removeEventListener('scroll', handleScroll)
+          timeContent.removeEventListener('touchend', handleTouchEnd)
+          clearTimeout(scrollTimeout)
+        }
+      }
+    }, 1000)
+    
+    return () => clearTimeout(timer)
+  }, [events])
 
   const fetchLessons = async () => {
     setLoading(true)
