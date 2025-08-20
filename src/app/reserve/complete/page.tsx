@@ -211,24 +211,22 @@ function ReservationCompleteForm() {
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/"
-            className="btn-primary w-full text-center py-3 sm:py-4 text-lg font-semibold"
+            className="btn-primary flex-1 text-center py-3 sm:py-4 text-lg font-semibold"
           >
             <Home className="h-5 w-5 mr-2 inline" />
             トップページに戻る
           </Link>
           {isNewUser && (
-            <div className="flex justify-end">
-              <Link
-                href="/member/dashboard"
-                className="btn-primary text-center py-3 sm:py-4 text-lg font-semibold px-6 sm:px-8"
-              >
-                <UserCheck className="h-5 w-5 mr-2 inline" />
-                マイページを確認する
-              </Link>
-            </div>
+            <Link
+              href="/member/dashboard"
+              className="btn-primary flex-1 text-center py-3 sm:py-4 text-lg font-semibold"
+            >
+              <UserCheck className="h-5 w-5 mr-2 inline" />
+              マイページを確認する
+            </Link>
           )}
         </div>
       </div>
