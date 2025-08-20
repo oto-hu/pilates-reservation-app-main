@@ -93,13 +93,14 @@ const customCalendarStyle = `
     .homepage-calendar .rbc-time-view .rbc-time-content {
       flex: 1;
       overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: auto;
       scroll-behavior: auto;
       max-height: calc(100% - 130px);
       position: relative;
       overscroll-behavior: contain;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      scroll-snap-type: none;
     }
     
     .homepage-calendar .rbc-time-view .rbc-time-gutter {
@@ -418,7 +419,7 @@ export default function HomePage() {
               className="inline-flex items-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white text-lg font-semibold rounded-lg transition-colors shadow-lg"
             >
               <Calendar className="mr-2 h-5 w-5" />
-              体験のご予約はこちら（キャンセル待ち含む）
+              体験のご予約はこちら<br />（キャンセル待ち含む）
             </Link>
             <Link
               href="/member-reserve"
