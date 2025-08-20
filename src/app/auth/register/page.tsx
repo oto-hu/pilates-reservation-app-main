@@ -74,8 +74,43 @@ function RegisterForm() {
     handleInputChange('age', age)
   }
 
+  // 郵便番号から住所を取得
+  const fetchAddressFromPostalCode = async (postalCode: string) => {
+    try {
+      // 郵便番号を正規化（ハイフンを除去）
+      const normalizedPostalCode = postalCode.replace(/[^0-9]/g, '')
+      
+      if (normalizedPostalCode.length !== 7) {
+        return
+      }
+
+      const response = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${normalizedPostalCode}`)
+      const data = await response.json()
+      
+      if (data.status === 200 && data.results && data.results.length > 0) {
+        const result = data.results[0]
+        const address = `${result.address1}${result.address2}${result.address3}`
+        handleInputChange('address', address)
+      }
+    } catch (error) {
+      console.error('住所の取得に失敗しました:', error)
+    }
+  }
+
+  // 郵便番号が変更されたときに住所を自動取得
+  const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    handleInputChange('postalCode', value)
+    
+    // 郵便番号が7桁（ハイフン含む場合は8桁）になったら住所を取得
+    const normalizedValue = value.replace(/[^0-9]/g, '')
+    if (normalizedValue.length === 7) {
+      fetchAddressFromPostalCode(value)
+    }
+  }
+
   const validateForm = () => {
-    if (!formData.name || !formData.furigana || !formData.birthDate || !formData.gender || !formData.email || 
+    if (!formData.name || !formData.furigana || !formData.birthDate || !formData.gender || !formData.address || !formData.email || 
         !formData.password || !formData.confirmPassword) {
       setError('必須項目を入力してください')
       return false
@@ -314,13 +349,13 @@ function RegisterForm() {
                   id="postalCode"
                   type="text"
                   value={formData.postalCode}
-                  onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                  onChange={handlePostalCodeChange}
                   placeholder="123-4567"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">住所</Label>
+                <Label htmlFor="address">住所 <span className="text-red-500">*</span></Label>
                 <Input
                   id="address"
                   type="text"
