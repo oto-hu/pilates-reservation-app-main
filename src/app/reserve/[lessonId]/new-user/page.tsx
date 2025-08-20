@@ -161,6 +161,24 @@ export default function NewUserReservationPage({ params }: NewUserReservationPag
         const result = await response.json()
         console.log('✅ ユーザー・予約作成完了:', result);
 
+        // 新規ユーザーの自動ログイン処理を追加
+        console.log('📤 新規ユーザーの自動ログインを実行...');
+        const loginResult = await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          redirect: false
+        })
+
+        if (loginResult?.ok) {
+          console.log('✅ 自動ログイン成功');
+          
+          // 少し待機してセッションが確立されるまで待つ
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          console.error('自動ログインエラー:', loginResult?.error)
+          // ログインに失敗してもエラーにはしない（予約は既に完了しているため）
+        }
+
         // NewUserReservationFormに返すためのユーザー情報
         const userInfo = {
           userId: result.user.id,
