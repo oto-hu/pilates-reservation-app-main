@@ -69,12 +69,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    // キャンセル期限の計算（前日21:00）
-    const cancelDeadline = new Date(lessonStartTime)
+    // キャンセル期限の計算（日本時間の前日21:00）
+    const lessonStartTimeJST = new Date(lessonStartTime.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}))
+    const cancelDeadline = new Date(lessonStartTimeJST)
     cancelDeadline.setDate(cancelDeadline.getDate() - 1)
     cancelDeadline.setHours(21, 0, 0, 0)
-
-    const isWithinFreeCancel = now <= cancelDeadline
+    
+    // 現在時刻も日本時間で比較
+    const nowJST = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}))
+    const isWithinFreeCancel = nowJST <= cancelDeadline
     const isLateCancellation = !isWithinFreeCancel
 
     // 期限後キャンセルで強制実行フラグがない場合は警告を返す

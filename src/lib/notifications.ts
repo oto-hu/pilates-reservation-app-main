@@ -60,22 +60,31 @@ export function generateReservationConfirmationEmail(
   
   // 注意事項を予約タイプに応じて分ける
   const getNoticeItems = () => {
-    const commonItems = [
+    const basicItems = [
       '更衣室はございません。動きやすい服装でお越しいただく、もしくはお手洗い等でのお着替えをお願い致します。',
       '滑り止め靴下、タオル、お飲み物をご持参下さい。'
     ];
     
+    const warningItems = [];
+    
     if (isTrialLesson) {
-      return [
-        '体験時はレッスン開始15分前にお越しください。',
-        ...commonItems
-      ];
+      return {
+        basic: [
+          '体験時はレッスン開始15分前にお越しください。',
+          ...basicItems
+        ],
+        warning: []
+      };
     } else {
-      return [
-        '開始10分前からご入室可能です。',
-        ...commonItems,
-        '前日21:00以降のキャンセルは1回分消化扱いとなります。ご注意ください。'
-      ];
+      return {
+        basic: [
+          '開始10分前からご入室可能です。',
+          ...basicItems
+        ],
+        warning: [
+          '前日21:00以降のキャンセルは1回分消化扱いとなります。ご注意ください。'
+        ]
+      };
     }
   };
 
@@ -96,11 +105,12 @@ export function generateReservationConfirmationEmail(
         <p><strong>会場:</strong> ${lessonLocation}</p>
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
       </div>
-      <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #856404; margin-top: 0; font-size: 16px;">注意事項</h4>
-        <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
-          ${noticeItems.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
-          <li style="margin-bottom: 5px;"><strong>一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</strong></li>
+      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #333; margin-top: 0; font-size: 16px;">注意事項</h4>
+        <ul style="color: #333; margin: 0; font-size: 14px; line-height: 1.5;">
+          ${noticeItems.basic.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+          ${noticeItems.warning.map(item => `<li style="margin-bottom: 5px; color: #d63384; font-weight: bold;">${item}</li>`).join('')}
+          <li style="margin-bottom: 5px; color: #d63384; font-weight: bold;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
         </ul>
       </div>
       <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
@@ -120,7 +130,8 @@ ${customerName}様
 予約タイプ: ${reservationType}
 
 【注意事項】
-${noticeItems.map(item => `・${item}`).join('\n')}
+${noticeItems.basic.map(item => `・${item}`).join('\n')}
+${noticeItems.warning.map(item => `・${item}`).join('\n')}
 ・一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。
 
 ご不明な点がございましたら、お気軽にお問い合わせください。
