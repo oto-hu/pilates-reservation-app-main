@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { User, Save, ArrowLeft, Calendar, MapPin, Phone, Mail, AlertTriangle, Settings, CreditCard, Plus, Minus } from 'lucide-react'
+import { User, Save, ArrowLeft, Calendar, MapPin, Phone, Mail, AlertTriangle, Settings, CreditCard, Plus, Minus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface Ticket {
@@ -57,6 +57,8 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
   const [member, setMember] = useState<Member | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [formData, setFormData] = useState<Partial<Member>>({})
   const [ticketAdjustments, setTicketAdjustments] = useState<{[key: string]: number}>({})
 
@@ -135,6 +137,30 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
     } catch (error) {
       console.error('Ticket adjustment error:', error)
       alert('チケット残数の調整に失敗しました')
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/users/${params.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert(`${result.deletedUser.name}さんのアカウントと関連データ（予約${result.deletedReservations}件を含む）を削除しました`)
+        router.push('/admin/members')
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete user')
+      }
+    } catch (error) {
+      console.error('User deletion error:', error)
+      alert('ユーザーの削除に失敗しました')
+    } finally {
+      setDeleting(false)
+      setShowDeleteDialog(false)
     }
   }
 
@@ -564,19 +590,80 @@ export default function MemberDetailPage({ params }: { params: { id: string } })
             </CardContent>
           </Card>
 
-          {/* 保存ボタン */}
-          <div className="flex justify-end space-x-4">
-            <Link href="/admin/members">
-              <Button type="button" variant="outline">
-                キャンセル
+          {/* 操作ボタン */}
+          <div className="flex justify-between">
+            <div>
+              <Button 
+                type="button" 
+                variant="destructive" 
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={saving || deleting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                会員を削除
               </Button>
-            </Link>
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? '保存中...' : '会員情報を保存'}
-            </Button>
+            </div>
+            <div className="flex space-x-4">
+              <Link href="/admin/members">
+                <Button type="button" variant="outline" disabled={saving || deleting}>
+                  キャンセル
+                </Button>
+              </Link>
+              <Button type="submit" disabled={saving || deleting}>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? '保存中...' : '会員情報を保存'}
+              </Button>
+            </div>
           </div>
         </form>
+
+        {/* 削除確認ダイアログ */}
+        {showDeleteDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="flex items-center mb-4">
+                <AlertTriangle className="h-6 w-6 text-red-500 mr-2" />
+                <h3 className="text-lg font-semibold">会員削除の確認</h3>
+              </div>
+              <div className="mb-6">
+                <p className="text-gray-700 mb-2">
+                  <strong>{member?.name}さん</strong>のアカウントを削除します。
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
+                  以下のデータも同時に削除されます：
+                </p>
+                <ul className="text-sm text-gray-600 list-disc list-inside mb-4 space-y-1">
+                  <li>予約情報（すべて）</li>
+                  <li>チケット情報</li>
+                  <li>キャンセル待ち情報</li>
+                  <li>同意書データ</li>
+                  <li>その他すべての関連データ</li>
+                </ul>
+                <p className="text-red-600 font-semibold text-sm">
+                  この操作は取り消すことができません。
+                </p>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={deleting}
+                >
+                  キャンセル
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="destructive" 
+                  onClick={handleDeleteUser}
+                  disabled={deleting}
+                >
+                  {deleting ? '削除中...' : '削除する'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )

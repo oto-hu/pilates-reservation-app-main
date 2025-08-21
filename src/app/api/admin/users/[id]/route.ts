@@ -155,15 +155,62 @@ export async function DELETE(
       )
     }
 
-    await prisma.user.delete({
-      where: { id: params.id }
+    // ユーザーの存在確認
+    const user = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        reservations: {
+          select: {
+            id: true,
+            paymentStatus: true,
+            lesson: {
+              select: {
+                title: true,
+                startTime: true
+              }
+            }
+          }
+        }
+      }
     })
 
-    return NextResponse.json({ message: 'User deleted successfully' })
+    if (!user) {
+      return NextResponse.json(
+        { error: 'ユーザーが見つかりません' },
+        { status: 404 }
+      )
+    }
+
+    // トランザクションで関連データを含めて削除
+    await prisma.$transaction(async (tx) => {
+      // 1. ユーザーの予約を削除（キャンセル済み以外も含む）
+      await tx.reservation.deleteMany({
+        where: { userId: params.id }
+      })
+
+      // 2. ユーザーを削除（カスケード削除により以下も自動削除される）
+      // - Account, Session, Ticket, WaitingList, LessonTemplate, PasswordResetToken, ConsentForm
+      await tx.user.delete({
+        where: { id: params.id }
+      })
+    })
+
+    return NextResponse.json({ 
+      message: 'ユーザーと関連データを削除しました',
+      deletedUser: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      },
+      deletedReservations: user.reservations.length
+    })
   } catch (error) {
     console.error('User deletion error:', error)
     return NextResponse.json(
-      { error: 'Failed to delete user' },
+      { error: 'ユーザーの削除に失敗しました' },
       { status: 500 }
     )
   }
