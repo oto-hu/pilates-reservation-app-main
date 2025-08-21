@@ -60,18 +60,16 @@ export function generateReservationConfirmationEmail(
   
   // 注意事項を予約タイプに応じて分ける
   const getNoticeItems = () => {
-    const basicItems = [
+    const commonItems = [
       '更衣室はございません。動きやすい服装でお越しいただく、もしくはお手洗い等でのお着替えをお願い致します。',
       '滑り止め靴下、タオル、お飲み物をご持参下さい。'
     ];
-    
-    const warningItems = [];
     
     if (isTrialLesson) {
       return {
         basic: [
           '体験時はレッスン開始15分前にお越しください。',
-          ...basicItems
+          ...commonItems
         ],
         warning: []
       };
@@ -79,7 +77,7 @@ export function generateReservationConfirmationEmail(
       return {
         basic: [
           '開始10分前からご入室可能です。',
-          ...basicItems
+          ...commonItems
         ],
         warning: [
           '前日21:00以降のキャンセルは1回分消化扱いとなります。ご注意ください。'
