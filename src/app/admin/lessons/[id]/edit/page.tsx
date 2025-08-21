@@ -114,9 +114,20 @@ export default function EditLessonPage({ params }: EditLessonPageProps) {
           method: 'DELETE',
         })
 
-        if (!response.ok) throw new Error('Failed to delete lesson')
+        if (!response.ok) {
+          const errorData = await response.json()
+          
+          if (response.status === 400) {
+            // 予約やキャンセル待ちがある場合の詳細なエラーメッセージ
+            alert(`削除できません\n\n${errorData.error}\n${errorData.details || ''}`)
+          } else {
+            throw new Error(errorData.error || 'Failed to delete lesson')
+          }
+          return
+        }
 
-        alert('レッスンを削除しました')
+        const result = await response.json()
+        alert(result.message || 'レッスンを削除しました')
         router.push('/admin/dashboard')
         router.refresh()
       } catch (error) {

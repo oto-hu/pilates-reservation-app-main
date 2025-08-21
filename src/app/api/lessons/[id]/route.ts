@@ -102,15 +102,64 @@ export async function DELETE(
   }
 
   try {
+    // レッスンの存在確認
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: params.id },
+      include: {
+        reservations: {
+          where: {
+            paymentStatus: { not: 'CANCELLED' }
+          }
+        },
+        waitingList: true
+      }
+    })
+
+    if (!lesson) {
+      return NextResponse.json(
+        { error: 'レッスンが見つかりません' },
+        { status: 404 }
+      )
+    }
+
+    // 予約が存在する場合は削除を拒否
+    if (lesson.reservations.length > 0) {
+      return NextResponse.json(
+        { 
+          error: 'このレッスンには予約が入っているため削除できません',
+          details: `${lesson.reservations.length}件の予約があります。先に予約をキャンセルしてから削除してください。`
+        },
+        { status: 400 }
+      )
+    }
+
+    // キャンセル待ちが存在する場合は削除を拒否
+    if (lesson.waitingList.length > 0) {
+      return NextResponse.json(
+        { 
+          error: 'このレッスンにはキャンセル待ちが登録されているため削除できません',
+          details: `${lesson.waitingList.length}件のキャンセル待ちがあります。先にキャンセル待ちを解除してから削除してください。`
+        },
+        { status: 400 }
+      )
+    }
+
+    // 予約・キャンセル待ちがない場合のみ削除実行
     await prisma.lesson.delete({
       where: { id: params.id }
     })
 
-    return NextResponse.json({ message: 'Lesson deleted successfully' })
+    return NextResponse.json({ 
+      message: 'レッスンを削除しました',
+      deletedLesson: {
+        id: lesson.id,
+        title: lesson.title
+      }
+    })
   } catch (error) {
     console.error('Error deleting lesson:', error)
     return NextResponse.json(
-      { error: 'Failed to delete lesson' },
+      { error: 'レッスンの削除に失敗しました' },
       { status: 500 }
     )
   }
