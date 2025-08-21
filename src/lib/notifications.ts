@@ -110,7 +110,7 @@ export function generateReservationConfirmationEmail(
         <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
           ${noticeItems.basic.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
           ${noticeItems.warning.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
-          <li style="margin-bottom: 5px;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
+          <li style="margin-bottom: 5px; font-weight: bold;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
         </ul>
       </div>
       <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
