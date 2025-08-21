@@ -105,12 +105,12 @@ export function generateReservationConfirmationEmail(
         <p><strong>会場:</strong> ${lessonLocation}</p>
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
       </div>
-      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #333; margin-top: 0; font-size: 16px;">注意事項</h4>
-        <ul style="color: #333; margin: 0; font-size: 14px; line-height: 1.5;">
+      <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #856404; margin-top: 0; font-size: 16px;">注意事項</h4>
+        <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
           ${noticeItems.basic.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
-          ${noticeItems.warning.map(item => `<li style="margin-bottom: 5px; color: #d63384; font-weight: bold;">${item}</li>`).join('')}
-          <li style="margin-bottom: 5px; color: #d63384; font-weight: bold;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
+          ${noticeItems.warning.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+          <li style="margin-bottom: 5px;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
         </ul>
       </div>
       <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
