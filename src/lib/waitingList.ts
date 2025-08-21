@@ -50,7 +50,7 @@ export async function processWaitingList(lessonId: string) {
       const availableTicket = await prisma.ticket.findFirst({
         where: {
           userId: waitingListEntry.userId,
-          lessonType: waitingListEntry.lesson.lessonType,
+          ticketGroupId: waitingListEntry.lesson.ticketGroupId,
           remainingCount: { gt: 0 },
           expiresAt: { gt: new Date() }
         }
@@ -93,7 +93,7 @@ export async function processWaitingList(lessonId: string) {
         const availableTicket = await tx.ticket.findFirst({
           where: {
             userId: waitingListEntry.userId,
-            lessonType: waitingListEntry.lesson.lessonType,
+            ticketGroupId: waitingListEntry.lesson.ticketGroupId,
             remainingCount: { gt: 0 },
             expiresAt: { gt: new Date() }
           }

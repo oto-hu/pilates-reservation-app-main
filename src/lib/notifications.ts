@@ -97,10 +97,10 @@ export function generateReservationConfirmationEmail(
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
       </div>
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
-        <ul style="color: #856404; margin: 0;">
-          ${noticeItems.map(item => `<li>${item}</li>`).join('')}
-          <li><strong>一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</strong></li>
+        <h4 style="color: #856404; margin-top: 0; font-size: 16px;">注意事項</h4>
+        <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
+          ${noticeItems.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+          <li style="margin-bottom: 5px;"><strong>一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</strong></li>
         </ul>
       </div>
       <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
@@ -245,12 +245,12 @@ export function generateWaitingListConfirmationEmail(
         <p><strong>お支払い:</strong> チケット1枚</p>
       </div>
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #856404; margin-top: 0;">注意事項</h4>
-        <ul style="color: #856404; margin: 0;">
-          <li>${arrivalTime}</li>
-          <li>動きやすい服装でお越しください</li>
-          <li>タオル、お水をご持参ください</li>
-          <li>前日21:00までのキャンセルは無料です</li>
+        <h4 style="color: #856404; margin-top: 0; font-size: 16px;">注意事項</h4>
+        <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
+          <li style="margin-bottom: 5px;">${arrivalTime}</li>
+          <li style="margin-bottom: 5px;">動きやすい服装でお越しください</li>
+          <li style="margin-bottom: 5px;">タオル、お水をご持参ください</li>
+          <li style="margin-bottom: 5px;">前日21:00までのキャンセルは無料です</li>
         </ul>
       </div>
       <p>お会いできることを楽しみにしております。</p>
@@ -314,11 +314,11 @@ export function generateWaitingListRegistrationEmail(
         <p><strong>予約タイプ:</strong> ${reservationType}</p>
       </div>
       <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h4 style="color: #0056b3; margin-top: 0;">注意事項</h4>
-        <ul style="color: #0056b3; margin: 0;">
-          <li>当レッスンにキャンセルが発生した場合、自動的にご予約が確定となります。</li>
-          <li>繰り上がりは前日21:00以降も自動的に行われます。</li>
-          <li>ご予定に変更が生じた場合は、キャンセル待ち登録の解除のお手続きをお願い致します。</li>
+        <h4 style="color: #0056b3; margin-top: 0; font-size: 16px;">注意事項</h4>
+        <ul style="color: #0056b3; margin: 0; font-size: 14px; line-height: 1.5;">
+          <li style="margin-bottom: 5px;">当レッスンにキャンセルが発生した場合、自動的にご予約が確定となります。</li>
+          <li style="margin-bottom: 5px;">繰り上がりは前日21:00以降も自動的に行われます。</li>
+          <li style="margin-bottom: 5px;"><strong>ご予定に変更が生じた場合は、キャンセル待ち登録の解除のお手続きをお願い致します。</strong></li>
         </ul>
       </div>
       <p>キャンセルが発生次第、すぐにご連絡いたします。</p>

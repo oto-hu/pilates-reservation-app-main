@@ -145,7 +145,7 @@ export async function DELETE(request: NextRequest) {
         const ticket = await tx.ticket.findFirst({
           where: {
             userId: reservation.userId,
-            lessonType: reservation.lesson.lessonType,
+            ticketGroupId: reservation.lesson.ticketGroupId,
           },
           orderBy: { expiresAt: 'desc' },
         })

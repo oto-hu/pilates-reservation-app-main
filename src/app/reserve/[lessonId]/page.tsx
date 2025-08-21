@@ -89,17 +89,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
       
       console.log('Current Lesson:', currentLesson); // デバッグログ
       setLesson(currentLesson)
-      // Determine default reservation type
-      if (currentLesson) {
-          if (session?.user?.role === 'member' && !hasReservationHistory) {
-              setSelectedReservationType(ReservationType.TRIAL);
-              setValue('reservationType', ReservationType.TRIAL);
-          } else if (getAvailableTickets().length > 0) {
-              setSelectedReservationType(ReservationType.TICKET);
-              setValue('reservationType', ReservationType.TICKET);
-          }
-          // DROP_IN option removed - no default fallback needed
-      }
+      // デフォルト予約タイプの設定は、ユーザーデータが完全に読み込まれてから行う
     } catch (error) {
       console.error('Error fetching lesson:', error)
       router.push('/reserve')
@@ -134,6 +124,29 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
       }
 
       setUserDataLoaded(true)
+      
+      // ユーザーデータ読み込み完了後にデフォルト予約タイプを設定
+      setTimeout(() => {
+        if (!selectedReservationType && lesson) {
+          if (session?.user?.role === 'member' && !hasReservationHistory) {
+            setSelectedReservationType(ReservationType.TRIAL);
+            setValue('reservationType', ReservationType.TRIAL);
+            console.log('デフォルト設定: 体験レッスン');
+          } else {
+            // チケットの利用可能性をチェック
+            const availableTickets = userTickets.filter(ticket => 
+              ticket.ticketGroupId === lesson.ticketGroupId && 
+              ticket.remainingCount > 0 && 
+              new Date(ticket.expiresAt) > new Date()
+            );
+            if (availableTickets.length > 0) {
+              setSelectedReservationType(ReservationType.TICKET);
+              setValue('reservationType', ReservationType.TICKET);
+              console.log('デフォルト設定: チケット利用');
+            }
+          }
+        }
+      }, 100);
     } catch (error) {
       console.error('Error fetching user data:', error)
       setUserDataLoaded(true)
@@ -510,7 +523,12 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                         type="radio"
                         value={ReservationType.TRIAL}
                         {...register('reservationType')}
-                        onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
+                        onChange={(e) => {
+                          const value = e.target.value as ReservationType;
+                          setSelectedReservationType(value);
+                          setValue('reservationType', value);
+                          console.log('体験レッスン選択:', value);
+                        }}
                         className="mr-3"
                       />
                       <div className="flex-1">
@@ -539,7 +557,12 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
                         type="radio"
                         value={ReservationType.TICKET}
                         {...register('reservationType')}
-                        onChange={(e) => setSelectedReservationType(e.target.value as ReservationType)}
+                        onChange={(e) => {
+                          const value = e.target.value as ReservationType;
+                          setSelectedReservationType(value);
+                          setValue('reservationType', value);
+                          console.log('チケット利用選択:', value);
+                        }}
                         className="mr-3"
                       />
                       <div className="flex-1">
@@ -603,9 +626,8 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h4 className="font-medium text-blue-800 mb-2">キャンセルポリシー</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• <strong>前日21:00まで</strong>：無料キャンセル（チケット利用の場合は返還）</li>
-              <li>• <strong>前日21:00以降</strong>：キャンセル料発生（チケット利用の場合は消費）</li>
-              <li>• レッスン開始10分前までにお越しください</li>
+              <li>●前日21:00まで:キャンセル無料</li>
+              <li>●前日21:00以降:チケット1回分</li>
             </ul>
           </div>
         </form>

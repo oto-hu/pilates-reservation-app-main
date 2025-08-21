@@ -108,10 +108,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           isWithinFreeCancel) {
         
         // 該当するチケットを探して残数を増やす
+        // 予約作成時と同じ条件（ticketGroupId）で検索
         const ticket = await tx.ticket.findFirst({
           where: {
             userId: reservation.userId,
-            lessonType: reservation.lesson.lessonType
+            ticketGroupId: reservation.lesson.ticketGroupId
           },
           orderBy: {
             expiresAt: 'desc' // 最も期限の長いチケットに返還
