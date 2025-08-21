@@ -159,7 +159,16 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         agreeToConsent: true // 削除されたフィールド
       }
 
+      console.log('フォームデータ:', data) // デバッグログ
       console.log('送信データ:', reservationData) // デバッグログ
+      console.log('reservationType詳細:', {
+        formValue: data.reservationType,
+        formValueType: typeof data.reservationType,
+        reservationDataValue: reservationData.reservationType,
+        reservationDataValueType: typeof reservationData.reservationType,
+        isTicket: data.reservationType === 'TICKET',
+        isTrial: data.reservationType === 'TRIAL'
+      })
 
       const response = await fetch('/api/reservations', {
         method: 'POST',
