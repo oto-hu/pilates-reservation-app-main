@@ -66,6 +66,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 体験レッスンの重複チェック
+    if (reservationType === ReservationType.TRIAL && session.user.role === 'member') {
+      const existingTrialReservations = await prisma.reservation.count({
+        where: {
+          userId: session.user.id,
+          reservationType: ReservationType.TRIAL,
+          paymentStatus: { not: PaymentStatus.CANCELLED }
+        }
+      })
+
+      if (existingTrialReservations > 0) {
+        return NextResponse.json(
+          { error: '体験レッスンは1回のみご利用いただけます。既に体験レッスンの予約またはご利用履歴があります。' },
+          { status: 400 }
+        )
+      }
+    }
+
     // チケット使用の場合の処理
     if (reservationType === ReservationType.TICKET && session.user.role === 'member') {
       const availableTickets = await prisma.ticket.findMany({

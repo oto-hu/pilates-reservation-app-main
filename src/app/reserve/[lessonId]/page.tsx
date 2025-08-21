@@ -38,6 +38,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
   const [submitting, setSubmitting] = useState(false)
   const [joiningWaitingList, setJoiningWaitingList] = useState(false)
   const [selectedReservationType, setSelectedReservationType] = useState<ReservationType | null>(null)
+  const [userDataLoaded, setUserDataLoaded] = useState(false)
 
   const {
     register,
@@ -131,8 +132,11 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
         const consent = await consentResponse.json()
         setNeedsConsent(!consent.hasAgreed)
       }
+
+      setUserDataLoaded(true)
     } catch (error) {
       console.error('Error fetching user data:', error)
+      setUserDataLoaded(true)
     }
   }
 
@@ -201,10 +205,15 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
   }
 
   const canUseTrialOption = () => {
+    // ユーザーデータが読み込まれるまでは体験レッスンオプションを表示しない
+    if (!userDataLoaded) {
+      return false
+    }
     const canUse = session?.user?.role === 'member' && !hasReservationHistory
     console.log('canUseTrialOption:', {
       userRole: session?.user?.role,
       hasReservationHistory,
+      userDataLoaded,
       canUse
     });
     return canUse

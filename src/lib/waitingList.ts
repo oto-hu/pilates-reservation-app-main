@@ -31,7 +31,16 @@ export async function processWaitingList(lessonId: string) {
       }
     })
 
-    const canUseTrialOption = waitingListEntry.user.role === 'member' && !hasReservationHistory
+    // 体験レッスンの利用履歴を確認
+    const hasTrialHistory = await prisma.reservation.findFirst({
+      where: {
+        userId: waitingListEntry.userId,
+        reservationType: ReservationType.TRIAL,
+        paymentStatus: { not: PaymentStatus.CANCELLED }
+      }
+    })
+
+    const canUseTrialOption = waitingListEntry.user.role === 'member' && !hasReservationHistory && !hasTrialHistory
 
     // 体験レッスン対象者の場合
     if (canUseTrialOption) {
