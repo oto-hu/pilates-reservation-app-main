@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
       if (session.user.role === 'member') {
         console.log('Checking trial lesson duplication for user:', session.user.id)
         
+        // 既存の体験レッスン予約をチェック
         const existingTrialReservations = await prisma.reservation.count({
           where: {
             userId: session.user.id,
@@ -88,11 +89,41 @@ export async function POST(request: NextRequest) {
           }
         })
 
-        console.log('Existing trial reservations count:', existingTrialReservations)
+        // 体験レッスンのキャンセル待ちもチェック
+        const existingTrialWaitingList = await prisma.waitingList.count({
+          where: {
+            userId: session.user.id,
+            lesson: {
+              // 体験レッスン対象者かどうかは予約履歴で判定
+              // キャンセル待ち時点で体験レッスン対象の場合のみカウント
+            }
+          }
+        })
 
-        if (existingTrialReservations > 0) {
+        // より正確なチェック: ユーザーの全予約履歴を確認
+        const hasAnyReservationHistory = await prisma.reservation.findFirst({
+          where: {
+            userId: session.user.id,
+            paymentStatus: { not: PaymentStatus.CANCELLED }
+          }
+        })
+
+        // 体験レッスン対象者の場合のキャンセル待ちをチェック
+        let trialWaitingCount = 0
+        if (!hasAnyReservationHistory) {
+          trialWaitingCount = await prisma.waitingList.count({
+            where: {
+              userId: session.user.id
+            }
+          })
+        }
+
+        console.log('Existing trial reservations count:', existingTrialReservations)
+        console.log('Trial waiting list count:', trialWaitingCount)
+
+        if (existingTrialReservations > 0 || trialWaitingCount > 0) {
           return NextResponse.json(
-            { error: '体験レッスンは1回のみご利用いただけます。既に体験レッスンの予約またはご利用履歴があります。' },
+            { error: '体験レッスンは1回のみご利用いただけます。既に体験レッスンの予約・キャンセル待ち、またはご利用履歴があります。' },
             { status: 400 }
           )
         }

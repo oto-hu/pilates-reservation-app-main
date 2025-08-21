@@ -54,6 +54,40 @@ export async function POST(
       )
     }
 
+    // 体験レッスン対象者の場合、体験レッスンの重複チェック
+    const hasAnyReservationHistory = await prisma.reservation.findFirst({
+      where: {
+        userId: userId,
+        paymentStatus: { not: PaymentStatus.CANCELLED }
+      }
+    })
+
+    // 体験レッスン対象者（予約履歴がない会員）の場合
+    if (!hasAnyReservationHistory) {
+      // 既存の体験レッスン予約をチェック
+      const existingTrialReservations = await prisma.reservation.count({
+        where: {
+          userId: userId,
+          reservationType: ReservationType.TRIAL,
+          paymentStatus: { not: PaymentStatus.CANCELLED }
+        }
+      })
+
+      // 他の体験レッスンキャンセル待ちをチェック
+      const existingTrialWaitingList = await prisma.waitingList.count({
+        where: {
+          userId: userId
+        }
+      })
+
+      if (existingTrialReservations > 0 || existingTrialWaitingList > 0) {
+        return NextResponse.json(
+          { error: '体験レッスンは1回のみご利用いただけます。既に体験レッスンの予約・キャンセル待ち、またはご利用履歴があります。' },
+          { status: 400 }
+        )
+      }
+    }
+
     // ユーザー情報を取得
     const user = await prisma.user.findUnique({
       where: { id: userId }
