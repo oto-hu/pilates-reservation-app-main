@@ -116,10 +116,10 @@ export default function MemberReservePage() {
               <div className="text-center">
                 <p className="text-gray-600 mb-2">まだ会員登録をされていない方は</p>
                 <Link
-                  href="/auth/register"
+                  href="/trial"
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  新規会員登録はこちら
+                  体験レッスンのご予約からお進みください
                 </Link>
               </div>
             </div>
