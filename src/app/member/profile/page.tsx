@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 // import { Checkbox } from '@/components/ui/checkbox' // 存在しないためコメントアウト
 import { User, Save, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import ProfileSaveSuccessModal from '@/components/ProfileSaveSuccessModal'
 
 interface ProfileData {
   id: string
@@ -37,6 +38,7 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [formData, setFormData] = useState({
     // 追加項目
     howDidYouKnowUs: '',
@@ -110,7 +112,7 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         setProfileData(data.user)
-        alert('プロフィールが更新されました')
+        setShowSuccessModal(true)
       } else {
         throw new Error('Failed to update profile')
       }
@@ -410,6 +412,12 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* 成功ポップアップ */}
+      <ProfileSaveSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
     </div>
   )
 }

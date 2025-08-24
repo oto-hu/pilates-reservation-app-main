@@ -168,10 +168,11 @@ export default function MemberDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/member/profile" className="hidden sm:block">
-                <Button variant="outline">
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  プロフィール
+              <Link href="/member/profile">
+                <Button variant="outline" size="sm" className="sm:size-default">
+                  <UserCheck className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">プロフィール</span>
+                  <span className="sm:hidden">設定</span>
                 </Button>
               </Link>
               <Link href="/reserve">
