@@ -111,15 +111,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           isWithinFreeCancel) {
         
         // 該当するチケットを探して残数を増やす
-        // 予約作成時と同じ条件（ticketGroupId）で検索
+        // 予約作成時と同じロジックで検索（利用可能な最初のチケット）
         const ticket = await tx.ticket.findFirst({
           where: {
             userId: reservation.userId,
-            ticketGroupId: reservation.lesson.ticketGroupId
+            ticketGroupId: reservation.lesson.ticketGroupId,
+            expiresAt: { gt: new Date() } // 有効期限内のチケットのみ
           },
-          orderBy: {
-            expiresAt: 'desc' // 最も期限の長いチケットに返還
-          }
+          orderBy: [
+            { remainingCount: 'desc' }, // 残数が多いものを優先
+            { expiresAt: 'asc' }        // 期限が近いものを優先（予約時と同じ）
+          ]
         })
 
         if (ticket) {

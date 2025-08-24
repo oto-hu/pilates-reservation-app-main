@@ -137,16 +137,20 @@ export async function POST(request: NextRequest) {
 
     // チケット使用の場合の処理
     if (reservationType === ReservationType.TICKET && session.user.role === 'member') {
-      const availableTickets = await prisma.ticket.findMany({
+      const availableTicket = await prisma.ticket.findFirst({
         where: {
           userId: session.user.id,
           remainingCount: { gt: 0 },
           expiresAt: { gt: new Date() },
           ticketGroupId: lesson.ticketGroupId
-        }
+        },
+        orderBy: [
+          { remainingCount: 'desc' }, // 残数が多いものを優先
+          { expiresAt: 'asc' }        // 期限が近いものを優先
+        ]
       })
 
-      if (availableTickets.length === 0) {
+      if (!availableTicket) {
         return NextResponse.json(
           { error: 'No available tickets' },
           { status: 400 }
@@ -155,8 +159,8 @@ export async function POST(request: NextRequest) {
 
       // チケットを消費
       await prisma.ticket.update({
-        where: { id: availableTickets[0].id },
-        data: { remainingCount: availableTickets[0].remainingCount - 1 }
+        where: { id: availableTicket.id },
+        data: { remainingCount: availableTicket.remainingCount - 1 }
       })
     }
 
