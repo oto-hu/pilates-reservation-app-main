@@ -1,0 +1,257 @@
+// schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  furigana      String?
+  birthDate     DateTime? @map("birth_date")
+  age           Int?
+  gender        String?
+  postalCode    String?   @map("postal_code")
+  address       String?
+  email         String?   @unique
+  phone         String?
+  password      String?
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  role          String    @default("member")
+  memo          String?
+  consentAgreedAt DateTime? @map("consent_agreed_at")
+  // 緊急連絡先情報
+  emergencyContactName     String? @map("emergency_contact_name")
+  emergencyContactFurigana String? @map("emergency_contact_furigana")
+  emergencyContactPhone    String? @map("emergency_contact_phone")
+  emergencyContactRelation String? @map("emergency_contact_relation")
+  pilatesExperience    String?  @map("pilates_experience")
+  motivation          String?  @map("motivation") 
+  medicalHistory      String?  @map("medical_history")
+  goals              String?  @map("goals")
+  profileCompleted   Boolean? @default(false) @map("profile_completed")
+  // 追加項目
+  howDidYouKnowUs     String?  @map("how_did_you_know_us")  // ホームページ、店頭看板・店頭チラシ、インスタグラム、ポスティングチラシ、紹介、その他
+  referrerName        String?  @map("referrer_name")       // 紹介者名（手入力）
+  otherSource         String?  @map("other_source")        // その他の詳細（手入力）
+  transportation      String?  @map("transportation")      // 徒歩or自転車、車、バス、電車
+  hasPilatesExperience Boolean? @map("has_pilates_experience") // ピラティス経験の有無
+  hasExerciseHabit    Boolean? @map("has_exercise_habit")   // 運動習慣の有無
+  hasInjuryHistory    Boolean? @map("has_injury_history")   // 怪我や病気、手術経験の有無
+  injuryDetails       String?  @map("injury_details")      // 怪我の内容（手入力）
+  injuryTiming        String?  @map("injury_timing")       // 怪我の時期（手入力）
+  trialMotivations    String?  @map("trial_motivations")   // 体験のきっかけや目的（複数選択可、カンマ区切り）
+  membershipStatus    String?  @default("active") @map("membership_status") // 会員ステータス（active, suspended, withdrawn）
+  assignedStaff       String?  @map("assigned_staff")      // 担当者（管理者が手入力）
+  trialDate         DateTime? @map("trial_date")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  reservations  Reservation[]
+  tickets       Ticket[]
+  waitingList   WaitingList[]
+  lessonTemplates LessonTemplate[]
+  passwordResetTokens PasswordResetToken[]
+  consentForms  ConsentForm[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Lesson {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  maxCapacity Int           @default(5)
+  lessonType  LessonType    @map("lesson_type")
+  price       Int           // 追加: 料金（円）
+  location    String?       // 追加: レッスン場所
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  reservations Reservation[]
+  waitingList WaitingList[]
+  instructorName String?
+  ticketGroupId String?       @map("ticket_group_id")
+  ticketGroup   TicketGroup?  @relation(fields: [ticketGroupId], references: [id])
+
+  @@map("lessons")
+}
+
+model Reservation {
+  id             String             @id @default(cuid())
+  lessonId       String             @map("lesson_id")
+  userId         String?            @map("user_id")
+  customerName   String             @map("customer_name")
+  customerEmail  String             @map("customer_email")
+  customerPhone  String             @map("customer_phone")
+  medicalInfo    String?            @map("medical_info")
+  reservationType ReservationType   @map("reservation_type")
+  paymentMethod  PaymentMethod      @map("payment_method")
+  paymentStatus  PaymentStatus      @map("payment_status")
+  stripeSessionId String?           @map("stripe_session_id")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  lesson         Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("reservations")
+}
+
+enum PaymentMethod {
+  PAY_NOW
+  PAY_AT_STUDIO
+  TICKET
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum ReservationType {
+  TRIAL
+  DROP_IN
+  TICKET
+}
+
+enum LessonType {
+  SMALL_GROUP
+  LARGE_GROUP
+}
+
+model Ticket {
+  id              String     @id @default(cuid())
+  userId          String     @map("user_id")
+  name            String?    // チケット名（表示用）
+  lessonType      LessonType @map("lesson_type")
+  remainingCount  Int        @map("remaining_count")
+  expiresAt       DateTime   @map("expires_at")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketGroupId String?       @map("ticket_group_id")
+  ticketGroup   TicketGroup?  @relation(fields: [ticketGroupId], references: [id])
+
+  @@map("tickets")
+}
+
+model WaitingList {
+  id        String   @id @default(cuid())
+  lessonId  String   @map("lesson_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now())
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, userId])
+  @@map("waiting_list")
+}
+
+model LessonTemplate {
+  id          String    @id @default(cuid())
+  name        String    // テンプレート名
+  templateDescription String?   @map("template_description") // テンプレートの説明
+  title       String    // レッスンタイトル
+  lessonDescription String?   @map("lesson_description") // レッスン説明
+  startTime   String    // 開始時刻（HH:MM形式）
+  endTime     String    // 終了時刻（HH:MM形式）
+  maxCapacity Int       @default(5)
+  lessonType  LessonType @map("lesson_type")
+  price       Int       // 料金（円）
+  location    String?   // レッスン場所
+  instructorName String? // インストラクター名
+  createdBy   String    @map("created_by") // 作成者ID
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdByUser User    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("lesson_templates")
+}
+
+model TicketGroup {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  lessons   Lesson[]
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ticket_groups")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model ConsentForm {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  customerName  String   @map("customer_name")
+  customerEmail String   @map("customer_email")
+  pdfData       Bytes    @map("pdf_data")
+  filename      String
+  blobUrl       String?  @map("blob_url")    // Vercel Blob URL
+  blobPathname  String?  @map("blob_pathname") // Vercel Blob pathname
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consent_forms")
+}
