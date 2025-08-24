@@ -627,7 +627,7 @@ export default function ReservationFormPage({ params }: ReservationFormPageProps
             <h4 className="font-medium text-blue-800 mb-2">キャンセルポリシー</h4>
             <ul className="text-sm text-blue-700 space-y-1">
               <li>●前日21:00まで:キャンセル無料</li>
-              <li>●前日21:00以降:チケット1回分</li>
+              <li>●前日21:00以降:チケット1回分消化</li>
             </ul>
           </div>
         </form>
