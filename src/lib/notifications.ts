@@ -374,13 +374,12 @@ export function generateWaitingListRegistrationEmail(
         </ul>
       </div>
       ${isTrialLesson ? `
-      <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <ul style="color: #0066cc; margin: 0; font-size: 14px; line-height: 1.5;">
-          <li style="margin-bottom: 5px;"><strong>当レッスンにてキャンセルが出なかった場合、次回の体験レッスンご予約はマイページよりお願いします。</strong></li>
-        </ul>
+      <div style="background-color: #f0fff0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h4 style="color: #006400; margin-top: 0; font-size: 18px; font-weight: bold;">当レッスンにキャンセルが出ず、再度体験レッスンのご予約をされる場合</h4>
+        <p style="color: #006400; margin: 10px 0; font-size: 14px;">次回の体験レッスンご予約はマイページよりお願いします。</p>
         <div style="margin-top: 10px;">
-          <p style="color: #0066cc; font-weight: bold; margin: 5px 0; font-size: 14px;"><strong>【次回の体験予約方法】</strong></p>
-          <p style="color: #0066cc; margin: 5px 0; font-size: 14px;">下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→マイページの「予約はこちら」から操作をお願いします。</p>
+          <p style="color: #006400; font-weight: bold; margin: 5px 0; font-size: 14px;"><strong>【次回の体験予約方法】</strong></p>
+          <p style="color: #006400; margin: 5px 0; font-size: 14px;">下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→マイページの「予約はこちら」から操作をお願いします。</p>
         </div>
       </div>
       ` : ''}
@@ -408,8 +407,9 @@ ${customerName}様
 ・下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→「詳細・キャンセルはこちら」から操作をお願いします。
 ${isTrialLesson ? `
 
-【体験レッスンの方へ】
-・当レッスンにてキャンセルが出なかった場合、次回の体験レッスンご予約はマイページよりお願いします。
+当レッスンにキャンセルが出ず、再度体験レッスンのご予約をされる場合
+
+次回の体験レッスンご予約はマイページよりお願いします。
 
 【次回の体験予約方法】
 下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→マイページの「予約はこちら」から操作をお願いします。

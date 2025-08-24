@@ -139,12 +139,15 @@ export async function POST(
         ? '体験レッスン' 
         : 'チケット利用'
 
+      const isTrialLesson = reservationType === '体験レッスン'
+      
       const emailData = generateWaitingListRegistrationEmail(
         user.name || '',
         lesson.title,
         lessonDate,
         lesson.location || '会場未設定',
-        reservationType
+        reservationType,
+        isTrialLesson
       )
 
       emailData.to = user.email || ''
