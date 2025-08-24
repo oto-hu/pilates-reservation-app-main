@@ -247,7 +247,35 @@ export function generateWaitingListConfirmationEmail(
   lessonDate: string,
   isTrialLesson: boolean = false
 ): NotificationData {
-  const arrivalTime = isTrialLesson ? 'レッスン開始15分前までにお越しください' : 'レッスン開始10分前までにお越しください'
+  // 注意事項を予約タイプに応じて分ける（予約完了時と同じロジック）
+  const getNoticeItems = () => {
+    const commonItems = [
+      '更衣室はございません。動きやすい服装でお越しいただく、もしくはお手洗い等でのお着替えをお願い致します。',
+      '滑り止め靴下、タオル、お飲み物をご持参下さい。'
+    ];
+    
+    if (isTrialLesson) {
+      return {
+        basic: [
+          '体験時はレッスン開始15分前にお越しください。',
+          ...commonItems
+        ],
+        warning: []
+      };
+    } else {
+      return {
+        basic: [
+          '開始10分前からご入室可能です。',
+          ...commonItems
+        ],
+        warning: [
+          '前日21:00以降のキャンセルは1回分消化扱いとなります。ご注意ください。'
+        ]
+      };
+    }
+  };
+
+  const noticeItems = getNoticeItems();
   
   const subject = `【Preal(プリール)予約確定】キャンセル待ちから予約が確定しました`
   const html = `
@@ -266,10 +294,9 @@ export function generateWaitingListConfirmationEmail(
       <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h4 style="color: #856404; margin-top: 0; font-size: 16px;">注意事項</h4>
         <ul style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
-          <li style="margin-bottom: 5px;">${arrivalTime}</li>
-          <li style="margin-bottom: 5px;">動きやすい服装でお越しください</li>
-          <li style="margin-bottom: 5px;">タオル、お水をご持参ください</li>
-          <li style="margin-bottom: 5px;">前日21:00までのキャンセルは無料です</li>
+          ${noticeItems.basic.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+          ${noticeItems.warning.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+          <li style="margin-bottom: 5px; font-weight: bold;">一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。</li>
           <li style="margin-bottom: 5px; font-weight: bold;">ご予約のキャンセルはマイページにて操作可能です。</li>
           <li style="margin-bottom: 5px; font-weight: bold;">下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→「詳細・キャンセルはこちら」から操作をお願いします。</li>
         </ul>
@@ -290,10 +317,9 @@ ${customerName}様
 お支払い: ${isTrialLesson ? '1000円(当日現金支払い)' : 'チケット1枚'}
 
 【注意事項】
-・${arrivalTime}
-・動きやすい服装でお越しください
-・タオル、お水をご持参ください
-・前日21:00までのキャンセルは無料です
+${noticeItems.basic.map(item => `・${item}`).join('\n')}
+${noticeItems.warning.map(item => `・${item}`).join('\n')}
+・一度キャンセルされますと、同じレッスンのご予約が出来なくなります。ご注意ください。
 ・ご予約のキャンセルはマイページにて操作可能です。
 ・下記Prealグループレッスン予約サイトから画面最上段「会員ログイン」へ→「詳細・キャンセルはこちら」から操作をお願いします。
 

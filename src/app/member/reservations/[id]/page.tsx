@@ -320,14 +320,8 @@ export default function ReservationDetailsPage({ params }: ReservationDetailsPag
                   )}
                   
                   <div className="text-xs sm:text-sm text-gray-600 space-y-1">
-                    <p>• <strong>期限内キャンセル</strong>: 無料でキャンセル可能</p>
-                    {reservation.reservationType === ReservationType.TICKET && (
-                      <p className="ml-4">- チケット利用の場合はチケットが返還されます</p>
-                    )}
-                    <p>• <strong>期限後キャンセル</strong>: キャンセル料が発生</p>
-                    {reservation.reservationType === ReservationType.TICKET && (
-                      <p className="ml-4">- チケット利用の場合はチケット1枚が消費されます</p>
-                    )}
+                    <p>●前日21:00まで:キャンセル無料</p>
+                    <p>●前日21:00以降:チケット1回分消化</p>
                   </div>
                 </div>
               </CardContent>

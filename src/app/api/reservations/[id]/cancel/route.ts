@@ -161,7 +161,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     if (waitingListResult) {
-      message += '。キャンセル待ちの方の予約が自動確定されました'
+      message += '。'
     }
 
     // キャンセル完了メールを送信（非同期処理）
